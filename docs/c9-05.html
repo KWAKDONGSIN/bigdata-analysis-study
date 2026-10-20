@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>샘플 시험 5번 손으로 풀기 ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k9"><a href="index.html#c9">← 보드</a><span>학습 루프와 검증 · 5/7</span></div><h1>샘플 시험 5번 손으로 풀기 ★★★</h1>
+<p>문제의 5줄은 위의 9-1과 같아요. 보기는 각 <a class="w" href="words.html#w6" data-w="6">함수</a>의 역할을 묻고 있어요.</p>
+<div class="code">optimizer.zero_grad()
+prediction = model(batch_x)
+loss = criterion(prediction, batch_y)
+loss.backward()
+optimizer.step()</div>
+<div class="tw"><table>
+  <tr><th style="width:8%">보기</th><th style="width:42%">내용</th><th style="width:10%">판정</th><th>이유</th></tr>
+  <tr><td>①</td><td><code>optimizer.step()</code>은 저장된 <a class="w" href="words.html#w83" data-w="83">기울기</a>를 이용해 <a class="w" href="words.html#w105" data-w="105">옵티마이저</a>에 전달된 <a class="w" href="words.html#w7" data-w="7">파라미터</a>를 갱신한다.</td><td><b>맞음</b></td><td><a class="w" href="words.html#w108" data-w="108">step</a>의 정의 그대로예요. 계산된 <code>.grad</code>를 읽어 값을 고쳐요.</td></tr>
+  <tr><td>②</td><td><code>loss.backward()</code>는 기울기를 계산한 뒤 파라미터 값까지 갱신한다.</td><td>틀림</td><td><a class="w" href="words.html#w86" data-w="86">backward</a>는 기울기만 계산·저장해요. 갱신은 step이에요(7장 실험에서 backward 직후 <a class="w" href="words.html#w68" data-w="68">weight</a> 1.0이 그대로였어요).</td></tr>
+  <tr><td>③</td><td><code>optimizer.zero_grad()</code>는 모델의 모든 파라미터 값을 0으로 만든다.</td><td>틀림</td><td>0으로 만드는(비우는) 대상은 <b>기울기</b>예요. 파라미터 값(weight)은 건드리지 않아요.</td></tr>
+  <tr><td>④</td><td><code>criterion(prediction, batch_y)</code>는 <a class="w" href="words.html#w99" data-w="99">손실</a>을 계산하고 이전 기울기를 <a class="w" href="words.html#w137" data-w="137">초기화</a>한다.</td><td>틀림</td><td><a class="w" href="words.html#w103" data-w="103">criterion</a>은 loss 점수만 계산해요. 기울기 초기화는 <a class="w" href="words.html#w92" data-w="92">zero_grad</a>가 해요.</td></tr>
+  <tr><td>⑤</td><td><code>optimizer.step()</code>은 기울기를 새로 계산한 뒤 기존 기울기를 자동으로 제거한다.</td><td>틀림</td><td>step은 계산도 제거도 안 해요. 이미 저장된 기울기를 읽어 갱신만 해요.</td></tr>
+</table></div>
+<p><a class="w" href="words.html#w101" data-w="101">정답</a>은 <b>①번</b>이에요. 교수님은 이 문제를 보여 주면서 수업 때 계속 얘기한 다섯 개 과정에 대한 설명 중 올바른 것을 고르는 문제라고 했고, 기울기를 초기화하는 일은 <code>zero_grad</code>가 한다고 말했어요. 시험에 이 <a class="w" href="words.html#w35" data-w="35">모양</a> 그대로 나오지는 않는다고 했지만 유형은 같아요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>대상으로 구분하세요. <b>zero_grad는 "기울기"를 비우고, backward는 "기울기"를 구하고, step은 "파라미터"를 바꾸고, criterion은 "loss"를 만들어요.</b> 보기에서 함수와 대상이 어긋나면 틀린 문장이에요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>① 보기마다 <b>(함수, 하는 일, 대상)</b>을 뽑아요. ② 위의 짝(zero_grad-기울기 비우기, backward-기울기 계산, step-파라미터 갱신, criterion-loss 계산)과 하나라도 다르면 지워요. ③ "A가 B도 같이 해 준다"는 보기(②, ④, ⑤처럼 한 함수가 두 가지 일을 한다고 말하는 것)는 거의 오답이에요. 각 함수는 <b>한 가지 일만</b> 해요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — zero_grad() 없이 backward()를 2번 연속 하면 기울기는 어떻게 될까요?</summary>
+<p>두 번째 값이 첫 번째 값에 더해져서 2배 정도로 쌓여요. <a class="w" href="words.html#w135" data-w="135">학습</a>에서는 매번 새 기울기만 필요해서 zero_grad로 지워야 해요.</p></details>
+
+<div class="done"><a class="go" href="c9-06.html">다음 카드 → 학습 데이터와 검증 데이터 — 참고 참고</a><div class="pn"><a href="c9-04.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c9"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 6·7주차 · Week04_Autograd_Loss_Optimizer, Week05_Dataset_DataLoader_Train_Validation(part1), 딥러닝 모델 Training 과정.pdf · 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

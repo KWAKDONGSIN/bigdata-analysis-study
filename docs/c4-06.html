@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>super().__init__() — 부모의 __init__은 자동으로 안 불려요 ★★★ 시험 단골 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k4"><a href="index.html#c4">← 보드</a><span>클래스와 상속 · 6/12</span></div><h1>super().__init__() — 부모의 __init__은 자동으로 안 불려요 ★★★ 시험 단골</h1>
+<p><a class="w" href="words.html#w23" data-w="23">상속</a>에서 가장 헷갈리고 시험에 잘 나오는 부분이에요. <b><a class="w" href="words.html#w25" data-w="25">자식</a>이 자기 <code>__init__</code>을 정의하면, <a class="w" href="words.html#w24" data-w="24">부모</a>의 <code>__init__</code>은 자동으로 실행되지 않아요.</b> 자식 것이 부모 것을 "덮어쓰기" 때문이에요. 교수님은 "얘가 불리면 얘는 안 불린다는 게 문제"라고 표현했어요.</p>
+<p>그래서 부모가 만들던 <a class="w" href="words.html#w19" data-w="19">attribute</a>(예 name)가 필요하면 자식의 <code>__init__</code> 안에서 <b><code>super().__init__(...)</code></b>로 부모의 <a class="w" href="words.html#w137" data-w="137">초기화</a>를 직접 불러줘야 해요. <code>super()</code>는 "부모 클래스"를 가리켜요.</p>
+<div class="paper"><svg viewBox="0 0 380 150" width="96mm">
+  <defs><marker id="c4ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker></defs>
+  <rect x="120" y="8" width="140" height="34" rx="8" fill="#dbe6ff" stroke="#1b2333"/>
+  <text x="190" y="24" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b2333">Animal (부모)</text>
+  <text x="190" y="37" text-anchor="middle" font-size="10" fill="#1b2333">__init__ : name 저장</text>
+  <rect x="120" y="104" width="140" height="38" rx="8" fill="#fff1d6" stroke="#1b2333"/>
+  <text x="190" y="120" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b2333">Dog (자식)</text>
+  <text x="190" y="135" text-anchor="middle" font-size="10" fill="#1b2333">__init__ : breed 저장</text>
+  <line x1="190" y1="104" x2="190" y2="46" stroke="#1d4ed8" stroke-width="3" marker-end="url(#c4ar)"/>
+  <text x="200" y="80" font-size="12" font-weight="bold" fill="#1d4ed8">super().__init__(name)</text>
+  <text x="200" y="94" font-size="10" fill="#5d6b80">이 줄이 있어야 부모의 name 저장이 실행돼요</text>
+</svg></div>
+<p>세 가지 경우를 비교해 볼게요. 모두 <code>Animal</code>(name 저장)을 부모로 해요.</p>
+<div class="tw"><table>
+  <tr><th style="width:34%">자식의 모양</th><th style="width:28%">부모 __init__은?</th><th>dog.name을 쓰면</th></tr>
+  <tr><td>자식에 <code>__init__</code>이 <b>없음</b></td><td>자동으로 부모 것을 사용</td><td>사용 가능</td></tr>
+  <tr><td>자식에 <code>__init__</code>이 있고 <b><code>super().__init__(name)</code>이 없음</b></td><td><b>실행 안 됨</b></td><td><b><a class="w" href="words.html#w14" data-w="14">에러</a></b> (name이 없음)</td></tr>
+  <tr><td>자식에 <code>__init__</code>이 있고 <b><code>super().__init__(name)</code>이 있음</b></td><td>직접 불러서 실행됨</td><td>사용 가능</td></tr>
+</table></div>
+<div class="code">class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)
+        self.breed = breed
+
+
+dog = Dog("Bori", "Poodle")
+print("name:", dog.name)
+print("breed:", dog.breed)
+dog.eat()</div>
+<div class="code">name: Bori
+breed: Poodle
+Bori가 밥을 먹습니다.</div>
+<div class="tw"><table>
+  <tr><th style="width:40%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>def __init__(self, name, breed):</code></td><td>자식은 재료를 두 개(이름, 품종) 받아요</td></tr>
+  <tr><td><code>super().__init__(name)</code></td><td>부모의 <a class="w" href="words.html#w22" data-w="22">__init__</a>을 name으로 실행 → <code>self.name = "Bori"</code>가 저장돼요</td></tr>
+  <tr><td><code>self.breed = breed</code></td><td>자식이 추가한 attribute. 부모가 만든 name이든 자식이 만든 breed든 결국 같은 <a class="w" href="words.html#w18" data-w="18">객체</a>의 attribute일 뿐이에요</td></tr>
+</table></div>
+<p>만약 <code>super().__init__(name)</code> 줄을 빼면 어떻게 될까요? <code>dog.breed</code>는 되지만 <code>dog.name</code>에서 "Dog 객체에는 name이 없다"는 에러(AttributeError)가 나요. 부모의 name 저장 줄이 한 번도 실행되지 않았기 때문이에요. 그래서 <code>dog.eat()</code>도 안에서 <a class="w" href="words.html#w21" data-w="21">self</a>.name을 쓰다가 같은 에러가 나요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>자식이 __init__을 가지면, <a class="w" href="words.html#w27" data-w="27">super().__init__()</a>을 꼭 부른다</b>". 부모의 재료를 받으려면 자식이 받은 재료 중 부모 몫(name)을 <code>super().__init__(name)</code>으로 넘겨요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>자식 <a class="w" href="words.html#w17" data-w="17">class</a>가 __init__()을 정의(<a class="w" href="words.html#w26" data-w="26">오버라이딩</a>)하면 부모의 __init__()은 자동으로 호출되지 않는다. 부모가 초기화하는 attribute를 사용하려면 자식의 __init__() 안에서 super().__init__()을 호출해야 한다. 선택지에 "부모의 __init__()은 항상 자동으로 실행된다"가 있으면 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 자식 __init__에서 super().__init__(name)을 빠뜨리면 어떤 일이 생기나요?</summary>
+<p>부모가 저장하던 self.name이 만들어지지 않아서, 나중에 self.name을 쓰는 순간 attribute가 없다는 에러가 나요.</p></details>
+
+<div class="done"><a class="go" href="c4-07.html">다음 카드 → 오버라이딩 — 같은 이름 메서드를 자식이 새로 쓰기 ★★★ 시험 2번</a><div class="pn"><a href="c4-05.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c4"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3~4주차 · Week03_Class_for_PyTorch(pdf, ipynb 업데이트본) · 빅데이터03(3주차)·빅데이터04(4주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

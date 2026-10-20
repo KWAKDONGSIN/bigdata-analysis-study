@@ -1,0 +1,7 @@
+[
+  {"id":"c0","title":"왕초보 코드 읽기","sub":"변수·리스트·슬라이싱·함수·반복·조건·import를 시험 코드 따라가기용으로만 배워요","groups":["py"],"srcs":"2~4주차 · Week02/Week03 노트북(풀이포함) · 빅분02(2주차)·빅데이터03(3주차)·빅데이터04(4주차) 녹취"},
+  {"id":"c1","title":"딥러닝이 뭐예요 + 학습 과정 큰 그림","sub":"Data→Forward→Loss→Gradient→Update 반복, weight 개수, lr, batch·iteration·epoch, 학습 5줄 코드","groups":["intro"],"srcs":"4주차 · 딥러닝 모델 Training 과정.pdf, Week04 Autograd_Loss_Optimizer.ipynb · 빅데이터04(4주차) 녹취, 빅데이터03·07 녹취 일부"},
+  {"id":"c2","title":"Tensor","sub":"shape·dtype 읽기, 슬라이싱(x[:,1] vs x[:,1:2]), reshape·squeeze, 연산·브로드캐스팅, NumPy 공유","groups":["tensor"],"srcs":"2주차 · Week02_Tensor_and_GPU(pdf, 풀이포함 ipynb) · 빅분02(2주차) 녹취"},
+  {"id":"c3","title":"GPU와 Colab","sub":"CPU와 GPU 차이, cuda·device, .to(device)는 다시 저장, 같은 device 규칙, Colab T4 켜기","groups":["gpu"],"srcs":"2주차(+1·3주차) · Week02_Tensor_and_GPU, 구글 Colab GPU 환경 사용법.pdf · 빅분01(1주차)·빅분02(2주차)·빅데이터03(3주차) 녹취"},
+  {"id":"c4","title":"클래스와 상속","sub":"class·self·__init__, 상속·super()·오버라이딩, __call__, nn.Module과 model(x)","groups":["class"],"srcs":"3~4주차 · Week03_Class_for_PyTorch(pdf, ipynb 업데이트본) · 빅데이터03(3주차)·빅데이터04(4주차) 녹취"}
+]

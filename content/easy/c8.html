@@ -1,0 +1,302 @@
+<!-- 8장: Dataset과 DataLoader. sample, batch, epoch, step, Dataset의 __len__과 __getitem__, TensorDataset, DataLoader의 batch_size, shuffle, drop_last, 배치 개수와 마지막 배치 크기, 중간고사 4번 풀이 -->
+<h2>Dataset과 DataLoader — 데이터를 배치로 나눠 꺼내기</h2>
+<p class="lead">지금까지는 데이터가 5개뿐이라 전부 한꺼번에 모델에 넣었어요. 실제 데이터는 수천, 수만 개라서 <b>작은 묶음(배치)</b>으로 나눠 넣어야 해요. 이 장에서는 데이터를 담는 <code>Dataset</code>, 배치로 묶어 주는 <code>DataLoader</code>, 그리고 "배치가 몇 개이고 마지막 배치는 몇 개인가"를 손으로 계산하는 방법을 배워요. 샘플 시험 4번이 바로 이 장이에요.</p>
+
+<h3>8-1. 용어 정리 — sample, batch, epoch, step <span class="st">★★★</span></h3>
+<p>용어가 네 개 나와요. 처음에는 헷갈리니까 문제집으로 비유해 볼게요.</p>
+<div class="box eg"><span class="t">비유 — 문제집 풀기</span>
+<p>문제집 한 권이 데이터 전체예요. 문제 하나(문제와 정답 쌍)가 <b>sample</b>, 한 번에 풀고 채점하는 묶음(예 20문제)이 <b>batch</b>, 채점할 때마다 공부 방법을 한 번 고치는 것이 <b>step</b>, 문제집을 처음부터 끝까지 한 바퀴 푸는 것이 <b>epoch</b>이에요.</p>
+</div>
+<table>
+  <tr><th style="width:20%">용어</th><th style="width:40%">뜻</th><th>예시</th></tr>
+  <tr><td><b>sample</b></td><td>입력 하나(여러 특성으로 이뤄짐)와 정답 하나</td><td>이미지 1장과 그 라벨, 또는 x = [0, 1]과 y = 5</td></tr>
+  <tr><td><b>Dataset</b></td><td>sample을 번호(인덱스)로 꺼낼 수 있는 데이터 모음</td><td><code>dataset[0]</code></td></tr>
+  <tr><td><b>batch</b></td><td>한 번에 처리하는 sample 묶음</td><td>이미지 64장 묶음이면 크기 (64, 1, 28, 28)</td></tr>
+  <tr><td><b>step</b></td><td>배치 하나로 학습하고 업데이트하는 과정 한 번</td><td>학습 5단계 (zero_grad → forward → loss → backward → step) 1회</td></tr>
+  <tr><td><b>epoch</b></td><td>학습 데이터 <b>전체를 한 번 순회</b>하는 것</td><td>모든 배치를 한 번씩 학습</td></tr>
+</table>
+<p>교수님은 이렇게 설명했어요. 데이터가 1000개이고 배치 크기가 20이면 20개씩 step을 거치니까 <b>50번</b> 하면 한 epoch이 돼요. 4주차 예제는 데이터 5개를 전부 한 번에 넣었기 때문에 <b>한 epoch이 한 step</b>이었어요. 앞으로는 배치로 나누니까 <b>한 epoch에 여러 step</b>이 있어요. 이렇게 데이터를 나눠 학습하는 방식을 <b>미니 배치(mini-batch)</b> 학습이라고 해요.</p>
+<p><b>왜 나눠서 넣을까요?</b> 데이터 천 개를 한 번에 넣으면 계산이 너무 많고 컴퓨터 메모리도 많이 필요해요. 그래서 20개, 30개씩 잘라서 넣어요.</p>
+<svg viewBox="0 0 380 100" width="96mm"><rect x="0" y="0" width="380" height="100" rx="10" fill="#f8fafc"/>
+  <g stroke="#1b2333" stroke-width="1.2">
+    <rect x="10" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="44" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="78" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="112" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/>
+    <rect x="156" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="190" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="224" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="258" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/>
+    <rect x="302" y="26" width="30" height="30" rx="4" fill="#fff1d6"/><rect x="336" y="26" width="30" height="30" rx="4" fill="#fff1d6"/>
+  </g>
+  <g font-size="13" font-weight="bold" fill="#1b2333" text-anchor="middle">
+    <text x="25" y="46">0</text><text x="59" y="46">1</text><text x="93" y="46">2</text><text x="127" y="46">3</text>
+    <text x="171" y="46">4</text><text x="205" y="46">5</text><text x="239" y="46">6</text><text x="273" y="46">7</text>
+    <text x="317" y="46">8</text><text x="351" y="46">9</text>
+  </g>
+  <g font-size="12" fill="#1b2333" text-anchor="middle">
+    <text x="76" y="76">배치 1 (4개)</text><text x="222" y="76">배치 2 (4개)</text><text x="334" y="76">배치 3 (2개)</text>
+    <text x="190" y="14" font-weight="bold">sample 10개를 batch_size = 4로 나누면 4개 → 4개 → 2개</text>
+    <text x="190" y="96">이 세 배치를 모두 쓰면 1 epoch, step은 3번</text>
+  </g>
+</svg>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>용어 문제는 단위로 구분하세요. <b>sample = 데이터 1개, batch = sample 묶음, step = 배치 1개로 1번 업데이트, epoch = 전체 데이터 1바퀴</b>예요. "한 epoch의 step 수 = 배치 개수"예요. 예를 들어 sample 10개, batch_size 4이면 한 epoch에 step이 3번이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 데이터 1000개를 배치 크기 20으로 학습하면 한 epoch에 step은 몇 번일까요?</summary>
+<p>50번이에요. 1000 ÷ 20 = 50개의 배치를 하나씩 학습해요.</p></details>
+
+<h3>8-2. Dataset — 입력과 정답을 한 쌍으로 묶은 명부 <span class="st">★★</span></h3>
+<p><b>Dataset</b>은 "번호를 말하면 그 번호의 (입력, 정답) 한 쌍을 꺼내 주는" 데이터 모음이에요. PyTorch의 <code>torch.utils.data.Dataset</code> 클래스를 상속해서 만들어요. 반드시 알아야 할 메서드가 세 개 있어요.</p>
+<table>
+  <tr><th style="width:30%">메서드</th><th style="width:36%">역할</th><th>이렇게 불려요</th></tr>
+  <tr><td><code>__init__(self, x, y)</code></td><td>입력과 정답을 저장하고 개수가 같은지 확인</td><td><code>MyDataset(x, y)</code>로 만들 때</td></tr>
+  <tr><td><code>__len__(self)</code></td><td>전체 sample 개수를 돌려줘요</td><td><code>len(dataset)</code></td></tr>
+  <tr><td><code>__getitem__(self, index)</code></td><td>해당 번호의 (입력, 정답) 쌍을 돌려줘요</td><td><code>dataset[3]</code></td></tr>
+</table>
+<div class="box eg"><span class="t">비유</span>
+<p>출석 번호가 붙은 명부예요. "3번 학생"이라고 말하면(<code>dataset[3]</code>) 그 학생의 정보를 꺼내 주고, "전체 몇 명?"이라고 물으면(<code>len(dataset)</code>) 인원수를 알려 줘요. 번호는 0번부터 시작해요.</p>
+</div>
+<p><code>dataset[3]</code>이라고 쓰면 파이썬이 내부에서 <code>dataset.__getitem__(3)</code>을 호출해요. <code>len(dataset)</code>은 <code>dataset.__len__()</code>을 호출하고요. 앞 장에서 배운 "<code>f(x)</code>가 <code>__call__</code>을 부른다"와 같은 원리예요. 교수님이 직접 만든 코드를 볼게요.</p>
+<div class="code">class MyDataset(Dataset):
+    def __init__(self, x, y):
+        super().__init__()
+        if len(x) != len(y):
+            raise ValueError("입력과 정답의 sample 수가 달라요.")
+        self.x = x
+        self.y = y
+
+    def __len__(self):
+        return len(self.x)
+
+    def __getitem__(self, index):
+        return self.x[index], self.y[index]
+
+toy_x = torch.arange(10, dtype=torch.float32).reshape(-1, 1)
+toy_y = 2 * toy_x + 1
+
+custom_dataset = MyDataset(toy_x, toy_y)
+print("sample 수:", len(custom_dataset))
+x0, y0 = custom_dataset[0]
+print("첫 sample:", x0, y0)
+print("sample shape:", x0.shape, y0.shape)</div>
+<div class="code">sample 수: 10
+첫 sample: tensor([0.]) tensor([1.])
+sample shape: torch.Size([1]) torch.Size([1])</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>class MyDataset(Dataset):</code></td><td>Dataset을 물려받는 클래스를 만들어요.</td></tr>
+  <tr><td><code>super().__init__()</code></td><td>부모 준비 작업이에요. 모델 때와 똑같아요.</td></tr>
+  <tr><td><code>if len(x) != len(y): raise ValueError</code></td><td>입력과 정답 개수가 다르면 오류를 내요. 쌍이 안 맞으면 안 되니까요.</td></tr>
+  <tr><td><code>self.x = x</code>, <code>self.y = y</code></td><td>데이터를 객체 안에 저장해요.</td></tr>
+  <tr><td><code>return len(self.x)</code></td><td>sample 개수는 x의 길이예요.</td></tr>
+  <tr><td><code>return self.x[index], self.y[index]</code></td><td>같은 번호의 입력과 정답을 <b>짝지어</b> 돌려줘요.</td></tr>
+  <tr><td><code>toy_y = 2 * toy_x + 1</code></td><td>정답 y = 2x + 1. x = 0이면 y = 1, x = 3이면 y = 7이에요.</td></tr>
+  <tr><td><code>custom_dataset[0]</code></td><td>0번 sample (x = [0.], y = [1.])을 돌려줘요. 각각 크기가 (1,)예요.</td></tr>
+</table>
+<p>교수님은 직접 만들 수도 있지만 이미 만들어진 <code>TensorDataset</code>을 쓰면 된다고 했어요. 시험에서는 직접 만드는 코드보다 <b><code>__len__</code>과 <code>__getitem__</code>이 각각 무슨 일을 하는지</b>를 이해하는 게 중요해요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>Dataset 설명 보기에서 맞는 것은 <b>"<code>__len__</code>은 전체 sample 수를, <code>__getitem__(index)</code>는 해당 번호의 (입력, 정답) 쌍을 돌려준다"</b>예요. <code>dataset[3]</code>은 네 번째 sample이에요(0번부터 세요).</p>
+</div>
+<details class="check"><summary>잠깐 확인 — dataset[3]을 쓰면 내부에서 어떤 메서드가 호출될까요?</summary>
+<p><code>__getitem__(3)</code>이에요. 3번 인덱스(네 번째) sample의 (입력, 정답) 쌍이 나와요.</p></details>
+
+<h3>8-3. TensorDataset — 이미 만들어진 Dataset <span class="st">★★★</span></h3>
+<p><b><code>TensorDataset</code></b>은 입력 Tensor와 정답 Tensor를 넘기면 위의 일을 대신해 주는 PyTorch 기본 도구예요. <code>Dataset</code>을 상속해서 만들어져 있어요. 넘기는 Tensor들은 <b>첫 번째 차원(sample 수)이 같아야</b> 해요.</p>
+<p>교수님이 시험 샘플과 같은 데이터로 설명했어요. x는 0부터 19까지를 (10, 2) 모양으로 만들고, y는 <code>x의 첫 칸 + 2 × x의 둘째 칸 + 3</code>으로 만들어요.</p>
+<div class="code">toy_x = torch.arange(20, dtype=torch.float32).reshape(10, 2)
+toy_y = toy_x[:, 0:1] * 1 + toy_x[:, 1:2] * 2 + 3
+
+dataset = TensorDataset(toy_x, toy_y)
+print("sample 수:", len(dataset))
+
+x0, y0 = dataset[0]
+print("첫 sample:", x0, y0)
+print("sample shape:", x0.shape, y0.shape)</div>
+<div class="code">sample 수: 10
+첫 sample: tensor([0., 1.]) tensor([5.])
+sample shape: torch.Size([2]) torch.Size([1])</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.arange(20).reshape(10, 2)</code></td><td>0~19를 10줄 × 2칸으로 놓아요. [[0, 1], [2, 3], ..., [18, 19]]. <b>sample 10개, 특성 2개</b>예요.</td></tr>
+  <tr><td><code>toy_x[:, 0:1]</code></td><td>모든 줄의 첫 번째 칸을 (10, 1) 모양으로 꺼내요.</td></tr>
+  <tr><td><code>toy_y = 첫째 + 2 × 둘째 + 3</code></td><td>정답 y. 크기는 (10, 1)이에요.</td></tr>
+  <tr><td><code>TensorDataset(toy_x, toy_y)</code></td><td>x와 y를 같은 번호끼리 짝지어 Dataset으로 만들어요.</td></tr>
+  <tr><td><code>len(dataset)</code></td><td><b>10</b>이에요. 숫자 20개가 아니라 줄(sample) 수예요.</td></tr>
+  <tr><td><code>dataset[0]</code></td><td>첫 sample. x는 [0., 1.](크기 (2,)), y는 [5.](크기 (1,))예요. 0 + 2×1 + 3 = 5.</td></tr>
+</table>
+<p>y값을 손으로 한 번에 구하는 요령이 있어요. i번째 sample(0부터 센)의 x는 <code>[2i, 2i+1]</code>이니까 y = 2i + 2(2i+1) + 3 = <b>6i + 5</b>예요.</p>
+<table>
+  <tr><th style="width:12%">i</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
+  <tr><td><b>x</b></td><td>[0,1]</td><td>[2,3]</td><td>[4,5]</td><td>[6,7]</td><td>[8,9]</td><td>[10,11]</td><td>[12,13]</td><td>[14,15]</td><td>[16,17]</td><td>[18,19]</td></tr>
+  <tr><td><b>y</b></td><td>5</td><td>11</td><td>17</td><td>23</td><td>29</td><td>35</td><td>41</td><td>47</td><td>53</td><td>59</td></tr>
+</table>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p><code>len(dataset)</code>은 <b>sample 수</b>이고 Tensor 안의 숫자 전체 개수가 아니에요. x가 (10, 2)이면 숫자는 20개지만 sample은 10개라서 답은 10이에요. 교수님이 <code>dataset[0]</code>이 (입력, 정답) <b>한 쌍</b>이라는 점을 강조했어요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p><code>x = torch.arange(20).reshape(10, 2)</code>를 <code>TensorDataset</code>에 넣으면 <code>len(dataset)</code>은 <b>10</b>이에요. "20"이 들어 있는 보기는 오답이에요. sample 하나의 x 크기는 (2,), y 크기는 (1,)이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x가 (100, 5) 크기이면 TensorDataset의 len은? sample 하나의 x 크기는?</summary>
+<p>len은 100이고, sample 하나의 x 크기는 (5,)예요. 첫 번째 숫자가 sample 수이고 나머지가 한 sample의 모양이에요.</p></details>
+
+<h3>8-4. DataLoader — sample을 모아서 배치로 만들어 주는 도구 <span class="st">★★★</span></h3>
+<p><b>DataLoader</b>는 Dataset에서 sample을 꺼내 <b>지정한 크기의 배치로 묶어서</b> 하나씩 건네주는 도구예요. 교수님이 먼저 for 문으로 직접 sample을 모아 <code>torch.stack</code>으로 쌓아 보여 준 뒤, "이 일을 DataLoader가 대신 해 주니 걱정할 필요 없다"고 했어요.</p>
+<div class="box eg"><span class="t">비유 — 급식 배식</span>
+<p>학생(sample)이 줄을 서 있고, 배식 담당(DataLoader)이 <b>4명씩 묶어서</b> 식당으로 들여보내요. 마지막에 2명이 남으면 그 2명이 마지막 묶음이 되고요. 줄을 매번 새로 섞을지(shuffle)도 담당이 정해요.</p>
+</div>
+<table>
+  <tr><th style="width:24%">옵션</th><th style="width:40%">역할</th><th>기본값</th></tr>
+  <tr><td><code>batch_size</code></td><td>한 배치에 넣을 sample 수</td><td>1</td></tr>
+  <tr><td><code>shuffle</code></td><td>순회할 때마다 sample 순서를 섞을지</td><td>False</td></tr>
+  <tr><td><code>drop_last</code></td><td>배치 크기보다 모자란 <b>마지막 배치를 버릴지</b></td><td>False</td></tr>
+</table>
+<div class="code">from torch.utils.data import TensorDataset, DataLoader
+
+loader = DataLoader(
+    dataset,
+    batch_size=4,
+    shuffle=False,
+    drop_last=False
+)
+
+print("dataset 길이:", len(dataset), "loader 길이:", len(loader))
+for i, (batch_x, batch_y) in enumerate(loader):
+    print(i, tuple(batch_x.shape), tuple(batch_y.shape), batch_y.flatten().tolist())</div>
+<div class="code">dataset 길이: 10 loader 길이: 3
+0 (4, 2) (4, 1) [5.0, 11.0, 17.0, 23.0]
+1 (4, 2) (4, 1) [29.0, 35.0, 41.0, 47.0]
+2 (2, 2) (2, 1) [53.0, 59.0]</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>DataLoader(dataset, batch_size=4, ...)</code></td><td>dataset에서 4개씩 묶어서 꺼내 주는 도구를 만들어요.</td></tr>
+  <tr><td><code>len(dataset)</code></td><td>sample 수 = <b>10</b></td></tr>
+  <tr><td><code>len(loader)</code></td><td><b>배치 수</b> = 3 (4개, 4개, 2개)</td></tr>
+  <tr><td><code>for batch_x, batch_y in loader:</code></td><td>배치를 하나씩 꺼내요. 한 번 꺼낼 때마다 입력 묶음과 정답 묶음이 짝으로 나와요.</td></tr>
+  <tr><td><code>enumerate(loader)</code></td><td>번호 i를 0, 1, 2로 같이 붙여 줘요.</td></tr>
+  <tr><td><code>tuple(batch_x.shape)</code></td><td>배치의 입력 크기예요. (4, 2)는 sample 4개, 특성 2개예요.</td></tr>
+  <tr><td><code>batch_y.flatten().tolist()</code></td><td>(4, 1) 모양의 정답을 일렬로 펴서 파이썬 리스트로 바꿔요.</td></tr>
+</table>
+<p>마지막 배치의 x는 <code>[[16, 17], [18, 19]]</code>이에요. 이 for 문을 끝까지 한 번 돌면 <b>전체 데이터를 한 바퀴 돈 것이라서 1 epoch</b>이에요.</p>
+<p>교수님이 던진 질문도 정리해 볼게요. "<code>dataset[0]</code>과 <code>next(iter(loader))</code>는 무엇이 다른가요?"</p>
+<table>
+  <tr><th style="width:30%">구분</th><th style="width:34%">무엇이 나오나</th><th>x, y 크기</th></tr>
+  <tr><td><code>dataset[0]</code></td><td>sample <b>하나</b></td><td>(2,) , (1,)</td></tr>
+  <tr><td><code>next(iter(loader))</code></td><td>첫 번째 <b>배치</b>(sample 4개 묶음)</td><td>(4, 2) , (4, 1)</td></tr>
+</table>
+<p>배치의 크기는 <b>맨 앞에 배치 크기가 붙는</b> 모양이에요. sample 하나의 (2,)가 4개 쌓이면 (4, 2)가 돼요. 이것이 5장에서 모델에 넣던 "배치 4개, 특성 2개" 입력이에요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p><code>len(dataset)</code>은 sample 수, <code>len(loader)</code>는 <b>배치 수</b>예요. 둘을 섞어 쓴 보기(예 "10 10")는 오답이에요. <code>batch_size=4</code>이면 한 배치 x의 크기는 (4, 특성 수)이고 마지막 배치만 작을 수 있어요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — DataLoader를 for 문으로 한 번 끝까지 돌면 무엇이 한 번 끝난 건가요?</summary>
+<p>1 epoch이에요. 모든 sample을 한 번씩 사용했으니까요. 이때 for 문이 도는 횟수는 배치 수(len(loader))와 같아요.</p></details>
+
+<h3>8-5. 배치 개수와 마지막 배치 크기 계산 <span class="st">★★★</span></h3>
+<p>샘플 시험 4번의 핵심이에요. 규칙은 두 가지뿐이에요.</p>
+<div class="box def"><span class="t">배치 개수 공식</span>
+<p><b>drop_last=False</b>(기본)이면 배치 수 = <b>올림(sample 수 ÷ batch_size)</b>이고, 마지막 배치는 남은 만큼(나머지)만 들어요. 나머지가 없으면 마지막도 꽉 차요.</p>
+<p><b>drop_last=True</b>이면 배치 수 = <b>내림</b>이고 모자란 마지막 배치는 <b>버려요</b>.</p>
+</div>
+<p>예를 들어 10 ÷ 4 = 2.5이니까 올림하면 3개예요. 4개 + 4개 + (10 − 8 = 2개)로 나뉘어요. 교수님 노트북과 제가 실행한 결과를 표로 모았어요.</p>
+<table>
+  <tr><th style="width:15%">sample 수</th><th style="width:15%">batch_size</th><th style="width:16%">drop_last</th><th style="width:14%">배치 수</th><th>각 배치 크기</th></tr>
+  <tr><td>10</td><td>3</td><td>False</td><td>4</td><td>[3, 3, 3, 1]</td></tr>
+  <tr><td>10</td><td><b>4</b></td><td><b>False</b></td><td><b>3</b></td><td><b>[4, 4, 2]</b></td></tr>
+  <tr><td>10</td><td>6</td><td>False</td><td>2</td><td>[6, 4]</td></tr>
+  <tr><td>10</td><td>4</td><td><b>True</b></td><td>2</td><td>[4, 4] (마지막 2개 버림)</td></tr>
+  <tr><td>90</td><td>20</td><td>False</td><td>5</td><td>[20, 20, 20, 20, 10]</td></tr>
+  <tr><td>90</td><td>20</td><td>True</td><td>4</td><td>[20, 20, 20, 20]</td></tr>
+  <tr><td>1000</td><td>20</td><td>False</td><td>50</td><td>20이 50번</td></tr>
+  <tr><td>100</td><td>32</td><td>False</td><td>4</td><td>[32, 32, 32, 4]</td></tr>
+</table>
+<svg viewBox="0 0 380 100" width="96mm"><rect x="0" y="0" width="380" height="100" rx="10" fill="#f8fafc"/>
+  <g stroke="#1b2333" stroke-width="1.2">
+    <rect x="10" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="44" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="78" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="112" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/>
+    <rect x="156" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="190" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="224" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="258" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/>
+    <rect x="302" y="26" width="30" height="30" rx="4" fill="#e5e7eb" stroke-dasharray="4 3"/><rect x="336" y="26" width="30" height="30" rx="4" fill="#e5e7eb" stroke-dasharray="4 3"/>
+  </g>
+  <g font-size="13" font-weight="bold" fill="#1b2333" text-anchor="middle">
+    <text x="25" y="46">0</text><text x="59" y="46">1</text><text x="93" y="46">2</text><text x="127" y="46">3</text>
+    <text x="171" y="46">4</text><text x="205" y="46">5</text><text x="239" y="46">6</text><text x="273" y="46">7</text>
+    <text x="317" y="46" fill="#6b7280">8</text><text x="351" y="46" fill="#6b7280">9</text>
+  </g>
+  <g font-size="12" fill="#1b2333" text-anchor="middle">
+    <text x="190" y="14" font-weight="bold">drop_last=True 이면 모자란 마지막 배치는 버려져요</text>
+    <text x="76" y="76">배치 1</text><text x="222" y="76">배치 2</text><text x="334" y="76">버려짐</text>
+    <text x="190" y="96">배치 수 = 2, 마지막으로 나오는 배치는 4~7번 sample</text>
+  </g>
+</svg>
+<p>마지막 배치를 구하는 요령은 이래요. 반복문이 끝난 뒤의 <code>batch_x</code>, <code>batch_y</code>는 <b>마지막으로 꺼낸 배치</b>예요. 파이썬에서 for 문 변수는 반복이 끝나도 마지막 값이 남아 있기 때문이에요. drop_last=False이면 마지막 배치는 맨 끝 sample들이고, drop_last=True이면 버려진 것을 뺀 마지막 꽉 찬 배치예요.</p>
+<ul>
+  <li>drop_last=False, batch_size=4 → 마지막 배치는 8번, 9번 sample → y = <b>[53.0, 59.0]</b></li>
+  <li>drop_last=True, batch_size=4 → 마지막 배치는 4~7번 sample → y = <b>[29.0, 35.0, 41.0, 47.0]</b></li>
+</ul>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>배치 수는 <b>"올림"</b>이에요(drop_last를 안 쓰면). 10 ÷ 4 = 2.5 → 3. 90 ÷ 20 = 4.5 → 5. 마지막 크기는 <b>나머지</b>예요. 10을 4로 나눈 나머지 2, 90을 20으로 나눈 나머지 10이에요. 나머지가 0이면 마지막도 꽉 차요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>① 배치 수는 올림(drop_last=True면 내림)으로 계산해요. ② 배치 크기 목록은 batch_size를 반복하다가 마지막에 나머지를 적어요. ③ 마지막 배치 값은 <b>맨 뒤 sample</b>을 직접 계산해요. 그리고 문제 코드에서 <code>shuffle=False</code>인지도 확인하세요. True이면 마지막 배치에 어떤 sample이 들어갈지 매번 달라져서 값을 하나로 정할 수 없어요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — sample 100개, batch_size 32, drop_last=False이면 배치 수와 마지막 배치 크기는?</summary>
+<p>배치 수는 올림(100 ÷ 32 = 3.125) = 4이고, 마지막 크기는 100 − 32×3 = 4예요. [32, 32, 32, 4]예요.</p></details>
+
+<h3>8-6. shuffle — 매 epoch마다 섞기 <span class="st">★★</span></h3>
+<p><code>shuffle=True</code>를 주면 <b>순회를 시작할 때마다 sample 순서를 새로 섞어요.</b> 그러면 같은 데이터라도 epoch마다 배치 구성이 달라져요. 교수님이 같은 sample이 매번 같은 묶음으로만 들어가면 곤란하니까, 매번 섞으면 여러 상황을 고려해서 학습되는 효과가 있다고 설명했어요.</p>
+<div class="box eg"><span class="t">비유 — 카드 섞기</span>
+<p>카드 놀이를 할 때 한 판이 끝나면 카드를 새로 섞고 나눠 줘요. 카드의 앞면(x)과 뒷면(y)은 붙어 있어서 <b>짝은 그대로 같이 움직여요.</b> 그리고 섞었다고 카드가 사라지지는 않아요. 한 epoch이 끝나면 모든 카드가 한 번씩 쓰인 거예요.</p>
+</div>
+<p>교수님 노트북에서 <code>shuffle=True</code>로 돌린 첫 배치는 이렇게 나왔어요. 실행할 때마다 달라요.</p>
+<div class="code">x = [[ 2,  3], [18, 19], [ 4,  5], [10, 11]]
+y = [ 11,        59,       17,       35 ]</div>
+<p>x의 순서는 뒤섞였지만 짝이 되는 y(11, 59, 17, 35)는 8-3 표의 값과 정확히 맞아요. 배치 수와 크기는 shuffle과 상관없이 [4, 4, 2]로 그대로예요.</p>
+<table>
+  <tr><th style="width:26%">구분</th><th style="width:37%"><code>shuffle=False</code></th><th><code>shuffle=True</code></th></tr>
+  <tr><td>순서</td><td>매번 원래 순서대로</td><td>epoch마다 새로 섞여요</td></tr>
+  <tr><td>x와 y의 짝</td><td>유지</td><td>유지</td></tr>
+  <tr><td>배치 수</td><td>같음</td><td>같음</td></tr>
+  <tr><td>주로 쓰는 곳</td><td>평가(검증)</td><td>학습(train)</td></tr>
+</table>
+<p>"학습에는 <code>shuffle=True</code>, 검증에는 <code>shuffle=False</code>"가 교수님이 노트북에 질문으로 적어 둔 내용이에요. 이유는 9장에서 다뤄요. 평가는 순서를 섞을 필요가 없고, 결과를 매번 같은 순서로 비교하기 쉽게 하려는 거예요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"shuffle=True의 효과"는 <b>매 순회마다 sample 순서가 달라진다(입력과 정답의 짝은 유지)</b>예요. "일부 데이터가 빠진다"거나 "배치 크기가 바뀐다"는 보기는 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — shuffle=True이면 한 epoch에 일부 sample이 빠질 수 있을까요?</summary>
+<p>아니에요. 순서만 섞이고 모든 sample이 한 번씩 사용돼요. 빠지는 경우는 drop_last=True로 모자란 마지막 배치를 버릴 때뿐이에요.</p></details>
+
+<h3>8-7. 샘플 시험 4번 손으로 풀기 <span class="st">★★★</span></h3>
+<p>이제 문제를 풀 준비가 됐어요. 코드는 이래요.</p>
+<div class="code">x = torch.arange(20, dtype=torch.float32).reshape(10, 2)
+y = x[:, 0:1] + 2 * x[:, 1:2] + 3
+
+dataset = TensorDataset(x, y)
+loader = DataLoader(dataset, batch_size=4,
+                    shuffle=False, drop_last=False)
+
+batch_sizes = []
+for batch_x, batch_y in loader:
+    batch_sizes.append(len(batch_x))
+
+print(len(dataset), len(loader))
+print(batch_sizes)
+print(batch_y.flatten().tolist())</div>
+<p>세 줄의 출력을 차례로 구해요.</p>
+<ol>
+  <li><b>첫 번째 출력 <code>len(dataset)</code>, <code>len(loader)</code></b> — x가 (10, 2)이니 sample은 10개예요. 배치는 올림(10 ÷ 4) = 3개예요. 출력은 <code>10 3</code>이에요.</li>
+  <li><b>두 번째 출력 <code>batch_sizes</code></b> — 반복할 때마다 그 배치의 sample 수를 리스트에 넣어요. 4, 4, 2이니 <code>[4, 4, 2]</code>예요.</li>
+  <li><b>세 번째 출력 <code>batch_y</code></b> — 반복문이 끝난 뒤의 값이라 <b>마지막 배치</b>예요. 마지막 배치는 8번, 9번 sample이에요. x가 [16, 17]이면 y = 16 + 2×17 + 3 = 53, x가 [18, 19]이면 y = 18 + 2×19 + 3 = 59예요. 출력은 <code>[53.0, 59.0]</code>이에요.</li>
+</ol>
+<p>이 세 조건을 모두 만족하는 보기는 <b>③ <code>10 3</code> / <code>[4, 4, 2]</code> / <code>[53.0, 59.0]</code></b>이에요. 오답 보기들이 어떤 실수를 노렸는지도 볼게요.</p>
+<table>
+  <tr><th style="width:12%">보기</th><th style="width:40%">내용</th><th>왜 틀렸나</th></tr>
+  <tr><td>①</td><td>10 2 / [4, 4] / [29, 35, 41, 47]</td><td><b>drop_last=True</b>일 때의 답이에요. 문제는 False라서 마지막 2개를 버리지 않아요.</td></tr>
+  <tr><td>②</td><td>10 3 / [4, 4, 4] / [53, 59, 65, 71]</td><td>마지막 배치가 4개로 가득 찼다고 착각했어요. 10개밖에 없는데 65, 71은 없는 sample이에요.</td></tr>
+  <tr><td>④</td><td>20 5 / [4, 4, 4, 4, 4] / [53, 59]</td><td>sample 수를 숫자 개수(20)로 셌어요. 20 ÷ 4 = 5로 이어진 오답이에요.</td></tr>
+  <tr><td>⑤</td><td>10 3 / [4, 4, 2] / [16, 18]</td><td>y 대신 x의 첫 칸 값(16, 18)을 적었어요. 정답은 y예요.</td></tr>
+</table>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>세 줄 출력 문제는 <b>한 줄씩 지우는 방식</b>으로 풀어요. ① <code>len(dataset)</code>은 sample 수, <code>len(loader)</code>는 배치 수라서 "10 3" 외의 첫 줄을 먼저 지워요. ② 두 번째 줄에서 합이 10이 안 되는 보기를 지워요([4, 4, 4]는 12). ③ 마지막 줄은 마지막 배치의 y를 직접 계산해서 맞는 것을 골라요. 이 문제는 10 3 → [4, 4, 2] → [53.0, 59.0]이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 같은 코드에서 drop_last=True로 바꾸면 세 줄 출력은?</summary>
+<p><code>10 2</code>, <code>[4, 4]</code>, <code>[29.0, 35.0, 41.0, 47.0]</code>이에요. 배치 수는 내림(2), 마지막 배치는 4~7번 sample이라서 y는 6i+5에 4~7을 넣은 값이에요.</p></details>
+
+<div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>sample은 (입력, 정답) 한 쌍, batch는 sample 묶음, step은 배치 1개 학습, epoch은 데이터 전체 1바퀴예요. <code>Dataset</code>은 <code>__len__</code>(sample 수)과 <code>__getitem__</code>(번호로 한 쌍 꺼내기)을 가지고, <code>TensorDataset(x, y)</code>의 길이는 x의 첫 번째 차원이에요(예 (10, 2)이면 10).</li>
+  <li><code>DataLoader(dataset, batch_size, shuffle, drop_last)</code>는 sample을 배치로 묶어 줘요. <code>len(loader)</code>는 배치 수(올림, drop_last=True면 내림)이고, 마지막 배치는 나머지만큼 작아요. 10개를 4로 나누면 [4, 4, 2]예요.</li>
+  <li><code>shuffle=True</code>는 순회마다 순서를 섞되 x, y 짝은 유지해요(학습은 True, 검증은 False). 반복문이 끝난 뒤 <code>batch_y</code>는 마지막 배치이고, 이 문제의 정답은 <code>10 3 / [4, 4, 2] / [53.0, 59.0]</code>이에요.</li>
+</ul>
+</div>

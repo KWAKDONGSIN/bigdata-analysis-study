@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>브로드캐스팅 — shape이 달라도 계산되는 규칙 ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k2"><a href="index.html#c2">← 보드</a><span>Tensor · 9/11</span></div><h1>브로드캐스팅 — shape이 달라도 계산되는 규칙 ★★★</h1>
+<p><a class="w" href="words.html#w35" data-w="35">shape</a>이 다른 <a class="w" href="words.html#w31" data-w="31">Tensor</a>끼리 계산할 때 PyTorch가 <b>작은 쪽을 자동으로 늘려서</b> 맞춰 주는 기능이 <b><a class="w" href="words.html#w50" data-w="50">브로드캐스팅</a>(broadcasting)</b>이에요. 늘릴 수 있을 때만 되고, 못 늘리면 <a class="w" href="words.html#w14" data-w="14">에러</a>예요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><b>두 shape을 오른쪽 끝에 맞춰 놓고 마지막 차원부터 왼쪽으로 하나씩 비교해요.</b> 각 자리가 ① 크기가 같다, ② 둘 중 하나가 1이다, ③ 한쪽에 그 자리가 없다 중 하나를 만족하면 돼요. 모든 자리가 만족해야 해요.</p>
+</div>
+<figure class="slide"><img src="slides/w26.jpg" alt="브로드캐스팅 규칙"><figcaption>교수님 슬라이드 — Broadcasting. (2,3)+(3,) → (2,3), (4,1)+(1,5) → (4,5), (2,3)+(2,) → 호환되지 않음</figcaption></figure>
+<div class="box eg"><span class="t">비유 — 컵 크기 맞추기</span>
+<p>학생 2명에게 각각 간식 3개씩 나눠 주는 표(2×3)가 있어요. 거기에 "1번 간식 +10, 2번 간식 +20, 3번 간식 +30"이라는 한 줄짜리 메모(3,)를 모든 학생에게 똑같이 적용해요. 메모를 학생 수만큼 복사해 붙인 것이 브로드캐스팅이에요.</p>
+</div>
+<p>각 예를 오른쪽 끝에 맞춰 비교해 볼게요.</p>
+<div class="tw"><table>
+  <tr><th style="width:26%">연산</th><th>오른쪽부터 비교</th><th style="width:20%">결과</th></tr>
+  <tr><td><code>(2, 3) + (3,)</code></td><td>3과 3은 같다. 왼쪽 2는 상대에게 없다(OK)</td><td><b>(2, 3)</b></td></tr>
+  <tr><td><code>(4, 1) + (1, 5)</code></td><td>1과 5는 한쪽이 1(OK). 4와 1도 한쪽이 1(OK)</td><td><b>(4, 5)</b></td></tr>
+  <tr><td><code>(2, 3) + (2,)</code></td><td>3과 2는 같지도 않고 1도 아니다(불가)</td><td><b>에러</b></td></tr>
+  <tr><td><code>(2, 4, 1) + (1, 5)</code></td><td>1과 5(OK), 4와 1(OK), 2는 상대에게 없다(OK)</td><td><b>(2, 4, 5)</b></td></tr>
+</table></div>
+<div class="code">x = torch.tensor([[1., 2., 3.],
+                  [4., 5., 6.]])
+bias = torch.tensor([10., 20., 30.])
+print(x + bias)
+print((x + bias).shape)
+
+print((torch.ones(4, 1) + torch.ones(1, 5)).shape)</div>
+<div class="code">tensor([[11., 22., 33.],
+        [14., 25., 36.]])
+torch.Size([2, 3])
+torch.Size([4, 5])</div>
+<div class="tw"><table>
+  <tr><th style="width:36%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>x + bias</code></td><td>(2, 3)과 (3,). <a class="w" href="words.html#w69" data-w="69">bias</a> [10, 20, 30]이 <b>각 행마다</b> 똑같이 더해져요. 1행 [1,2,3]+[10,20,30] = [11,22,33], 2행 [4,5,6]+[10,20,30] = [14,25,36]</td></tr>
+  <tr><td><code>(x + bias).shape</code></td><td>(2, 3) 그대로</td></tr>
+  <tr><td><code>ones(4, 1) + ones(1, 5)</code></td><td>(4, 1)은 옆으로 5번, (1, 5)는 아래로 4번 늘려서 (4, 5). 모든 값이 1+1 = 2</td></tr>
+</table></div>
+<p>"각 행에 서로 다른 값을 더하고 싶다"면 더할 값을 <b>(4, 1)</b> 모양으로 세워야 해요(수업 실습 3). 그냥 길이 4짜리 한 줄 (4,)을 (4, 3) 표에 더하면, 오른쪽 끝 3과 4를 비교해서 <b>에러</b>예요.</p>
+<div class="box def"><span class="t">조심할 함정</span>
+<p><b>(3, 1)에서 (3,)을 빼면 에러가 아니라 (3, 3)이 나와요.</b> <a class="w" href="words.html#w100" data-w="100">예측값</a>이 (3, 1)이고 <a class="w" href="words.html#w101" data-w="101">정답</a>이 (3,)이면 <a class="w" href="words.html#w99" data-w="99">loss</a>를 계산할 때 9개 값끼리 비교돼서 엉뚱한 결과가 나와요. 그래서 prediction과 target의 shape을 꼭 같게 맞춰요. 교수님이 7주차에 이 점을 짚었어요.</p>
+</div>
+<p>숫자 하나와의 계산도 브로드캐스팅이에요. 숫자(<a class="w" href="words.html#w32" data-w="32">scalar</a>)는 어디든 맞아서 모든 원소에 똑같이 적용돼요. 시험 <a class="w" href="words.html#w113" data-w="113">샘플</a> 4번의 한 줄이 이 예예요. <code>x</code>는 (10, 2)이고 각 행이 (0,1), (2,3), …, (18,19)예요.</p>
+<div class="code">x = torch.arange(20, dtype=torch.float32).reshape(10, 2)
+y = x[:, 0:1] + 2 * x[:, 1:2] + 3
+print(y.shape)
+print(y.flatten().tolist())</div>
+<div class="code">torch.Size([10, 1])
+[5.0, 11.0, 17.0, 23.0, 29.0, 35.0, 41.0, 47.0, 53.0, 59.0]</div>
+<div class="tw"><table>
+  <tr><th style="width:40%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>x[:, 0:1]</code></td><td>첫 번째 열을 표 모양 그대로(10, 1). 값은 0, 2, 4, …, 18</td></tr>
+  <tr><td><code>x[:, 1:2]</code></td><td>두 번째 열을 (10, 1)로. 값은 1, 3, 5, …, 19</td></tr>
+  <tr><td><code>2 * x[:, 1:2]</code></td><td>숫자 2를 모든 칸에 곱해요. (10, 1) 그대로</td></tr>
+  <tr><td><code>... + 3</code></td><td>숫자 3을 모든 칸에 더해요</td></tr>
+  <tr><td>결과 y</td><td>행마다 (첫 열) + 2×(둘째 열) + 3. 첫 행은 0 + 2×1 + 3 = 5, 마지막 행은 18 + 2×19 + 3 = 59</td></tr>
+  <tr><td><code>y.flatten().tolist()</code></td><td>(10, 1) 표를 한 줄로 펴서 파이썬 <a class="w" href="words.html#w1" data-w="1">리스트</a>로. 값은 5, 11, 17, …, 59로 6씩 커져요</td></tr>
+</table></div>
+<p>y의 값이 6씩 커지는 이유는 행이 한 칸 내려갈 때마다 첫 열이 2, 둘째 열이 2씩 늘어나서 2 + 2×2 = 6이 커지기 때문이에요. 이 y는 뒤 장 <a class="w" href="words.html#w122" data-w="122">DataLoader</a> 문제(시험 샘플 4번)의 정답을 구할 때 그대로 쓰여요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>브로드캐스팅은 두 shape을 오른쪽 끝부터 비교하여 각 차원이 같거나 하나가 1이거나 한쪽에 없으면 자동으로 확장하여 <a class="w" href="words.html#w52" data-w="52">원소별 연산</a>하는 기능이다. (2, 3) + (3,)은 가능해서 (2, 3)이 되고, (2, 3) + (2,)는 불가능하다. 문제에서는 두 shape을 오른쪽 끝에 맞춰 적어 보세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — (5, 1) + (3,)의 결과 shape은?</summary>
+<p>(5, 3)이에요. 오른쪽 끝 1과 3은 한쪽이 1이라 OK이고, 5는 상대에게 없어서 OK예요. 5×3 표가 돼요.</p></details>
+
+<div class="done"><a class="go" href="c2-10.html">다음 카드 → NumPy와 Tensor — 메모리를 같이 쓸 때와 아닐 때</a><div class="pn"><a href="c2-08.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c2"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2주차 · Week02_Tensor_and_GPU(pdf, 풀이포함 ipynb) · 빅분02(2주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

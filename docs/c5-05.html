@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>nn.Parameter — 학습할 값은 &quot;등록&quot;해야 해요 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k5"><a href="index.html#c5">← 보드</a><span>nn.Module로 모델 만들기 · 5/8</span></div><h1>nn.Parameter — 학습할 값은 &quot;등록&quot;해야 해요</h1>
+<p>모델이 <a class="w" href="words.html#w135" data-w="135">학습</a>한다는 것은 W와 B 같은 숫자를 조금씩 고친다는 뜻이에요. 그러려면 모델이 "내가 고쳐야 할 숫자는 이것들이야"라고 알고 있어야 해요. 이 목록에 올리는 일을 <b>등록</b>이라고 해요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><code>nn.Parameter</code>로 감싼 <a class="w" href="words.html#w31" data-w="31">Tensor</a>를 모델의 <a class="w" href="words.html#w19" data-w="19">속성</a>(<code>self.이름</code>)에 붙이면 <b>학습할 <a class="w" href="words.html#w7" data-w="7">파라미터</a>로 자동 등록</b>돼요. 등록된 것은 <code>requires_grad=True</code>가 기본이고 <code>model.parameters()</code>에 나와요.</p>
+</div>
+<div class="box eg"><span class="t">비유</span>
+<p>출석부와 같아요. 출석부(<code>parameters()</code>)에 이름이 올라야 선생님(<a class="w" href="words.html#w105" data-w="105">옵티마이저</a>)이 불러 주고 점검해요. 일반 Tensor는 출석부에 이름이 없어서, 아무리 열심히 계산에 참여해도 업데이트 명단에서 빠져요.</p>
+</div>
+<div class="code">class RegistrationModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.tensor_w = torch.tensor(2.0, requires_grad=True)
+        self.parameter_w = nn.Parameter(torch.tensor(2.0))
+
+    def forward(self, x):
+        return self.tensor_w * x + self.parameter_w * x
+
+model = RegistrationModel()
+print("등록된 이름:", [name for name, _ in model.named_parameters()])</div>
+<div class="code">등록된 이름: ['parameter_w']</div>
+<div class="tw"><table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.tensor(2.0, requires_grad=True)</code></td><td>일반 Tensor예요. <a class="w" href="words.html#w83" data-w="83">기울기</a>는 계산되지만 모델 파라미터로는 등록되지 않아요.</td></tr>
+  <tr><td><code>nn.Parameter(torch.tensor(2.0))</code></td><td>"학습할 값"이라고 표시한 Tensor예요. <a class="w" href="words.html#w21" data-w="21">self</a>에 붙이면 자동 등록돼요.</td></tr>
+  <tr><td><code>model.named_parameters()</code></td><td>(이름, 값) 쌍을 차례로 보여줘요. <code>parameters()</code>는 값만 보여줘요.</td></tr>
+</table></div>
+<p>결과에 <code>parameter_w</code>만 나와요. 교수님은 "사람들이 흔히 빠지는 함정"이라고 했어요. 나중에 <code>model.parameters()</code>로 한꺼번에 업데이트할 때 <code>tensor_w</code>는 빠져서 <b>학습이 안 되기</b> 때문이에요.</p>
+<p><code>nn.Linear</code> 안에 있는 <code>weight</code>와 <code>bias</code>는 이미 <code>nn.Parameter</code>로 되어 있어요. 그래서 <code>nn.Linear</code>를 쓰면 등록 걱정을 안 해도 돼요. 층이 많아지면 어느 층의 어떤 값인지 이름과 함께 봐야 하니까 <code>named_parameters()</code>를 더 많이 써요. 보통은 값보다 <b>크기(<a class="w" href="words.html#w35" data-w="35">shape</a>)</b>를 찍어서 확인해요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"기울기(grad)가 계산되는 것"과 "<code>model.parameters()</code>에 포함되는 것"은 다른 이야기예요. <code>requires_grad=True</code>인 일반 Tensor는 기울기는 계산되지만 파라미터에 포함되지 않아요. <code>nn.Parameter</code>를 모델 속성에 할당해야 등록돼요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — self.fc = nn.Linear(3, 2)를 쓴 모델에서 named_parameters()에 나오는 이름 2개는?</summary>
+<p><code>fc.weight</code>와 <code>fc.bias</code>예요. 속성 이름(<code>fc</code>) 뒤에 층 안의 이름이 점으로 이어져요.</p></details>
+
+<div class="done"><a class="go" href="c5-06.html">다음 카드 → 층 쌓기 — ReLU, nn.Sequential, 다층 모델</a><div class="pn"><a href="c5-04.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c5"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3·6주차 · Week03_Class_for_PyTorch(업데이트), Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

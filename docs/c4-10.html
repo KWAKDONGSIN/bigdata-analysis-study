@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>model(x)의 내부 — __call__이 forward를 불러요 ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k4"><a href="index.html#c4">← 보드</a><span>클래스와 상속 · 10/12</span></div><h1>model(x)의 내부 — __call__이 forward를 불러요 ★★★</h1>
+<p>그런데 이상한 점이 있어요. 우리는 <code>model(x)</code>라고만 썼는데 <code>forward</code>가 실행됐어요. 왜일까요?</p>
+<p><code>MyModel</code>에는 <code>__call__</code>이 없어요. 하지만 <b><a class="w" href="words.html#w24" data-w="24">부모</a> <code>nn.Module</code>에 <code>__call__</code>이 이미 정의되어 있고</b> 우리는 그것을 <a class="w" href="words.html#w23" data-w="23">상속</a>받았어요. 그래서 <code>model(x)</code>는 부모의 <code>__call__</code>을 실행하고, 그 안에서 <code>forward(x)</code>를 불러요. 4-8에서 본 AffineFunction의 진짜 버전이에요.</p>
+<figure class="slide"><img src="slides/w39.jpg" alt="model(x)에서 forward까지의 호출 과정"><figcaption>교수님 슬라이드 — model(x) → nn.Module.__call__(x) → ① hook ② 상태관리 함수 ③ model.forward(x) → 출력 Tensor</figcaption></figure>
+<div class="tw"><table>
+  <tr><th style="width:12%">순서</th><th>일어나는 일</th></tr>
+  <tr><td>1</td><td><code>model(x)</code> — <a class="w" href="words.html#w18" data-w="18">객체</a>에 괄호를 붙여 불러요</td></tr>
+  <tr><td>2</td><td>부모(<a class="w" href="words.html#w66" data-w="66">nn.Module</a>)에서 상속받은 <code>__call__(x)</code>가 실행돼요</td></tr>
+  <tr><td>3</td><td>그 안에서 ① <a class="w" href="words.html#w82" data-w="82">hook</a> 실행(따로 정의한 경우만), ② 그 밖의 상태 관리 처리, ③ <b><a class="w" href="words.html#w25" data-w="25">자식</a>이 정의한 <code>forward(x)</code> 실행</b></td></tr>
+  <tr><td>4</td><td><a class="w" href="words.html#w70" data-w="70">forward</a>가 돌려준 값이 y(출력 <a class="w" href="words.html#w31" data-w="31">Tensor</a>)가 돼요. forward를 안 만들어 두었으면 <a class="w" href="words.html#w14" data-w="14">에러</a></td></tr>
+</table></div>
+<div class="box def"><span class="t">하지 말아야 할 두 가지</span>
+<p>① <code>model.forward(x)</code>를 <b>직접 호출하지 않아요.</b> hook 등 <a class="w" href="words.html#w28" data-w="28">__call__</a> 안의 부가 처리를 모두 건너뛰어요. ② <code>__call__</code>을 <b>다시 정의(<a class="w" href="words.html#w26" data-w="26">재정의</a>)하지 않아요.</b> nn.Module의 호출 기능이 정상 동작하지 않을 수 있어요. 올바른 사용은 <b>연산은 forward()에 정의하고, 호출은 항상 <code>y = model(x)</code></b>예요. (계산 결과는 둘 다 나오지만 부가 기능이 빠지는 것이 문제예요.)</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p><a class="w" href="words.html#w71" data-w="71">model(x)</a>는 nn.Module에서 상속받은 __call__()의 처리(hook, 상태 관리)를 거쳐 자식 <a class="w" href="words.html#w17" data-w="17">class</a>에서 정의한 forward()를 실행한다. 그래서 forward()를 직접 호출하거나 __call__()을 재정의하지 않고 항상 model(x) <a class="w" href="words.html#w35" data-w="35">형태</a>로 호출한다. forward()가 없으면 에러가 발생한다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — MyModel에는 __call__이 없는데 model(x)가 동작하는 이유는?</summary>
+<p>부모 nn.Module에 __call__이 정의되어 있고 MyModel이 그것을 상속받았기 때문이에요. 그 __call__이 forward를 불러요.</p></details>
+
+<div class="done"><a class="go" href="c4-11.html">다음 카드 → 시험 샘플 3번 풀기 — 빈칸 (A), (B)와 호출 과정 ★★★</a><div class="pn"><a href="c4-09.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c4"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3~4주차 · Week03_Class_for_PyTorch(pdf, ipynb 업데이트본) · 빅데이터03(3주차)·빅데이터04(4주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

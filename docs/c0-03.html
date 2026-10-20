@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>숫자, 글자(문자열), 계산, 참과 거짓 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k0"><a href="index.html#c0">← 보드</a><span>왕초보 코드 읽기 · 3/11</span></div><h1>숫자, 글자(문자열), 계산, 참과 거짓</h1>
+<p>코드에 나오는 값은 크게 세 종류예요. 숫자, 글자, 참/거짓이에요.</p>
+<div class="tw"><table>
+  <tr><th style="width:24%">종류</th><th>모양 예시</th><th>설명</th></tr>
+  <tr><td><b>정수</b></td><td><code>7</code>, <code>-3</code></td><td>소수점이 없는 숫자</td></tr>
+  <tr><td><b>실수</b></td><td><code>3.5</code>, <code>1.0</code></td><td>소수점이 있는 숫자. <b>1.0처럼 .0이 붙으면 실수</b>예요</td></tr>
+  <tr><td><b>문자열</b></td><td><code>"Bori"</code></td><td>따옴표로 감싼 글자. 따옴표가 없으면 <a class="w" href="words.html#w0" data-w="0">변수</a> 이름이에요</td></tr>
+  <tr><td><b>참/거짓</b></td><td><code>True</code>, <code>False</code></td><td>맞다/아니다. 첫 글자가 대문자예요</td></tr>
+</table></div>
+<p>계산 기호는 아래와 같아요.</p>
+<div class="tw"><table>
+  <tr><th style="width:20%">기호</th><th style="width:30%">예</th><th>결과와 설명</th></tr>
+  <tr><td><code>+ - *</code></td><td><code>3 + 4</code>, <code>6 * 2</code></td><td>더하기, 빼기, 곱하기</td></tr>
+  <tr><td><code>/</code></td><td><code>7 / 2</code></td><td><b>3.5</b> (나눗셈은 항상 소수까지 나와요)</td></tr>
+  <tr><td><code>**</code></td><td><code>2 ** 3</code></td><td><b>8</b> (거듭제곱. 2의 3제곱)</td></tr>
+  <tr><td><code>== != &gt;= &lt;=</code></td><td><code>5 == 5</code></td><td>비교해서 True/False를 돌려줘요. <b>같은지 묻는 기호는 =가 두 개(==)</b>예요</td></tr>
+</table></div>
+<p>글자와 글자도 <code>+</code>로 이어 붙일 수 있고, <code>len(...)</code>은 길이를 세요. 글자 속에 변수 값을 끼워 넣고 싶을 때는 따옴표 앞에 <b>f</b>를 붙이고 <code>{ }</code> 안에 변수를 써요. 이것을 <a class="w" href="words.html#w10" data-w="10">f-string</a>이라고 해요.</p>
+<div class="code">name = "Bori"
+print("Hi " + name)
+print(f"{name}가 멍멍 짖습니다.")
+print(len(name))
+print(7 / 2, 2 ** 3)
+print(5 == 5, 3 &gt;= 4)
+print(f"{3.14159:.2f}")</div>
+<div class="code">Hi Bori
+Bori가 멍멍 짖습니다.
+4
+3.5 8
+True False
+3.14</div>
+<div class="tw"><table>
+  <tr><th style="width:44%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>"Hi " + name</code></td><td>글자 <a class="w" href="words.html#w48" data-w="48">이어 붙이기</a>. 뒤에 공백이 있으니 "Hi Bori"</td></tr>
+  <tr><td><code>f"{name}가 멍멍 짖습니다."</code></td><td>중괄호 자리에 name의 값(Bori)이 들어가요</td></tr>
+  <tr><td><code>len(name)</code></td><td>글자 수 B-o-r-i = 4</td></tr>
+  <tr><td><code>f"{3.14159:.2f}"</code></td><td><code>:.2f</code>는 "소수 둘째 자리까지"예요. 3.14가 찍혀요</td></tr>
+</table></div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>f-string은 "중괄호 자리를 변수 값으로 바꿔서 읽기"만 하면 끝이에요. <code>/</code>는 항상 소수가 나오고(<code>7/2=3.5</code>), <code>==</code>는 같은지 묻는 기호라는 두 가지만 기억하세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x = "Kim"일 때 print(f"{x}님")은 무엇을 찍나요?</summary>
+<p>Kim님이에요. 중괄호 자리에 x의 값이 들어가요.</p></details>
+
+<div class="done"><a class="go" href="c0-04.html">다음 카드 → 리스트와 인덱스, 슬라이싱 ★★★ 시험 단골</a><div class="pn"><a href="c0-02.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c0"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2~4주차 · Week02/Week03 노트북(풀이포함) · 빅분02(2주차)·빅데이터03(3주차)·빅데이터04(4주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

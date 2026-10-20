@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>데이터는 어떻게 생겼나 — feature와 target · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k1"><a href="index.html#c1">← 보드</a><span>딥러닝이 뭐예요 + 학습 과정 큰 그림 · 3/11</span></div><h1>데이터는 어떻게 생겼나 — feature와 target</h1>
+<p>모델에 넣는 입력 x는 여러 개의 특징(<b><a class="w" href="words.html#w73" data-w="73">feature</a></b>)으로 이루어져 있고, 맞히고 싶은 <a class="w" href="words.html#w101" data-w="101">정답</a>은 <b>target</b> T 하나예요. 교수님 예시는 학생 정보로 기말고사 점수를 맞히는 문제예요.</p>
+<div class="tw"><table>
+  <tr><th style="width:12%">기호</th><th style="width:28%">의미</th><th>설명</th></tr>
+  <tr><td>f1</td><td>성별</td><td>남 / 여</td></tr>
+  <tr><td>f2</td><td>안경 착용 여부</td><td>착용 / 미착용</td></tr>
+  <tr><td>f3</td><td>중간고사 점수</td><td>0 ~ 100점</td></tr>
+  <tr><td>f4</td><td>학년</td><td>1 ~ 3학년</td></tr>
+  <tr><td>f5</td><td>공부 시간</td><td>하루 평균 공부 시간(시간)</td></tr>
+  <tr><td><b>T</b></td><td><b>기말고사 점수</b></td><td>우리가 예측하고 싶은 값</td></tr>
+</table></div>
+<p>feature가 5개이니 입력 한 명은 숫자 5개의 묶음이에요. 학생이 N명이면 표(행이 학생, 열이 feature)가 되어 <a class="w" href="words.html#w35" data-w="35">모양</a>이 <b>(N, 5)</b>예요. 이 모양 표기는 2장 <a class="w" href="words.html#w31" data-w="31">Tensor</a>의 shape과 같아요.</p>
+<p><b>글자는 숫자로 바꿔야 해요.</b> 모델은 곱하기와 더하기만 할 수 있어서 "남/여" 같은 글자(범주형, <a class="w" href="words.html#w112" data-w="112">categorical</a> 값)를 그대로 넣을 수 없어요. 그래서 <a class="w" href="words.html#w135" data-w="135">학습</a> 전에 숫자로 바꿔요. 이 단계를 <b>전처리</b>라고 해요.</p>
+<ul>
+  <li>순서가 없는 범주는 <b>단순 매핑</b> — 남자 = 0, 여자 = 1, 안경 미착용 = 0, 착용 = 1</li>
+  <li>또는 <b>one-hot 인코딩</b> — 범주마다 칸을 따로 만들어 해당 칸만 1로 표시해요. 예를 들어 빨강, 파랑, 초록 중 파랑이면 (0, 1, 0)이에요.</li>
+</ul>
+<p>정답의 종류에 따라 문제도 둘로 나뉘어요.</p>
+<div class="tw"><table>
+  <tr><th style="width:24%">종류</th><th>맞히는 것</th><th style="width:34%">예</th></tr>
+  <tr><td><b><a class="w" href="words.html#w110" data-w="110">회귀</a>(regression)</b></td><td>연속된 숫자 값</td><td>기말 점수 72점</td></tr>
+  <tr><td><b><a class="w" href="words.html#w111" data-w="111">분류</a>(classification)</b></td><td>어느 범주인지</td><td>합격/불합격, 옷 종류</td></tr>
+</table></div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>입력 x는 n개의 feature로, 정답 T는 하나의 target으로 이루어진다. 모델은 숫자만 계산할 수 있으므로 성별 같은 범주형 값은 0, 1로 매핑하거나 one-hot 인코딩으로 숫자로 바꾸어 넣는다. 점수 같은 연속값을 맞히면 회귀 문제이다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 왜 "남/여"를 그대로 모델에 넣지 못하나요?</summary>
+<p>모델은 숫자끼리 곱하고 더하는 계산만 하기 때문이에요. 그래서 0과 1 같은 숫자로 바꿔요.</p></details>
+
+<div class="done"><a class="go" href="c1-04.html">다음 카드 → 모델과 weight 개수 세기 ★★</a><div class="pn"><a href="c1-02.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c1"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 4주차 · 딥러닝 모델 Training 과정.pdf, Week04 Autograd_Loss_Optimizer.ipynb · 빅데이터04(4주차) 녹취, 빅데이터03·07 녹취 일부</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

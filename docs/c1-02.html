@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>학습 5단계 한눈에 보기 ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k1"><a href="index.html#c1">← 보드</a><span>딥러닝이 뭐예요 + 학습 과정 큰 그림 · 2/11</span></div><h1>학습 5단계 한눈에 보기 ★★★</h1>
+<p><a class="w" href="words.html#w135" data-w="135">학습</a>은 아래 <a class="w" href="words.html#w109" data-w="109">다섯 단계</a>를 한 바퀴로 하고, 이 바퀴를 계속 돌려요. 강의자료(<a class="w" href="words.html#w133" data-w="133">딥러닝</a> 모델 Training 과정)의 첫 그림이에요.</p>
+<figure class="slide"><img src="slides/tr2.jpg" alt="학습 파이프라인 Data, Forward, Loss, Gradient, Update"><figcaption>교수님 슬라이드 — Data → Forward → Loss → Gradient → Update, 그리고 다른 batch로 반복</figcaption></figure>
+<div class="tw"><table>
+  <tr><th style="width:18%">단계</th><th style="width:34%">하는 일</th><th>찌개 비유</th></tr>
+  <tr><td><b>1. Data</b></td><td>입력 x와 <a class="w" href="words.html#w101" data-w="101">정답</a> T를 준비</td><td>재료와 "목표 맛"</td></tr>
+  <tr><td><b>2. <a class="w" href="words.html#w70" data-w="70">Forward</a></b></td><td>x를 모델에 넣어 <a class="w" href="words.html#w100" data-w="100">예측값</a> ŷ을 얻음</td><td>끓여서 간을 봄</td></tr>
+  <tr><td><b>3. <a class="w" href="words.html#w99" data-w="99">Loss</a></b></td><td>ŷ과 T의 차이를 숫자 하나로</td><td>목표 맛과 얼마나 다른가</td></tr>
+  <tr><td><b>4. <a class="w" href="words.html#w83" data-w="83">Gradient</a></b></td><td>각 <a class="w" href="words.html#w68" data-w="68">weight</a>를 바꾸면 loss가 어느 쪽으로 변하는지 계산</td><td>소금을 늘릴까 줄일까 방향 확인</td></tr>
+  <tr><td><b>5. Update</b></td><td>loss가 줄어드는 방향으로 weight를 조금 조정</td><td>소금을 조금 넣거나 뺌</td></tr>
+  <tr><td><b>반복</b></td><td>다른 <a class="w" href="words.html#w114" data-w="114">batch</a>로 2~5를 계속</td><td>맛이 맞을 때까지</td></tr>
+</table></div>
+<p>ŷ은 "와이 햇"이라고 읽고 <b>예측값</b>이라는 뜻이에요. 정답 T(target)와 구분하려고 모자를 씌워요. Forward는 "앞으로 나아간다"는 뜻으로, 입력이 모델의 층을 앞쪽에서 뒤쪽으로 차례로 통과해서 예측값이 나오기 때문이에요. 이 과정을 <b>순전파(forward propagation)</b>라고도 해요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>데이터 → 예측 → 오차 → 방향 → 수정</b>"이에요. 영어로는 Data → Forward → Loss → Gradient → Update예요. 강의자료 마지막 장 요약도 "데이터 → 예측 → 오차 → 개선, 이 <a class="w" href="words.html#w4" data-w="4">루프</a>가 곧 학습"이에요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>학습은 Forward(예측) → Loss(오차 계산) → Gradient(기울기 계산) → Update(weight 조정) 순서를 다른 batch로 반복하는 과정이다. 순서가 선택지에서 섞여 있으면 "예측이 먼저, 고치는 건 마지막"이라는 상식으로 고르세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — Loss를 계산하려면 무엇과 무엇이 필요한가요?</summary>
+<p>모델이 낸 예측값 ŷ과 진짜 정답 T예요. 둘의 차이가 loss예요.</p></details>
+
+<div class="done"><a class="go" href="c1-03.html">다음 카드 → 데이터는 어떻게 생겼나 — feature와 target</a><div class="pn"><a href="c1-01.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c1"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 4주차 · 딥러닝 모델 Training 과정.pdf, Week04 Autograd_Loss_Optimizer.ipynb · 빅데이터04(4주차) 녹취, 빅데이터03·07 녹취 일부</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

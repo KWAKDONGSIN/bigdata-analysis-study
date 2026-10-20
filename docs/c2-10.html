@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NumPy와 Tensor — 메모리를 같이 쓸 때와 아닐 때 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k2"><a href="index.html#c2">← 보드</a><span>Tensor · 10/11</span></div><h1>NumPy와 Tensor — 메모리를 같이 쓸 때와 아닐 때</h1>
+<p><a class="w" href="words.html#w15" data-w="15">NumPy</a> <a class="w" href="words.html#w1" data-w="1">배열</a>과 <a class="w" href="words.html#w31" data-w="31">Tensor</a>는 서로 바꿀 수 있어요. 그런데 <b>바꾸는 방법에 따라 같은 데이터를 공유할 수도, 복사본일 수도</b> 있어요. 공유하면 한쪽을 고칠 때 다른 쪽도 바뀌어요.</p>
+<div class="tw"><table>
+  <tr><th style="width:40%">변환 방법</th><th style="width:22%">메모리</th><th>원본을 바꾸면</th></tr>
+  <tr><td><code>torch.from_numpy(arr)</code></td><td><b>공유</b></td><td>같이 바뀜</td></tr>
+  <tr><td><code>torch.from_numpy(arr).clone()</code></td><td>복사 (독립)</td><td>안 바뀜</td></tr>
+  <tr><td><code>torch.tensor(arr)</code></td><td>복사 (독립)</td><td>안 바뀜</td></tr>
+  <tr><td><code>t.numpy()</code></td><td><b>공유</b></td><td>같이 바뀜</td></tr>
+  <tr><td><code>t.numpy().copy()</code></td><td>복사 (독립)</td><td>안 바뀜</td></tr>
+</table></div>
+<div class="code">import numpy as np
+
+np_array = np.array([1, 2, 3], dtype=np.float32)
+t1 = torch.from_numpy(np_array)
+t2 = torch.tensor(np_array)
+t3 = torch.from_numpy(np_array).clone()
+
+np_array[2] = 100
+print(np_array)
+print(t1)
+print(t2)
+print(t3)</div>
+<div class="code">[  1.   2. 100.]
+tensor([  1.,   2., 100.])
+tensor([1., 2., 3.])
+tensor([1., 2., 3.])</div>
+<div class="tw"><table>
+  <tr><th style="width:44%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>t1 = torch.from_numpy(np_array)</code></td><td>NumPy 배열과 <b>같은 메모리</b>를 쓰는 Tensor</td></tr>
+  <tr><td><code>t2 = torch.tensor(np_array)</code></td><td>값을 <b>복사해서</b> 새로 만든 Tensor</td></tr>
+  <tr><td><code>t3 = ....clone()</code></td><td>공유 Tensor를 복제해서 독립시킨 것</td></tr>
+  <tr><td><code>np_array[2] = 100</code></td><td>원본 NumPy의 2번 칸을 100으로 바꿔요</td></tr>
+  <tr><td>출력</td><td>공유한 t1만 100으로 따라 바뀌고, 복사본 t2, t3는 그대로 [1, 2, 3]</td></tr>
+</table></div>
+<figure class="slide"><img src="slides/w211.jpg" alt="Tensor와 NumPy 변환과 메모리 공유"><figcaption>교수님 슬라이드 — from_numpy는 메모리 공유(함께 변경), 독립 복사본이 필요하면 tensor() 또는 clone() 사용</figcaption></figure>
+<p>반대 방향도 같아요. <code>t.numpy()</code>는 Tensor와 NumPy가 메모리를 같이 써서, Tensor를 고치면 NumPy도 바뀌어요. <code>.numpy().copy()</code>를 쓰면 독립이에요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p><a class="w" href="words.html#w57" data-w="57">torch.from_numpy</a>()와 tensor.numpy()는 메모리를 공유하므로 한쪽을 바꾸면 다른 쪽도 바뀐다. 독립적인 복사본이 필요하면 torch.tensor(arr), clone(), .numpy().copy()를 쓴다. 결과 예측 문제는 "공유 = 같이 바뀜, 복사 = 안 바뀜"만 구분하면 돼요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — a = np.array([1., 2.]); t = torch.from_numpy(a); t[0] = 9 를 실행하면 a는?</summary>
+<p><code>[9., 2.]</code>예요. from_numpy는 메모리를 공유해서 Tensor를 바꾸면 a도 바뀌어요.</p></details>
+
+<div class="done"><a class="go" href="c2-11.html">다음 카드 → 이 장 3줄 요약</a><div class="pn"><a href="c2-09.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c2"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2주차 · Week02_Tensor_and_GPU(pdf, 풀이포함 ipynb) · 빅분02(2주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

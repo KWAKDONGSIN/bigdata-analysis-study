@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>import와 점(.) 표기 — 도구 상자에서 도구 꺼내기 ★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k0"><a href="index.html#c0">← 보드</a><span>왕초보 코드 읽기 · 8/11</span></div><h1>import와 점(.) 표기 — 도구 상자에서 도구 꺼내기 ★★</h1>
+<p>파이썬에는 남들이 만들어 둔 도구 상자(<b>라이브러리</b>, 또는 <b><a class="w" href="words.html#w66" data-w="66">모듈</a></b>)가 많아요. 쓰려면 먼저 <b><a class="w" href="words.html#w11" data-w="11">import</a></b>로 상자를 가져와요. <a class="w" href="words.html#w133" data-w="133">딥러닝</a> 도구 상자의 이름이 <b>torch</b>(파이토치)예요.</p>
+<p>상자 안의 도구를 꺼낼 때는 <b>점(.)</b>을 써요. 점은 "~ 안의"라고 읽으면 돼요. <code>torch.arange</code>는 "torch 안의 <a class="w" href="words.html#w41" data-w="41">arange</a>"예요.</p>
+<div class="tw"><table>
+  <tr><th style="width:44%">코드</th><th>읽는 법</th></tr>
+  <tr><td><code>import torch</code></td><td>torch 상자를 가져와요. 이제 <code>torch.도구이름</code>으로 써요</td></tr>
+  <tr><td><code>import numpy as np</code></td><td><a class="w" href="words.html#w15" data-w="15">numpy</a> 상자를 가져오되 "np"라는 짧은 별명으로 불러요</td></tr>
+  <tr><td><code>import torch.nn as nn</code></td><td>torch 안의 nn 칸을 "nn"이라는 별명으로 가져와요</td></tr>
+  <tr><td><code>from torch import nn</code></td><td>위와 같은 효과예요. torch에서 nn만 꺼내 와요</td></tr>
+  <tr><td><code>from torch.utils.data import TensorDataset, DataLoader</code></td><td>torch.utils.data 칸에서 두 가지(<a class="w" href="words.html#w121" data-w="121">TensorDataset</a>, <a class="w" href="words.html#w122" data-w="122">DataLoader</a>)를 꺼내 와요</td></tr>
+</table></div>
+<p>점은 두 가지 뜻으로 쓰여요. <b>괄호가 있느냐 없느냐</b>가 차이예요.</p>
+<div class="tw"><table>
+  <tr><th style="width:36%">모양</th><th>뜻</th><th>예</th></tr>
+  <tr><td><code>대상.이름</code> (괄호 없음)</td><td>대상이 가진 <b>정보(<a class="w" href="words.html#w19" data-w="19">속성</a>)</b>를 읽어요</td><td><code>x.shape</code>, <code>x.dtype</code>, <code>self.name</code></td></tr>
+  <tr><td><code>대상.이름(...)</code> (괄호 있음)</td><td>대상에게 <b>동작을 시켜요(<a class="w" href="words.html#w20" data-w="20">메서드</a> 호출)</b></td><td><code>x.reshape(3, 4)</code>, <code>a.append(60)</code></td></tr>
+</table></div>
+<p>괄호 종류도 헷갈리기 쉬워요. <code>( )</code>는 <a class="w" href="words.html#w6" data-w="6">함수</a> 호출이나 계산 묶음, <code>[ ]</code>는 <a class="w" href="words.html#w1" data-w="1">리스트</a>와 <a class="w" href="words.html#w2" data-w="2">번호</a> 매기기(인덱스), <code>{ }</code>는 <a class="w" href="words.html#w10" data-w="10">f-string</a>에서 값이 들어갈 자리(그리고 딕셔너리)를 뜻해요. <code>{"loss": 0.5}</code>처럼 이름표와 값 쌍을 묶은 것을 딕셔너리라고 하고, <code>d["loss"]</code>로 꺼내요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>import 줄은 "도구를 가져오는 준비 단계"라서 결과에는 영향이 없어요. 그 아래에서 <code>torch.</code>이나 <code>nn.</code>으로 시작하는 줄이 진짜 일을 해요. 점 뒤에 괄호가 있으면 동작, 없으면 정보 읽기라고 구분하세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x.shape와 x.sum() 중 괄호가 필요한 것은?</summary>
+<p>x.sum()이에요. <a class="w" href="words.html#w35" data-w="35">shape</a>는 x가 가진 정보를 읽을 뿐이라 괄호가 없고, sum은 합을 구하라는 동작이라 괄호가 있어요.</p></details>
+
+<div class="done"><a class="go" href="c0-09.html">다음 카드 → 자주 보이는 모양 몇 가지 (with, 짝 받기, 한 줄 반복)</a><div class="pn"><a href="c0-07.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c0"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2~4주차 · Week02/Week03 노트북(풀이포함) · 빅분02(2주차)·빅데이터03(3주차)·빅데이터04(4주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

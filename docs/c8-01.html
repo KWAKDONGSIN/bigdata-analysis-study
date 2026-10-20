@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>용어 정리 — sample, batch, epoch, step ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k8"><a href="index.html#c8">← 보드</a><span>Dataset과 DataLoader · 1/8</span></div><h1>용어 정리 — sample, batch, epoch, step ★★★</h1>
+<p>용어가 네 개 나와요. 처음에는 헷갈리니까 문제집으로 비유해 볼게요.</p>
+<div class="box eg"><span class="t">비유 — 문제집 풀기</span>
+<p>문제집 한 권이 데이터 전체예요. 문제 하나(문제와 <a class="w" href="words.html#w101" data-w="101">정답</a> 쌍)가 <b><a class="w" href="words.html#w113" data-w="113">sample</a></b>, 한 번에 풀고 채점하는 묶음(예 20문제)이 <b><a class="w" href="words.html#w114" data-w="114">batch</a></b>, 채점할 때마다 공부 방법을 한 번 고치는 것이 <b><a class="w" href="words.html#w108" data-w="108">step</a></b>, 문제집을 처음부터 끝까지 한 바퀴 푸는 것이 <b><a class="w" href="words.html#w116" data-w="116">epoch</a></b>이에요.</p>
+</div>
+<div class="tw"><table>
+  <tr><th style="width:20%">용어</th><th style="width:40%">뜻</th><th>예시</th></tr>
+  <tr><td><b>sample</b></td><td>입력 하나(여러 <a class="w" href="words.html#w73" data-w="73">특성</a>으로 이뤄짐)와 정답 하나</td><td>이미지 1장과 그 라벨, 또는 x = [0, 1]과 y = 5</td></tr>
+  <tr><td><b><a class="w" href="words.html#w118" data-w="118">Dataset</a></b></td><td>sample을 <a class="w" href="words.html#w2" data-w="2">번호</a>(인덱스)로 꺼낼 수 있는 데이터 모음</td><td><code>dataset[0]</code></td></tr>
+  <tr><td><b>batch</b></td><td>한 번에 처리하는 sample 묶음</td><td>이미지 64장 묶음이면 크기 (64, 1, 28, 28)</td></tr>
+  <tr><td><b>step</b></td><td>배치 하나로 <a class="w" href="words.html#w135" data-w="135">학습</a>하고 업데이트하는 과정 한 번</td><td><a class="w" href="words.html#w109" data-w="109">학습 5단계</a> (<a class="w" href="words.html#w92" data-w="92">zero_grad</a> → <a class="w" href="words.html#w70" data-w="70">forward</a> → <a class="w" href="words.html#w99" data-w="99">loss</a> → <a class="w" href="words.html#w86" data-w="86">backward</a> → step) 1회</td></tr>
+  <tr><td><b>epoch</b></td><td><a class="w" href="words.html#w126" data-w="126">학습 데이터</a> <b>전체를 한 번 순회</b>하는 것</td><td>모든 배치를 한 번씩 학습</td></tr>
+</table></div>
+<p>교수님은 이렇게 설명했어요. 데이터가 1000개이고 <a class="w" href="words.html#w115" data-w="115">배치 크기</a>가 20이면 20개씩 step을 거치니까 <b>50번</b> 하면 한 epoch이 돼요. 4주차 예제는 데이터 5개를 전부 한 번에 넣었기 때문에 <b>한 epoch이 한 step</b>이었어요. 앞으로는 배치로 나누니까 <b>한 epoch에 여러 step</b>이 있어요. 이렇게 데이터를 나눠 학습하는 방식을 <b>미니 배치(mini-batch)</b> 학습이라고 해요.</p>
+<p><b>왜 나눠서 넣을까요?</b> 데이터 천 개를 한 번에 넣으면 계산이 너무 많고 컴퓨터 메모리도 많이 필요해요. 그래서 20개, 30개씩 잘라서 넣어요.</p>
+<div class="paper"><svg viewBox="0 0 380 100" width="96mm"><rect x="0" y="0" width="380" height="100" rx="10" fill="#f8fafc"/>
+  <g stroke="#1b2333" stroke-width="1.2">
+    <rect x="10" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="44" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="78" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="112" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/>
+    <rect x="156" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="190" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="224" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="258" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/>
+    <rect x="302" y="26" width="30" height="30" rx="4" fill="#fff1d6"/><rect x="336" y="26" width="30" height="30" rx="4" fill="#fff1d6"/>
+  </g>
+  <g font-size="13" font-weight="bold" fill="#1b2333" text-anchor="middle">
+    <text x="25" y="46">0</text><text x="59" y="46">1</text><text x="93" y="46">2</text><text x="127" y="46">3</text>
+    <text x="171" y="46">4</text><text x="205" y="46">5</text><text x="239" y="46">6</text><text x="273" y="46">7</text>
+    <text x="317" y="46">8</text><text x="351" y="46">9</text>
+  </g>
+  <g font-size="12" fill="#1b2333" text-anchor="middle">
+    <text x="76" y="76">배치 1 (4개)</text><text x="222" y="76">배치 2 (4개)</text><text x="334" y="76">배치 3 (2개)</text>
+    <text x="190" y="14" font-weight="bold">sample 10개를 batch_size = 4로 나누면 4개 → 4개 → 2개</text>
+    <text x="190" y="96">이 세 배치를 모두 쓰면 1 epoch, step은 3번</text>
+  </g>
+</svg></div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>용어 문제는 단위로 구분하세요. <b>sample = 데이터 1개, batch = sample 묶음, step = 배치 1개로 1번 업데이트, epoch = 전체 데이터 1바퀴</b>예요. "한 epoch의 <a class="w" href="words.html#w117" data-w="117">step 수</a> = <a class="w" href="words.html#w125" data-w="125">배치 개수</a>"예요. 예를 들어 sample 10개, batch_size 4이면 한 epoch에 step이 3번이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 데이터 1000개를 배치 크기 20으로 학습하면 한 epoch에 step은 몇 번일까요?</summary>
+<p>50번이에요. 1000 ÷ 20 = 50개의 배치를 하나씩 학습해요.</p></details>
+
+<div class="done"><a class="go" href="c8-02.html">다음 카드 → Dataset — 입력과 정답을 한 쌍으로 묶은 명부 ★★</a><div class="pn"><a href="index.html#c8"><b>← 이전</b>보드로</a><a class="next" href="quiz.html#c8"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 7주차 · Week05_Dataset_DataLoader_Train_Validation(part1) · 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

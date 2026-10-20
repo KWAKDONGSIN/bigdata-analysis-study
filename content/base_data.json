@@ -1,0 +1,1890 @@
+{
+ "abbr": [
+  [
+   "tensor",
+   "Tensor (텐서)",
+   "숫자를 담는 다차원 배열. PyTorch의 기본 그릇"
+  ],
+  [
+   "shape",
+   "모양 (torch.Size)",
+   "각 차원의 길이. (4, 3)은 4행 3열"
+  ],
+  [
+   "dtype",
+   "data type (자료형)",
+   "원소의 종류. torch.int64, torch.float32 등"
+  ],
+  [
+   "device",
+   "장치",
+   "텐서가 놓인 곳. cpu 또는 cuda(GPU)"
+  ],
+  [
+   "ndim / numel()",
+   "number of dimensions / elements",
+   "차원 수 / 전체 원소 수"
+  ],
+  [
+   "CPU / GPU",
+   "Central / Graphics Processing Unit",
+   "복잡한 일을 차례로 / 단순 계산을 한꺼번에 병렬로"
+  ],
+  [
+   "CUDA",
+   "Compute Unified Device Architecture",
+   "엔비디아 GPU로 계산하게 해 주는 기술"
+  ],
+  [
+   "Colab",
+   "Google Colaboratory",
+   "브라우저에서 무료 GPU(T4)를 쓰는 온라인 노트북"
+  ],
+  [
+   "self",
+   "자기 자신",
+   "메서드 안에서 이 인스턴스를 가리키는 첫 인자"
+  ],
+  [
+   "__init__",
+   "initializer (생성자)",
+   "인스턴스를 만들 때 자동 실행되어 초기 상태를 저장"
+  ],
+  [
+   "__call__",
+   "call (호출 가능 객체)",
+   "인스턴스를 f(3)처럼 함수로 부를 때 실행되는 메서드"
+  ],
+  [
+   "super()",
+   "super (부모 접근)",
+   "부모 클래스를 가리킴. super().__init__()으로 부모 초기화"
+  ],
+  [
+   "nn.Module",
+   "Neural Network Module",
+   "모든 PyTorch 모델의 부모 클래스. __init__과 forward만 만들면 됨"
+  ],
+  [
+   "nn.Linear",
+   "Linear (Fully Connected) layer",
+   "y = xWᵀ + b 계산. weight (출력, 입력), bias (출력,)"
+  ],
+  [
+   "FC",
+   "Fully Connected",
+   "모든 입력이 모든 출력에 연결된 층(= Linear)"
+  ],
+  [
+   "ReLU",
+   "Rectified Linear Unit",
+   "음수는 0, 양수는 그대로. 학습 파라미터 없음"
+  ],
+  [
+   "nn.Parameter",
+   "Parameter",
+   "모델에 등록되어 학습되는 텐서(기본 requires_grad=True)"
+  ],
+  [
+   "nn.Sequential",
+   "Sequential",
+   "층을 순서대로 이어 한 모델처럼 쓰는 상자"
+  ],
+  [
+   "forward",
+   "순전파 (forward propagation)",
+   "입력에서 예측값까지 계산. model(x)가 호출"
+  ],
+  [
+   "backward",
+   "역전파 (backpropagation)",
+   "loss에서 거꾸로 gradient를 계산해 .grad에 저장(값은 안 바꿈)"
+  ],
+  [
+   "grad",
+   "gradient (기울기)",
+   "weight를 바꿀 때 loss가 변하는 방향과 정도"
+  ],
+  [
+   "requires_grad",
+   "gradient 필요 여부",
+   "True여야 backward 때 .grad가 계산·저장됨"
+  ],
+  [
+   "zero_grad",
+   "gradient 초기화",
+   "누적된 grad를 지움. 학습 step의 첫 단계"
+  ],
+  [
+   "loss",
+   "손실",
+   "예측과 정답의 차이를 숫자 하나로 요약한 값"
+  ],
+  [
+   "MSE",
+   "Mean Squared Error",
+   "(예측−정답)²의 평균. nn.MSELoss"
+  ],
+  [
+   "optimizer",
+   "최적화기",
+   "grad로 weight를 고치는 도구(optim.SGD, Adam)"
+  ],
+  [
+   "SGD",
+   "Stochastic Gradient Descent",
+   "w ← w − lr × grad"
+  ],
+  [
+   "lr",
+   "learning rate (학습률)",
+   "한 번에 weight를 얼마나 움직일지 정하는 값. 보통 아주 작게"
+  ],
+  [
+   "Dataset",
+   "데이터셋",
+   "샘플을 번호로 꺼내는 데이터 모음. __len__, __getitem__"
+  ],
+  [
+   "DataLoader",
+   "데이터 로더",
+   "Dataset에서 샘플을 모아 batch로 묶어 주는 도구"
+  ],
+  [
+   "batch_size",
+   "배치 크기",
+   "한 번에 처리하는 샘플 수"
+  ],
+  [
+   "epoch",
+   "에폭",
+   "학습 데이터 전체를 한 번 사용하는 것"
+  ],
+  [
+   "shuffle",
+   "섞기",
+   "epoch마다 데이터 순서를 섞을지 정하는 옵션"
+  ],
+  [
+   "drop_last",
+   "마지막 버리기",
+   "batch_size보다 적게 남은 마지막 batch를 버릴지 정하는 옵션"
+  ]
+ ],
+ "numbers": [
+  [
+   "nn.Linear(in, out) 파라미터 수",
+   "weight = out×in, bias = out → 합계 in×out + out. 예 Linear(3,2) = 8 · Linear(5,3) = 18 · Linear(64,16) = 1,040"
+  ],
+  [
+   "nn.Linear 모양",
+   "weight (out, in), bias (out,). 입력 (N, in) → 출력 (N, out). 계산은 x @ W.T + b"
+  ],
+  [
+   "여러 층 모델의 파라미터 수",
+   "각 층의 in×out + out을 더한다. TinyMLP(4,8,2) = (32+8) + (16+2) = 58. 수업 PPT의 6×5+3×6+1×3 = 51은 bias 제외"
+  ],
+  [
+   "인덱스와 슬라이싱",
+   "번호는 0부터. a[1:4]는 1~3번(끝 번호 제외). x[:,1] → 차원이 사라져 (3,), x[:,1:2] → 차원 유지 (3,1)"
+  ],
+  [
+   "브로드캐스팅 규칙",
+   "오른쪽 끝부터 비교해 같거나, 하나가 1이거나, 한쪽에 없으면 가능. (2,3)+(3,) → (2,3) / (4,1)+(1,5) → (4,5) / (2,3)+(2,) → 불가"
+  ],
+  [
+   "이미지 batch 모양",
+   "(N, C, H, W) = (장 수, 채널, 높이, 너비). (8,1,28,28)은 28×28 흑백 8장"
+  ],
+  [
+   "cat과 stack",
+   "cat은 기존 차원에 이어 붙임(차원 수 그대로), stack은 새 차원을 만들어 쌓음(차원 수 +1). (2,3) 둘 → cat(dim=0) (4,3) / stack (2,2,3)"
+  ],
+  [
+   "NumPy 변환",
+   "from_numpy · .numpy()는 메모리 공유(한쪽을 바꾸면 같이 바뀜), torch.tensor(arr)는 복사(독립)"
+  ],
+  [
+   "학습 5단계",
+   "zero_grad → forward(prediction) → loss → backward → step. batch마다 한 번씩"
+  ],
+  [
+   "SGD 업데이트",
+   "w ← w − lr × grad. 예 w=0.7, grad=−2, lr=1 → 2.7 / w=1, grad=−5, lr=0.1 → 1.5. 학습률은 보통 0.001 수준처럼 아주 작게"
+  ],
+  [
+   "외울 gradient 값",
+   "w=3, L=w² → 6 / w=2, L=3w²+1 → 12 / (wx−t)², w=2, x=3, t=10 → −24 / 누적 w=2: 4 → 16 → 32 / W=[1,2,3], X=[2,1,4], L=(W@X)² → [64,32,128]"
+  ],
+  [
+   "batch 개수와 step 수",
+   "len(loader) = ⌈샘플 수 ÷ batch_size⌉ (drop_last=True면 내림). 10개, batch 4 → 3 ([4,4,2]) 또는 2 ([4,4]). 전체 step = epoch 수 × batch 개수 (90개, batch 20, 30 epoch → 5×30 = 150)"
+  ],
+  [
+   "epoch 평균 loss",
+   "Σ(batch loss × batch 샘플 수) ÷ 전체 샘플 수. 예 (3×4 + 3×4 + 6×2) ÷ 10 = 3.6"
+  ],
+  [
+   "MSE 계산",
+   "mean((ŷ−y)²). [3,4] vs [1,5] → 2.5. prediction (3,1)과 target (3,)을 그대로 빼면 3×3으로 브로드캐스팅되어 틀린 값(예 6.0, 맞는 값 2.0)"
+  ],
+  [
+   "모양 흐름 예",
+   "Linear(3,2): (4,3) → (4,2) / flatten(start_dim=1) 후 Linear(16,10): (8,1,4,4) → (8,16) → (8,10) / ReLU는 shape 불변"
+  ]
+ ],
+ "quiz": [
+  {
+   "ch": "py",
+   "type": "mc",
+   "q": "[리스트 번호] 다음 코드의 출력으로 올바른 것은?\n\nnums = [10, 20, 30, 40]\nprint(nums[1], nums[-1])",
+   "choices": [
+    "10 40",
+    "20 30",
+    "20 40",
+    "10 30",
+    "30 40"
+   ],
+   "answer": 2,
+   "explain": "파이썬은 번호를 0부터 세요. nums[1]은 두 번째 값인 20이고, nums[-1]은 맨 뒤 값인 40이에요. 1부터 센다고 착각하면 10이 나와서 틀려요.",
+   "src": "코드 읽기 기초"
+  },
+  {
+   "ch": "py",
+   "type": "mc",
+   "q": "[range와 합] 다음 코드의 출력으로 올바른 것은?\n\ntotal = 0\nfor i in range(4):\n    total += i\nprint(total)",
+   "choices": [
+    "6",
+    "10",
+    "4",
+    "3",
+    "7"
+   ],
+   "answer": 0,
+   "explain": "range(4)는 0, 1, 2, 3만 만들어요(끝 숫자 4는 안 들어가요). 그래서 0+1+2+3 = 6이고, 1부터 4까지 더하는 줄 알면 10이라고 틀려요.",
+   "src": "코드 읽기 기초"
+  },
+  {
+   "ch": "py",
+   "type": "mc",
+   "q": "[함수 기본값] 다음 코드의 출력으로 올바른 것은?\n\ndef add(a, b=10):\n    return a + b\n\nprint(add(1), add(1, 2))",
+   "choices": [
+    "11 11",
+    "1 3",
+    "3 11",
+    "11 3",
+    "오류가 난다"
+   ],
+   "answer": 3,
+   "explain": "add(1)은 b를 안 넣었으니 기본값 10이 들어가 1+10=11이에요. add(1, 2)는 b가 2라서 3이에요. 기본값은 값을 안 줬을 때만 쓰여요.",
+   "src": "3주차 기본값 파라미터"
+  },
+  {
+   "ch": "py",
+   "type": "mc",
+   "q": "[리스트 슬라이싱] 다음 코드의 출력으로 올바른 것은?\n\ns = [0, 1, 2, 3, 4, 5]\nprint(s[1:4], s[:2], s[4:])",
+   "choices": [
+    "[1, 2, 3, 4] [0, 1] [4, 5]",
+    "[1, 2, 3] [0, 1] [4, 5]",
+    "[1, 2, 3] [0, 1, 2] [4, 5]",
+    "[2, 3, 4] [0, 1] [5]",
+    "[1, 2, 3] [0, 1] [4]"
+   ],
+   "answer": 1,
+   "explain": "s[1:4]는 1번부터 3번까지예요. 끝 번호(4)는 포함하지 않아요. s[:2]는 앞에서 2개, s[4:]는 4번부터 끝까지예요.",
+   "src": "코드 읽기 기초 · 슬라이싱"
+  },
+  {
+   "ch": "py",
+   "type": "mc",
+   "q": "[f-string] 다음 코드의 출력으로 올바른 것은?\n\na = 7\nprint(f\"a={a}, 2a={2 * a}\")",
+   "choices": [
+    "a={a}, 2a={2 * a}",
+    "a=7, 2a=2 * 7",
+    "a=7, 2a=77",
+    "a=a, 2a=14",
+    "a=7, 2a=14"
+   ],
+   "answer": 4,
+   "explain": "f 가 앞에 붙은 문자열은 중괄호 안을 계산해서 값으로 바꿔 줘요. {a}는 7, {2 * a}는 14가 돼요.",
+   "src": "3주차 f-string"
+  },
+  {
+   "ch": "py",
+   "type": "mc",
+   "q": "[start와 end] 다음 코드의 출력으로 올바른 것은? (줄마다 한 번씩 출력되고 / 로 구분해 적었다)\n\nfor start in range(0, 10, 4):\n    end = min(start + 4, 10)\n    print(start, end)",
+   "choices": [
+    "0 4 / 4 8 / 8 12",
+    "0 4 / 4 8 / 8 10",
+    "0 4 / 4 8",
+    "1 5 / 5 9 / 9 10",
+    "0 4 / 4 8 / 8 10 / 10 10"
+   ],
+   "answer": 1,
+   "explain": "range(0, 10, 4)는 0, 4, 8이에요. 마지막 8에서는 8+4=12지만 min(12, 10)이라 10에서 잘려요. 데이터를 4개씩 묶어 나눌 때(배치) 마지막 조각이 작아지는 모습과 같아요.",
+   "src": "5주차 배치 직접 나누기"
+  },
+  {
+   "ch": "py",
+   "type": "ox",
+   "q": "파이썬에서 리스트의 번호(인덱스)는 1부터 시작한다.",
+   "answer": false,
+   "explain": "0부터 시작해요. 첫 번째 값은 x[0]이에요. 텐서(Tensor)도 똑같이 0부터 세어요.",
+   "src": "코드 읽기 기초"
+  },
+  {
+   "ch": "py",
+   "type": "short",
+   "q": "함수가 계산한 결과를 돌려줄 때 쓰는 파이썬 키워드는?",
+   "answer": "return",
+   "alts": [
+    "리턴",
+    "return문"
+   ],
+   "explain": "return 뒤에 쓴 값이 함수 밖으로 나와요. forward 함수도 마지막에 return으로 결과를 돌려줘요.",
+   "src": "코드 읽기 기초"
+  },
+  {
+   "ch": "intro",
+   "type": "mc",
+   "q": "[학습 한 바퀴] 딥러닝 모델이 학습하는 한 바퀴의 순서로 올바른 것은?",
+   "choices": [
+    "데이터 → loss 계산 → 예측(forward) → weight 업데이트 → gradient 계산 → 반복",
+    "데이터 → gradient 계산 → 예측(forward) → loss 계산 → weight 업데이트 → 반복",
+    "weight 업데이트 → 예측(forward) → loss 계산 → gradient 계산 → 데이터 → 반복",
+    "데이터 → 모델에 넣어 예측(forward) → loss 계산 → gradient 계산 → weight 업데이트 → 반복"
+   ],
+   "answer": 3,
+   "explain": "먼저 예측을 해야 정답과 비교한 loss가 나오고, loss가 있어야 gradient(방향)를 구하고, 그 방향으로 weight를 고쳐요. 순서가 바뀌면 재료가 없는 단계가 생겨요.",
+   "src": "4주차 Training 과정 PPT"
+  },
+  {
+   "ch": "intro",
+   "type": "mc",
+   "q": "[weight 개수] layer 3개짜리 모델이다. 입력 feature 5개 → 은닉 6개 → 은닉 3개 → 출력 1개 구조에서 W1 (6×5), W2 (3×6), W3 (1×3)의 weight는 모두 몇 개인가? (bias는 제외)",
+   "choices": [
+    "51개",
+    "15개",
+    "30개",
+    "48개",
+    "58개"
+   ],
+   "answer": 0,
+   "explain": "각 행렬의 원소 수를 더해요. 6×5=30, 3×6=18, 1×3=3이라 30+18+3 = 51개예요. 층 사이를 잇는 선의 개수라고 생각하면 돼요.",
+   "src": "4주차 Training 과정 PPT"
+  },
+  {
+   "ch": "intro",
+   "type": "mc",
+   "q": "[w 업데이트 계산] 현재 w = 0.7, gradient = −2, 학습률 lr = 1일 때 업데이트한 w는? (w ← w − lr × gradient)",
+   "choices": [
+    "−1.3",
+    "0.7",
+    "−2.7",
+    "1.7",
+    "2.7"
+   ],
+   "answer": 4,
+   "explain": "w − lr×gradient = 0.7 − (1×(−2)) = 0.7 + 2 = 2.7이에요. gradient가 음수면 w를 키워야 loss가 줄어서 마이너스가 두 번 겹쳐 더하기가 돼요.",
+   "src": "4주차 녹취 (교수님 예시)"
+  },
+  {
+   "ch": "intro",
+   "type": "mc",
+   "q": "[gradient의 뜻] 어떤 weight의 gradient가 +3이라는 말이 뜻하는 것으로 가장 알맞은 것은?",
+   "choices": [
+    "그 weight를 키우면 loss가 줄어든다. 그래서 weight를 키워야 한다",
+    "그 weight는 이미 정답이라서 더 고칠 필요가 없다",
+    "그 weight를 키우면 loss가 커진다. 그래서 weight를 줄여야 한다",
+    "loss가 3만큼 줄어들었다는 뜻이다"
+   ],
+   "answer": 2,
+   "explain": "gradient는 'weight를 조금 키울 때 loss가 어느 쪽으로, 얼마나 변하는지'를 알려 줘요. 부호가 +이면 키울수록 loss가 커지니 반대로 줄이면 돼요.",
+   "src": "4주차 녹취 · Week04 노트북"
+  },
+  {
+   "ch": "intro",
+   "type": "mc",
+   "q": "[회귀와 분류] 다음 두 문제의 종류를 순서대로 바르게 짝지은 것은? (가) 학생의 기말고사 점수(72점)를 예측한다. (나) 학생의 합격/불합격을 예측한다.",
+   "choices": [
+    "(가) 분류, (나) 회귀",
+    "(가) 회귀(regression), (나) 분류(classification)",
+    "(가) 회귀, (나) 회귀",
+    "(가) 분류, (나) 분류"
+   ],
+   "answer": 1,
+   "explain": "점수처럼 이어지는 숫자를 맞히면 회귀, 합격·불합격처럼 종류(범주)를 고르면 분류예요.",
+   "src": "3주차 녹취"
+  },
+  {
+   "ch": "intro",
+   "type": "mc",
+   "q": "[iteration과 epoch] 학생 데이터가 10,000개이고 batch 크기가 20이다. 이 데이터를 한 번 모두 사용하는 1 epoch 동안 weight를 업데이트하는 횟수(iteration)는?",
+   "choices": [
+    "20번",
+    "200번",
+    "5,000번",
+    "10,000번",
+    "500번"
+   ],
+   "answer": 4,
+   "explain": "한 번 업데이트할 때 20개를 쓰니까 10,000 ÷ 20 = 500번이면 데이터를 한 바퀴 다 써요. 이 500번이 모여 1 epoch가 돼요.",
+   "src": "4주차 녹취 · Week05 노트북"
+  },
+  {
+   "ch": "intro",
+   "type": "ox",
+   "q": "학습을 시작할 때 weight는 randn 같은 랜덤 값으로 채우므로, 처음 예측이 정답과 많이 다른 것은 정상이다.",
+   "answer": true,
+   "explain": "맞아요. 처음엔 아무 값이라 틀려요. 그래서 loss를 보고 조금씩 고쳐 가요.",
+   "src": "4주차 Training 과정 PPT"
+  },
+  {
+   "ch": "intro",
+   "type": "ox",
+   "q": "예측(forward)을 할 때는 feature와 정답(target)을 함께 모델에 넣는다.",
+   "answer": false,
+   "explain": "feature만 넣어요. 정답은 예측 결과와 비교해서 loss를 구할 때만 쓰여요. 정답을 같이 넣으면 시험 문제와 답을 같이 주는 꼴이에요.",
+   "src": "4주차 녹취"
+  },
+  {
+   "ch": "intro",
+   "type": "short",
+   "q": "학습 데이터 전체를 한 번 모두 사용하는 단위를 영어로 무엇이라 하는가?",
+   "answer": "epoch",
+   "alts": [
+    "에폭",
+    "에포크",
+    "epochs"
+   ],
+   "explain": "epoch는 데이터를 한 바퀴 다 돈 횟수예요. 책 한 권을 처음부터 끝까지 한 번 읽으면 1 epoch인 것과 같아요.",
+   "src": "4·7주차 녹취"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[슬라이싱과 shape] 다음 코드의 실행 결과로 올바른 것은? (※ 각 선택지의 화살표는 첫 번째 출력과 두 번째 출력의 순서를 나타낸다)\n\nimport torch\n\nx = torch.arange(12).reshape(3, 4)\na = x[:, 1]\nb = x[:, 1:2]\n\nprint(tuple(a.shape))\nprint(tuple(b.shape))",
+   "choices": [
+    "(3,) → (3,)",
+    "(3,) → (3, 1)",
+    "(1, 3) → (3, 1)",
+    "(4,) → (4, 1)",
+    "(3, 1) → (3, 1)"
+   ],
+   "answer": 1,
+   "explain": "x는 3행 4열이에요. x[:, 1]처럼 숫자 하나로 뽑으면 그 차원이 사라져서 (3,)이 되고, x[:, 1:2]처럼 범위로 뽑으면 차원이 남아서 (3, 1)이 돼요. ①은 두 번째도 차원이 사라진다고 착각한 것이고, ④는 열 개수 4를 행 개수로 착각한 것이에요.",
+   "src": "문제샘플 1번"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[브로드캐스팅 불가] 다음 중 더할 수 없는(에러가 나는) shape 조합은?",
+   "choices": [
+    "(2, 3) + (2,)",
+    "(2, 3) + (3,)",
+    "(4, 1) + (1, 5)",
+    "(5, 1, 4) + (3, 1)"
+   ],
+   "answer": 0,
+   "explain": "오른쪽 끝부터 비교해요. (2, 3)과 (2,)는 3과 2가 만나는데 같지도 않고 1도 아니라서 안 돼요. 나머지는 같거나, 1이거나, 한쪽에 없어서 모두 가능해요.",
+   "src": "2주차 브로드캐스팅 규칙"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[브로드캐스팅 결과] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\na = torch.zeros(4, 1)\nb = torch.zeros(1, 5)\nc = torch.zeros(4, 3)\nd = torch.zeros(3)\nprint(tuple((a + b).shape), tuple((c + d).shape))",
+   "choices": [
+    "(4, 1) (4, 3)",
+    "(4, 5) (3,)",
+    "(5, 4) (4, 3)",
+    "(4, 5) (4, 3)",
+    "에러가 난다"
+   ],
+   "answer": 3,
+   "explain": "(4, 1)과 (1, 5)는 서로 1인 쪽이 늘어나서 (4, 5)가 돼요. (4, 3)과 (3,)은 오른쪽 끝 3이 같고 앞은 비어 있어서 (4, 3)이에요.",
+   "src": "2주차 Week02 실습 3"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[sum의 dim] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nx = torch.tensor([[1, 2, 3],\n                  [4, 5, 6]])\nprint(x.sum(dim=0).tolist(), x.sum(dim=1).tolist())",
+   "choices": [
+    "[6, 15] [5, 7, 9]",
+    "[5, 7, 9] [5, 7, 9]",
+    "[5, 7, 9] [6, 15]",
+    "[3, 7, 11] [6, 15]",
+    "21 21"
+   ],
+   "answer": 2,
+   "explain": "dim=0은 위아래(세로)로 합쳐서 열마다 합을 내요. 1+4=5, 2+5=7, 3+6=9예요. dim=1은 좌우(가로)로 합쳐서 행마다 합을 내니 1+2+3=6, 4+5+6=15예요.",
+   "src": "2주차 Week02 · sum(dim)"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[원소별 곱과 행렬 곱] 다음 코드의 출력으로 올바른 것은? (첫 줄은 a * b, 둘째 줄은 a @ b)\n\nimport torch\n\na = torch.tensor([[1, 2], [3, 4]])\nb = torch.tensor([[2, 0], [0, 2]])\nprint((a * b).tolist())\nprint((a @ b).tolist())",
+   "choices": [
+    "[[2, 4], [6, 8]] → [[2, 0], [0, 8]]",
+    "[[2, 0], [0, 8]] → [[2, 0], [0, 8]]",
+    "[[2, 0], [0, 8]] → [[2, 4], [6, 8]]",
+    "[[3, 2], [3, 6]] → [[2, 4], [6, 8]]",
+    "[[2, 4], [6, 8]] → [[2, 4], [6, 8]]"
+   ],
+   "answer": 2,
+   "explain": "*는 같은 자리끼리 곱해요(1×2, 2×0, 3×0, 4×2). @는 행렬 곱이라 (행)×(열)을 더해요. 1×2+2×0=2, 1×0+2×2=4처럼 계산해서 [[2, 4], [6, 8]]이 돼요.",
+   "src": "2주차 Week02 · 연산"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[reshape와 -1] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nx = torch.arange(24)\nprint(tuple(x.reshape(2, 3, 4).shape), tuple(x.reshape(3, -1).shape))",
+   "choices": [
+    "(2, 3, 4) (3, 8)",
+    "(2, 3, 4) (3, 24)",
+    "(2, 3, 4) (8, 3)",
+    "(4, 3, 2) (3, 8)",
+    "(2, 3, 4) (3, 7)"
+   ],
+   "answer": 0,
+   "explain": "전체 원소는 24개예요. reshape(3, -1)에서 -1은 '알아서 맞춰 줘'라는 뜻이라 24÷3 = 8이 들어가 (3, 8)이 돼요.",
+   "src": "2주차 Week02 실습 5"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[squeeze와 unsqueeze] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nimg = torch.zeros(28, 28)\na = img.unsqueeze(0)\nb = torch.zeros(1, 3, 1).squeeze()\nc = torch.zeros(2, 3).squeeze()\nprint(tuple(a.shape), tuple(b.shape), tuple(c.shape))",
+   "choices": [
+    "(28, 1, 28) (3,) (2, 3)",
+    "(1, 28, 28) (1, 3, 1) (2, 3)",
+    "(1, 28, 28) (3,) (6,)",
+    "(1, 28, 28) (3,) (2, 3)",
+    "(28, 28, 1) (3,) (2, 3)"
+   ],
+   "answer": 3,
+   "explain": "unsqueeze(0)는 맨 앞에 크기 1짜리 차원을 끼워 넣어요. squeeze()는 크기가 1인 차원만 지우므로 (1, 3, 1)은 (3,)이 되지만, (2, 3)에는 지울 1이 없어서 그대로예요.",
+   "src": "2·3주차 squeeze/unsqueeze"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[cat과 stack] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\na = torch.zeros(2, 3)\nb = torch.zeros(2, 3)\nprint(tuple(torch.cat([a, b], dim=0).shape), tuple(torch.stack([a, b]).shape))",
+   "choices": [
+    "(2, 6) (2, 2, 3)",
+    "(4, 3) (2, 2, 3)",
+    "(4, 3) (4, 3)",
+    "(2, 2, 3) (4, 3)",
+    "(4, 3) (2, 3, 2)"
+   ],
+   "answer": 1,
+   "explain": "cat은 기존 차원(dim=0)에 이어 붙여서 2+2=4, (4, 3)이 돼요. stack은 새 차원을 만들어서 쌓으니까 앞에 2가 생겨 (2, 2, 3)이 돼요.",
+   "src": "2·3주차 cat/stack"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[불리언 인덱싱] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nx = torch.arange(10)\nprint(x[x > 5].tolist())",
+   "choices": [
+    "[5, 6, 7, 8, 9]",
+    "[True, True, True, True]",
+    "[0, 1, 2, 3, 4, 5]",
+    "[1, 1, 1, 1]",
+    "[6, 7, 8, 9]"
+   ],
+   "answer": 4,
+   "explain": "x > 5는 5보다 큰 자리만 True인 표예요. x[표]는 True인 자리의 값만 꺼내서 6, 7, 8, 9가 나와요. 5는 '크다'가 아니라서 빠져요.",
+   "src": "2주차 Week02 실습 4"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[영역 슬라이싱] 다음 코드의 출력으로 올바른 것은? (첫 번째는 오른쪽 아래 2×2, 두 번째는 마지막 열)\n\nimport torch\n\nx = torch.arange(12).reshape(3, 4)\nprint(x[1:, 2:].tolist(), x[:, -1].tolist())",
+   "choices": [
+    "[[6, 7], [10, 11]] [8, 9, 10, 11]",
+    "[[6, 7], [10, 11]] [3, 7, 11]",
+    "[[5, 6, 7], [9, 10, 11]] [3, 7, 11]",
+    "[[2, 3], [6, 7]] [3, 7, 11]",
+    "[[10, 11]] [3, 7, 11]"
+   ],
+   "answer": 1,
+   "explain": "x는 [[0,1,2,3],[4,5,6,7],[8,9,10,11]]이에요. x[1:, 2:]는 1행부터 끝, 2열부터 끝이라 [[6,7],[10,11]]이고, x[:, -1]은 모든 행의 마지막 열이라 [3,7,11]이에요.",
+   "src": "2주차 Week02 실습 4"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[NumPy 메모리 공유] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\nimport numpy as np\n\na = np.array([1, 2, 3])\nt = torch.from_numpy(a)\nu = torch.tensor(a)\na[0] = 100\nprint(t[0].item(), u[0].item())",
+   "choices": [
+    "1 1",
+    "100 100",
+    "1 100",
+    "100 1",
+    "에러가 난다"
+   ],
+   "answer": 3,
+   "explain": "torch.from_numpy는 메모리를 같이 써서 원본(a)을 바꾸면 t도 같이 바뀌어요. torch.tensor(a)는 복사해서 독립이라 u는 그대로 1이에요.",
+   "src": "3주차 NumPy 변환"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[ndim과 numel] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nx = torch.zeros(2, 3, 4)\nprint(x.ndim, x.numel(), tuple(x.shape))",
+   "choices": [
+    "3 24 (2, 3, 4)",
+    "2 24 (2, 3, 4)",
+    "3 9 (2, 3, 4)",
+    "24 3 (2, 3, 4)",
+    "3 24 (4, 3, 2)"
+   ],
+   "answer": 0,
+   "explain": "ndim은 차원 수라서 숫자 3개짜리 shape은 3이에요. numel은 전체 원소 수라서 2×3×4 = 24예요. shape은 만들 때 쓴 순서 그대로 (2, 3, 4)예요.",
+   "src": "2주차 Week02 실습 1"
+  },
+  {
+   "ch": "tensor",
+   "type": "mc",
+   "q": "[reshape와 view] reshape()와 view()의 차이로 올바른 것은?",
+   "choices": [
+    "view()는 메모리를 공유하는 대신 조건이 까다롭고, reshape()는 어디서나 되지만 메모리 공유를 보장하지 않는다",
+    "reshape()는 항상 메모리를 공유하고, view()는 항상 복사한다",
+    "view()는 원소 수를 바꿀 수 있고, reshape()는 바꿀 수 없다",
+    "둘은 완전히 똑같아서 아무 차이가 없다"
+   ],
+   "answer": 0,
+   "explain": "둘 다 원소 수는 그대로 두고 모양만 바꿔요. 다만 view는 같은 메모리를 쓰는 게 보장되는 대신 못 쓰는 경우가 있고, reshape는 어디서든 되는 대신 공유가 보장되지 않아요.",
+   "src": "2주차 Week02 표"
+  },
+  {
+   "ch": "tensor",
+   "type": "ox",
+   "q": "shape이 (3,)인 텐서에서 3은 '3차원'이라는 뜻이다.",
+   "answer": false,
+   "explain": "3은 원소가 3개라는 뜻이에요. 차원 수는 1차원(벡터)이에요. shape 숫자 하나하나는 각 차원의 길이예요.",
+   "src": "2주차 녹취"
+  },
+  {
+   "ch": "gpu",
+   "type": "mc",
+   "q": "[device 재저장] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\ndevice = \"cuda\" if torch.cuda.is_available() else \"cpu\"\nx = torch.ones(3)\nx.to(device)\nprint(x.device)",
+   "choices": [
+    "GPU가 있으면 cuda:0, 없으면 cpu",
+    "항상 cuda:0",
+    "cpu (GPU가 있는 컴퓨터에서도 cpu)",
+    "아무것도 출력되지 않는다",
+    "에러가 난다"
+   ],
+   "answer": 2,
+   "explain": "x.to(device)는 옮겨진 새 텐서를 돌려줄 뿐 x 자신은 안 바뀌어요. x = x.to(device)처럼 다시 저장해야 해요. 안 하면 x는 처음 만든 곳(CPU)에 그대로 있어요.",
+   "src": "2·3주차 .to(device)"
+  },
+  {
+   "ch": "gpu",
+   "type": "mc",
+   "q": "[device 고르는 코드] device = \"cuda\" if torch.cuda.is_available() else \"cpu\" 처럼 쓰는 이유로 가장 알맞은 것은?",
+   "choices": [
+    "GPU를 항상 강제로 쓰게 만들려고",
+    "GPU가 있는 컴퓨터에서는 GPU를, 없는 컴퓨터에서는 CPU를 써서 같은 코드가 어디서든 돌아가게 하려고",
+    "코드를 더 짧게 보이게 하려고",
+    "CPU는 느려서 쓰지 못하게 막으려고"
+   ],
+   "answer": 1,
+   "explain": "코드를 돌릴 컴퓨터에 GPU가 있는지는 모르니까 'cuda'로 못 박으면 GPU가 없는 컴퓨터에서 에러가 나요. 있는지 물어보고 고르면 안전해요.",
+   "src": "3주차 녹취 (device 하드코딩 금지)"
+  },
+  {
+   "ch": "gpu",
+   "type": "mc",
+   "q": "[CPU와 GPU] 딥러닝 학습에 GPU가 유리한 이유로 올바른 것은?",
+   "choices": [
+    "단순한 계산을 한꺼번에 아주 많이 병렬로 처리하는 데 강하고, 딥러닝은 행렬 계산의 반복이기 때문이다",
+    "CPU보다 복잡하고 다양한 일을 순서대로 처리하는 데 강하기 때문이다",
+    "메모리를 CPU와 함께 쓰기 때문이다",
+    "코드를 직접 짜지 않아도 되기 때문이다"
+   ],
+   "answer": 0,
+   "explain": "CPU는 복잡한 일을 하나씩 똑똑하게, GPU는 단순한 일을 수천 명이 동시에 하는 일꾼 같아요. 딥러닝은 단순한 곱셈·덧셈이 엄청 많아서 GPU가 훨씬 빨라요.",
+   "src": "2·3주차 CPU/GPU"
+  },
+  {
+   "ch": "gpu",
+   "type": "mc",
+   "q": "[device 불일치] CPU에 있는 텐서 x와 GPU(cuda)에 있는 텐서 y를 x + y로 더하면 어떻게 되는가?",
+   "choices": [
+    "device가 달라서 에러가 난다",
+    "자동으로 GPU로 옮겨져 더해진다",
+    "자동으로 CPU로 옮겨져 더해진다",
+    "경고만 나오고 결과가 0이 된다"
+   ],
+   "answer": 0,
+   "explain": "CPU 메모리와 GPU 메모리는 따로 있어서 PyTorch가 마음대로 옮겨 주지 않아요. 한쪽을 .to(device)로 옮겨서 맞춰야 해요. 모델과 데이터도 같은 device에 있어야 해요.",
+   "src": "2·3주차 device 규칙"
+  },
+  {
+   "ch": "gpu",
+   "type": "mc",
+   "q": "[GPU 텐서를 NumPy로] GPU에 있는 텐서를 NumPy 배열로 바꾸려면 어떻게 해야 하는가?",
+   "choices": [
+    "그냥 .numpy()를 바로 쓰면 된다",
+    "torch.cuda.numpy()를 쓴다",
+    "NumPy는 GPU 텐서를 만들 수 있으므로 변환이 필요 없다",
+    ".cpu()로 먼저 CPU로 옮긴 뒤 .numpy()를 쓴다 (requires_grad=True이면 .detach()도 필요)"
+   ],
+   "answer": 3,
+   "explain": "NumPy는 CPU 메모리에서만 일해요. 그래서 GPU 텐서는 .cpu()로 먼저 내려 준 다음에 .numpy()를 써요.",
+   "src": "3주차 녹취"
+  },
+  {
+   "ch": "gpu",
+   "type": "mc",
+   "q": "[Colab GPU 켜기] 구글 Colab에서 GPU를 쓰도록 설정하는 순서로 알맞은 것은?",
+   "choices": [
+    "파일 → 설정 → CPU 코어 수 늘리기",
+    "코드 첫 줄에 import gpu를 쓴다",
+    "상단 메뉴 런타임 → 런타임 유형 변경 → 하드웨어 가속기에서 T4 GPU 선택 후 저장",
+    "편집 → 가속기 → CUDA 설치"
+   ],
+   "answer": 2,
+   "explain": "Colab은 런타임 메뉴에서 하드웨어 가속기를 골라요. 무료 계정은 T4 GPU까지 쓸 수 있어요.",
+   "src": "4주차 Colab GPU 사용법 PPT"
+  },
+  {
+   "ch": "gpu",
+   "type": "ox",
+   "q": "CUDA를 설치하기만 하면 torch.cuda.is_available()은 항상 True가 된다.",
+   "answer": false,
+   "explain": "실제로 GPU가 있고 쓸 수 있는 환경이어야 True예요. 소프트웨어만 깔았다고 GPU가 생기지는 않아요.",
+   "src": "3주차 녹취"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[상속과 오버라이딩] 다음 코드에 대한 설명으로 올바른 것은?\n\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        print(\"동물이 소리를 냅니다.\")\n\nclass Dog(Animal):\n    def __init__(self, name, breed):\n        super().__init__(name)\n        self.breed = breed\n\n    def speak(self):\n        print(f\"{self.name}가 멍멍 짖습니다.\")\n\ndog = Dog(\"Bori\", \"Poodle\")\ndog.speak()",
+   "choices": [
+    "dog.speak()은 부모와 자식의 speak()을 차례로 실행한다.",
+    "자식 클래스가 __init__()을 정의해도 부모의 __init__()은 항상 자동으로 실행된다.",
+    "Dog가 speak()을 재정의했으므로 부모의 speak()은 더 이상 호출할 수 없다.",
+    "super().__init__(name)은 부모의 초기화 메서드를 실행하며, dog.speak()은 자식이 재정의한 메서드를 실행한다.",
+    "상속받은 메서드를 사용하려면 먼저 Animal 인스턴스를 별도로 생성해야 한다."
+   ],
+   "answer": 3,
+   "explain": "④가 정답이에요. super().__init__(name)이 부모의 초기화를 직접 불러 name이 만들어지고, dog.speak()는 Dog가 다시 쓴(오버라이딩) speak만 실행해요. 오답은 ①이 부모와 자식 것을 둘 다 실행한다고, ②가 부모 __init__이 자동으로 불린다고, ③이 부모 speak를 못 부른다고(super().speak()로 부를 수 있어요), ⑤가 Animal 인스턴스를 따로 만들어야 한다고 한 점이 틀려요.",
+   "src": "문제샘플 2번"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[인스턴스는 독립] 다음 코드의 출력으로 올바른 것은?\n\nclass Student:\n    def __init__(self, name, score):\n        self.name = name\n        self.score = score\n\ns1 = Student(\"Kim\", 95)\ns2 = Student(\"Lee\", 88)\ns1.score = 100\nprint(s1.score, s2.score)",
+   "choices": [
+    "100 100",
+    "95 88",
+    "100 88",
+    "100 95",
+    "95 95"
+   ],
+   "answer": 2,
+   "explain": "s1과 s2는 같은 설계도(Student)에서 만든 서로 다른 인스턴스예요. s1.score만 바꿨으니 s2.score는 그대로 88이에요.",
+   "src": "3주차 Student 예제"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[클래스 attribute] 다음 코드의 출력으로 올바른 것은?\n\nclass Student:\n    school = \"Suwon\"\n\n    def __init__(self, name):\n        self.name = name\n\ns1 = Student(\"Kim\")\ns2 = Student(\"Lee\")\nStudent.school = \"New\"\nprint(s1.school, s2.school)",
+   "choices": [
+    "New New",
+    "Suwon Suwon",
+    "New Suwon",
+    "Suwon New",
+    "에러가 난다"
+   ],
+   "answer": 0,
+   "explain": "school은 클래스에 붙은 공통 값(class attribute)이에요. Student.school을 바꾸면 모든 인스턴스가 같이 바뀐 값을 봐요. 반대로 s1.score처럼 self로 저장한 값은 인스턴스마다 따로예요.",
+   "src": "3주차 class attribute"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[Car 상태 변화] 다음 코드의 출력으로 올바른 것은?\n\nclass Car:\n    def __init__(self, brand, speed=0):\n        self.brand = brand\n        self.speed = speed\n\n    def accelerate(self, amount):\n        self.speed += amount\n\n    def brake(self, amount):\n        self.speed = max(0, self.speed - amount)\n\ncar = Car(\"Hyundai\")\ncar.accelerate(30)\ncar.brake(20)\ncar.brake(20)\nprint(car.speed)",
+   "choices": [
+    "-10",
+    "10",
+    "30",
+    "0",
+    "50"
+   ],
+   "answer": 3,
+   "explain": "처음 속도 0에서 30을 올리고(30), 20을 줄이면 10이에요. 다시 20을 줄이면 10-20 = -10이지만 max(0, -10)이라서 0에서 멈춰요.",
+   "src": "3주차 Car 예제"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[init 없는 자식] 다음 코드의 출력으로 올바른 것은? (줄마다 한 번씩 출력되고 / 로 구분해 적었다)\n\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def eat(self):\n        print(f\"{self.name} eats\")\n\nclass Dog(Animal):\n    def bark(self):\n        print(f\"{self.name} barks\")\n\ndog = Dog(\"Bori\")\ndog.eat()\ndog.bark()",
+   "choices": [
+    "TypeError (Dog에 __init__이 없어서 name을 만들 수 없다)",
+    "Bori eats → Bori barks",
+    "Bori barks → Bori eats",
+    "Bori eats 만 출력된다 (bark는 부모에 없어서 실행되지 않는다)",
+    "Bori eats → Bori eats"
+   ],
+   "answer": 1,
+   "explain": "Dog에 __init__이 없으면 부모(Animal)의 __init__을 그대로 써서 name이 만들어져요. eat()은 부모 것, bark()는 Dog에 직접 만든 것이라서 둘 다 실행돼요.",
+   "src": "3주차 Animal/Dog 예제"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[super 빠뜨리면] 다음 코드를 실행하면 어떻게 되는가?\n\nclass Animal:\n    def __init__(self, name):\n        self.name = name\n\nclass Dog(Animal):\n    def __init__(self, name, breed):\n        self.breed = breed\n\ndog = Dog(\"Bori\", \"Poodle\")\nprint(dog.breed)\nprint(dog.name)",
+   "choices": [
+    "Poodle → Bori 를 차례로 출력한다",
+    "처음 Dog를 만들 때 TypeError가 난다",
+    "Poodle → None 을 차례로 출력한다",
+    "Bori만 출력한다",
+    "Poodle을 출력한 뒤 AttributeError가 난다"
+   ],
+   "answer": 4,
+   "explain": "자식이 __init__을 직접 정의하면 부모 __init__은 자동으로 안 불려요. super().__init__(name)이 없어서 self.name이 만들어지지 않았으니, breed(Poodle)는 출력되지만 dog.name을 읽는 순간 AttributeError가 나요.",
+   "src": "3·4주차 super() 강조"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[오버라이딩 아님] 다음 코드의 출력으로 올바른 것은?\n\nclass Animal:\n    def speak(self):\n        print(\"동물 소리\")\n\nclass Dog(Animal):\n    def speak2(self):\n        print(\"멍멍\")\n\ndog = Dog()\ndog.speak()",
+   "choices": [
+    "멍멍",
+    "동물 소리",
+    "동물 소리 → 멍멍",
+    "에러가 난다",
+    "아무것도 출력되지 않는다"
+   ],
+   "answer": 1,
+   "explain": "Dog에는 speak2가 있고 speak는 없어요. 이름이 달라서 오버라이딩(덮어쓰기)이 아니에요. dog.speak()는 Dog에서 못 찾아서 부모 Animal의 speak를 써요.",
+   "src": "4주차 오버라이딩 설명"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[Wizard 상속] 다음 코드의 출력으로 올바른 것은?\n\nclass Character:\n    def __init__(self, name, health):\n        self.name = name\n        self.health = health\n\n    def take_damage(self, amount):\n        self.health = max(0, self.health - amount)\n\nclass Wizard(Character):\n    def __init__(self, name, health, mana):\n        super().__init__(name, health)\n        self.mana = mana\n\n    def use_magic(self):\n        if self.mana >= 10:\n            self.mana -= 10\n\nw = Wizard(\"Merlin\", 80, 20)\nw.take_damage(15)\nw.use_magic()\nw.use_magic()\nw.use_magic()\nprint(w.health, w.mana)",
+   "choices": [
+    "65 -10",
+    "65 10",
+    "80 0",
+    "65 0",
+    "95 0"
+   ],
+   "answer": 3,
+   "explain": "take_damage(15)로 체력 80이 65가 돼요. use_magic은 mana가 10 이상일 때만 10을 써요. 20 → 10 → 0이 되고, 세 번째는 0이라 조건에 걸려 아무 일도 안 일어나요.",
+   "src": "3주차 Character/Wizard 예제"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[부모는 자식 기능 못 씀] 다음 코드를 실행하면 어떻게 되는가?\n\nclass Character:\n    pass\n\nclass Wizard(Character):\n    def use_magic(self):\n        print(\"magic\")\n\nw = Wizard()\nc = Character()\nw.use_magic()\nc.use_magic()",
+   "choices": [
+    "magic을 출력한 뒤 AttributeError가 난다",
+    "magic을 두 번 출력한다",
+    "처음부터 아무것도 출력하지 못하고 에러가 난다",
+    "magic을 출력하고 정상 종료된다",
+    "부모 인스턴스 c가 자동으로 Wizard로 바뀐다"
+   ],
+   "answer": 0,
+   "explain": "w.use_magic()은 Wizard 인스턴스라서 잘 돼요. 하지만 c는 부모 Character의 인스턴스라서 자식에만 있는 use_magic을 못 써요. 부모는 자식의 기능을 모르니까요.",
+   "src": "4주차 Character/Wizard 설명"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[__call__] 다음 코드의 출력으로 올바른 것은?\n\nclass AffineFunction:\n    def __init__(self, a, b):\n        self.a = a\n        self.b = b\n\n    def __call__(self, x):\n        return self.a * x + self.b\n\nf = AffineFunction(a=2, b=1)\nprint(f(3), f(10))",
+   "choices": [
+    "6 20",
+    "7 11",
+    "21 7",
+    "에러가 난다 (인스턴스는 함수처럼 부를 수 없다)",
+    "7 21"
+   ],
+   "answer": 4,
+   "explain": "__call__을 만들어 두면 f(3)처럼 인스턴스를 함수처럼 부를 수 있어요. f(3) = 2×3+1 = 7, f(10) = 2×10+1 = 21이에요.",
+   "src": "3주차 AffineFunction 예제"
+  },
+  {
+   "ch": "class",
+   "type": "mc",
+   "q": "[상속 빈칸] 빈칸 (A)에 들어갈 코드로 알맞은 것은? (마지막 줄의 출력이 Subin 22 DS가 되어야 한다)\n\nclass Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\nclass Student(Person):\n    def __init__(self, name, age, major):\n        ________________   # (A)\n        self.major = major\n\ns = Student(\"Subin\", 22, \"DS\")\nprint(s.name, s.age, s.major)",
+   "choices": [
+    "super().__init__()",
+    "Person(name, age)",
+    "super().__init__(name, age)",
+    "super.__init__(name, age)",
+    "self.__init__(name, age)"
+   ],
+   "answer": 2,
+   "explain": "자식의 __init__ 안에서 부모가 맡은 name, age를 만들어 주는 코드는 super().__init__(name, age)예요. 인자를 안 넘기면 TypeError, super에 괄호가 없으면 오류이고, self.__init__을 부르면 자기 자신을 끝없이 다시 불러요.",
+   "src": "3주차 실습 3"
+  },
+  {
+   "ch": "class",
+   "type": "ox",
+   "q": "자식 클래스가 __init__()을 새로 정의하면, 부모의 __init__()도 항상 자동으로 함께 실행된다.",
+   "answer": false,
+   "explain": "자동으로 안 불려요. 그래서 자식 __init__ 안에서 super().__init__(...)을 직접 불러야 해요. 시험에 자주 나오는 함정이에요.",
+   "src": "3·4주차 녹취 (강조)"
+  },
+  {
+   "ch": "class",
+   "type": "short",
+   "q": "자식 클래스의 __init__ 안에서 부모의 초기화 메서드를 호출하는 코드를 쓰시오. (인자는 생략)",
+   "answer": "super().__init__()",
+   "alts": [
+    "super().__init__",
+    "super().__init__(...)",
+    "super().__init__(name)"
+   ],
+   "explain": "super()는 부모 클래스를 가리켜요. 거기에 .__init__()을 붙여 부모 초기화를 실행해요. nn.Module을 상속할 때도 똑같이 써요.",
+   "src": "3·4주차 녹취"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[모델 정의와 호출 과정] 다음 모델은 입력 특성 3개를 출력 특성 2개로 변환한다. 빈칸 (A), (B)와 model(x)의 호출 과정에 대한 설명을 올바르게 연결한 것은?\n\nimport torch\nfrom torch import nn\n\nclass MyModel(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.fc = __________  # (A)\n\n    def forward(self, x):\n        return __________     # (B)\n\nmodel = MyModel()\nx = torch.ones(4, 3)\ny = model(x)\nprint(tuple(y.shape))  # (4, 2)",
+   "choices": [
+    "(A) nn.Linear(2, 3) | (B) self.fc(x) | 호출 과정: 상속받은 __call__()의 호출 처리를 거쳐 forward() 실행",
+    "(A) nn.Linear(3, 2) | (B) self.fc(x) | 호출 과정: __init__()을 다시 실행하여 출력 계산",
+    "(A) nn.Linear(3, 2) | (B) self.fc | 호출 과정: 상속받은 __call__()의 호출 처리를 거쳐 forward() 실행",
+    "(A) nn.Linear(4, 2) | (B) self.fc(x) | 호출 과정: __init__()을 다시 실행하여 출력 계산",
+    "(A) nn.Linear(3, 2) | (B) self.fc(x) | 호출 과정: 상속받은 __call__()의 호출 처리를 거쳐 forward() 실행"
+   ],
+   "answer": 4,
+   "explain": "(A)는 입력 3개 출력 2개라서 nn.Linear(3, 2)이고, (B)는 self.fc(x)로 층에 x를 통과시켜야 (4, 2)가 나와요(self.fc만 쓰면 계산하지 않고 층 자체를 돌려줘요). model(x)는 forward를 직접 부르는 게 아니라 nn.Module에서 물려받은 __call__이 처리한 뒤 forward를 실행하고, __init__은 객체를 만들 때 한 번만 실행돼요.",
+   "src": "문제샘플 3번"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[Linear의 모양] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\nfrom torch import nn\n\nfc = nn.Linear(3, 2)\nprint(tuple(fc.weight.shape), tuple(fc.bias.shape), sum(p.numel() for p in fc.parameters()))",
+   "choices": [
+    "(3, 2) (2,) 8",
+    "(2, 3) (2,) 8",
+    "(2, 3) (3,) 9",
+    "(3, 2) (3,) 9",
+    "(2, 3) (2,) 6"
+   ],
+   "answer": 1,
+   "explain": "nn.Linear(3, 2)의 weight는 (출력, 입력) = (2, 3)이고 bias는 출력 개수만큼 (2,)예요. 파라미터 수는 2×3 + 2 = 8개예요. 입력 3개 출력 2개라서 weight를 (3, 2)로 헷갈리기 쉬워요.",
+   "src": "3·4주차 nn.Linear"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[TinyMLP 파라미터] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\nfrom torch import nn\n\nclass TinyMLP(nn.Module):\n    def __init__(self, in_dim=4, hidden_dim=8, out_dim=2):\n        super().__init__()\n        self.fc1 = nn.Linear(in_dim, hidden_dim)\n        self.relu = nn.ReLU()\n        self.fc2 = nn.Linear(hidden_dim, out_dim)\n\n    def forward(self, x):\n        x = self.fc1(x)\n        x = self.relu(x)\n        x = self.fc2(x)\n        return x\n\nmodel = TinyMLP()\ny = model(torch.ones(3, 4))\nprint(tuple(y.shape), sum(p.numel() for p in model.parameters()))",
+   "choices": [
+    "(3, 2) 48",
+    "(3, 8) 58",
+    "(4, 2) 58",
+    "(3, 2) 40",
+    "(3, 2) 58"
+   ],
+   "answer": 4,
+   "explain": "앞의 3은 배치 크기라 그대로고, 마지막 차원만 4 → 8 → 2로 바뀌어 (3, 2)예요. 파라미터는 fc1이 4×8+8 = 40, fc2가 8×2+2 = 18이라 58개예요(bias를 빼먹으면 48이 되어 틀려요, ReLU는 파라미터가 없어요).",
+   "src": "4주차 TinyMLP"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[입력 크기 불일치] 다음 코드를 실행하면 어떻게 되는가?\n\nimport torch\nfrom torch import nn\n\nfc = nn.Linear(4, 3)\nx = torch.ones(5, 3)\ny = fc(x)\nprint(tuple(y.shape))",
+   "choices": [
+    "RuntimeError가 난다 (Linear의 입력 4개와 x의 마지막 차원 3이 안 맞는다)",
+    "(5, 3)이 출력된다",
+    "(5, 4)가 출력된다",
+    "(3, 3)이 출력된다",
+    "(4, 3)이 출력된다"
+   ],
+   "answer": 0,
+   "explain": "nn.Linear(4, 3)은 마지막 차원이 4인 입력만 받아요. x의 마지막 차원은 3이라서 행렬 곱이 맞지 않아 에러가 나요. 앞의 5(배치 크기)는 상관없어요.",
+   "src": "3주차 자주 발생하는 오류"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[forward 안에서 layer 만들기] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\nfrom torch import nn\n\nclass M(nn.Module):\n    def __init__(self):\n        super().__init__()\n\n    def forward(self, x):\n        return nn.Linear(3, 2)(x)\n\nm = M()\ny = m(torch.ones(4, 3))\nprint(tuple(y.shape), len(list(m.parameters())))",
+   "choices": [
+    "(4, 2) 2",
+    "(4, 2) 8",
+    "에러가 난다",
+    "(4, 2) 0",
+    "(4, 3) 0"
+   ],
+   "answer": 3,
+   "explain": "forward 안에서 nn.Linear를 만들면 계산은 돼서 (4, 2)가 나와요. 하지만 self에 저장하지 않았으니 모델에 등록되지 않아 parameters()에 아무것도 안 잡혀요(0개). 업데이트할 대상이 없어서 학습이 안 돼요.",
+   "src": "3·4주차 layer 등록 이유"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[init과 forward 횟수] 다음 코드의 출력으로 올바른 것은? (줄마다 한 번씩 출력되고 → 로 구분해 적었다)\n\nimport torch\nfrom torch import nn\n\nclass M(nn.Module):\n    def __init__(self):\n        super().__init__()\n        print(\"init\")\n\n    def forward(self, x):\n        print(\"forward\")\n        return x\n\nm = M()\nm(torch.ones(1))\nm(torch.ones(1))",
+   "choices": [
+    "init → forward",
+    "forward → forward",
+    "init → forward → forward",
+    "init → init → forward → forward",
+    "init → forward → init → forward"
+   ],
+   "answer": 2,
+   "explain": "__init__은 모델을 만들 때(M()) 딱 한 번만 실행돼요. forward는 m(x)로 부를 때마다 실행되니 두 번 불렀으면 두 번 나와요.",
+   "src": "3주차 __init__/forward 역할"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[super 없는 nn.Module] 다음 코드를 실행하면 어떻게 되는가?\n\nimport torch\nfrom torch import nn\n\nclass M(nn.Module):\n    def __init__(self):\n        self.fc = nn.Linear(3, 2)\n\n    def forward(self, x):\n        return self.fc(x)\n\nm = M()",
+   "choices": [
+    "정상 실행된다",
+    "NotImplementedError가 난다",
+    "AttributeError가 난다 (nn.Module 초기화 전에 layer를 등록했다)",
+    "SyntaxError가 난다",
+    "TypeError가 난다"
+   ],
+   "answer": 2,
+   "explain": "super().__init__()을 먼저 불러야 nn.Module이 layer와 파라미터를 관리할 준비를 해요. 준비 없이 self.fc = nn.Linear(...)로 등록하면 에러가 나요. 그래서 교수님이 '무조건 맨 앞에' 쓰라고 했어요.",
+   "src": "3·4주차 녹취 (super 강조)"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[Sequential 이름] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\nfrom torch import nn\n\nmodel = nn.Sequential(nn.Linear(4, 5), nn.ReLU(), nn.Linear(5, 2))\nfor name, p in model.named_parameters():\n    print(name, tuple(p.shape))",
+   "choices": [
+    "0.weight (5, 4), 0.bias (5,), 2.weight (2, 5), 2.bias (2,)",
+    "0.weight (4, 5), 0.bias (5,), 2.weight (5, 2), 2.bias (2,)",
+    "0.weight (5, 4), 0.bias (5,), 1.weight (2, 5), 1.bias (2,)",
+    "0.weight (5, 4), 0.bias (5,), 1.weight (5,), 2.weight (2, 5), 2.bias (2,)",
+    "0.weight (5, 4), 2.weight (2, 5)"
+   ],
+   "answer": 0,
+   "explain": "Sequential 안의 층은 0, 1, 2 번호를 받아요. 0번 Linear(4,5), 1번 ReLU, 2번 Linear(5,2)예요. ReLU(1번)는 파라미터가 없어서 이름이 안 나오고, weight는 (출력, 입력) 모양이에요.",
+   "src": "6주차 Week04 [3] Sequential"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[flatten과 Linear] 다음 코드의 출력으로 올바른 것은? (첫째 줄은 flatten 뒤 shape, 둘째 줄은 Linear를 통과한 뒤 shape)\n\nimport torch\nfrom torch import nn\n\nx = torch.zeros(8, 1, 4, 4)\nx = torch.flatten(x, start_dim=1)\nprint(tuple(x.shape))\nfc = nn.Linear(16, 10)\nprint(tuple(fc(x).shape))",
+   "choices": [
+    "(128,) → (10,)",
+    "(8, 16) → (16, 10)",
+    "(8, 4, 4) → (8, 10)",
+    "(8, 16) → (8, 10)",
+    "(1, 128) → (1, 10)"
+   ],
+   "answer": 3,
+   "explain": "flatten(start_dim=1)은 배치 차원(8)은 두고 나머지 1×4×4 = 16을 한 줄로 펴요. 그다음 Linear(16, 10)이 마지막 차원 16을 10으로 바꿔 (8, 10)이 돼요.",
+   "src": "3·6주차 이미지 예시"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[Parameter 등록] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\nfrom torch import nn\n\nclass M(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.W = nn.Parameter(torch.randn(2, 3))\n        self.B = torch.randn(2)\n\nm = M()\nprint([name for name, _ in m.named_parameters()])",
+   "choices": [
+    "['W', 'B']",
+    "['W']",
+    "['B']",
+    "[]",
+    "['W.weight']"
+   ],
+   "answer": 1,
+   "explain": "nn.Parameter로 감싼 W만 모델에 등록돼요. B는 그냥 텐서라서 named_parameters()에 안 나오고, 그러면 optimizer가 B를 업데이트하지 않아요.",
+   "src": "6주차 nn.Parameter 설명"
+  },
+  {
+   "ch": "module",
+   "type": "mc",
+   "q": "[forward 빈칸] 빈칸에 들어갈 식으로 알맞은 것은? (입력 특성 4개를 출력 특성 3개로 바꾸고, 마지막 줄 출력은 (5, 3)이 되어야 한다)\n\nimport torch\nfrom torch import nn\n\nclass OneLayer(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.W = nn.Parameter(torch.randn(3, 4))\n        self.B = nn.Parameter(torch.randn(3))\n\n    def forward(self, x):\n        return ________________\n\nmodel = OneLayer()\ny = model(torch.randn(5, 4))\nprint(tuple(y.shape))",
+   "choices": [
+    "x @ self.W + self.B",
+    "self.W @ x + self.B",
+    "x * self.W.T + self.B",
+    "self.W.T @ x + self.B",
+    "x @ self.W.T + self.B"
+   ],
+   "answer": 4,
+   "explain": "W는 (출력, 입력) = (3, 4)라서 전치(.T)해 (4, 3)으로 만든 뒤 x (5, 4)와 곱하면 (5, 3)이 되고, 여기에 bias (3,)가 브로드캐스팅으로 더해져요. 전치를 빼면 (5, 4)와 (3, 4)는 곱할 수 없어요.",
+   "src": "3·6주차 x @ W.T + b"
+  },
+  {
+   "ch": "module",
+   "type": "ox",
+   "q": "forward()를 정의하지 않은 nn.Module 모델에 model(x)를 호출하면 NotImplementedError가 난다.",
+   "answer": true,
+   "explain": "model(x)는 결국 forward를 실행하려고 하는데, 만들어 둔 forward가 없으니 에러가 나요. forward 이름도 바꾸면 안 돼요.",
+   "src": "3주차 자주 발생하는 오류"
+  },
+  {
+   "ch": "module",
+   "type": "ox",
+   "q": "nn.ReLU()는 학습되는 파라미터(weight, bias)를 가지고 있다.",
+   "answer": false,
+   "explain": "ReLU는 음수를 0으로 바꾸기만 하는 규칙이라 학습할 값이 없어요. 그래서 shape도 그대로이고 파라미터 수에도 안 들어가요.",
+   "src": "3·4주차 TinyMLP"
+  },
+  {
+   "ch": "module",
+   "type": "short",
+   "q": "nn.Linear(5, 3)에 들어 있는 학습 파라미터(weight와 bias)는 모두 몇 개인가? 숫자만 쓰시오.",
+   "answer": "18",
+   "alts": [
+    "18개"
+   ],
+   "explain": "weight는 3×5 = 15개, bias는 3개라서 합쳐서 18개예요. 공식은 (입력 × 출력) + 출력이에요.",
+   "src": "3·4주차 파라미터 수"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[첫 번째 backward] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nw = torch.tensor(3.0, requires_grad=True)\nL = w ** 2\nprint(w.grad)\nL.backward()\nprint(w.grad)",
+   "choices": [
+    "tensor(0.) → tensor(6.)",
+    "None → tensor(6.)",
+    "None → tensor(9.)",
+    "tensor(6.) → tensor(6.)",
+    "None → tensor(3.)"
+   ],
+   "answer": 1,
+   "explain": "backward 전에는 아직 계산을 안 해서 w.grad가 None이에요. L = w²의 미분은 2w라서 w=3이면 6이에요. 값 9는 L 자체(3²)예요.",
+   "src": "6주차 Autograd 첫 예제"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[chain rule 계산] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nw = torch.tensor(2.0, requires_grad=True)\na = w ** 2\nb = 3 * a\nL = b + 1\nL.backward()\nprint(a.item(), b.item(), L.item(), w.grad.item())",
+   "choices": [
+    "4.0 12.0 13.0 4.0",
+    "4.0 12.0 13.0 3.0",
+    "4.0 12.0 12.0 12.0",
+    "4.0 12.0 13.0 12.0",
+    "2.0 6.0 7.0 12.0"
+   ],
+   "answer": 3,
+   "explain": "a=2²=4, b=3×4=12, L=12+1=13이에요. 기울기는 곱해서 구해요. dL/db=1, db/da=3, da/dw=2w=4라서 1×3×4 = 12예요.",
+   "src": "6주차 chain rule 예제"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[현실적인 loss] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nw = torch.tensor(2.0, requires_grad=True)\nx = torch.tensor(3.0)\ntarget = torch.tensor(10.0)\npred = w * x\nloss = (pred - target) ** 2\nloss.backward()\nprint(pred.item(), loss.item(), w.grad.item())",
+   "choices": [
+    "6.0 16.0 -24.0",
+    "6.0 16.0 24.0",
+    "6.0 16.0 -8.0",
+    "6.0 4.0 -24.0",
+    "6.0 16.0 8.0"
+   ],
+   "answer": 0,
+   "explain": "pred = 2×3 = 6, loss = (6−10)² = 16이에요. loss를 w로 미분하면 2(wx−t)·x = 2×(6−10)×3 = −24이고, 음수라는 것은 w를 키워야 loss가 줄어든다는 뜻이에요(한 번에 미분하든 chain rule로 하든 값만 맞으면 돼요).",
+   "src": "6주차 현실적인 loss 예제"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[leaf와 grad] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nw = torch.tensor(2.0, requires_grad=True)\nx = torch.tensor(3.0)\npred = w * x\nloss = (pred - 10.0) ** 2\nloss.backward()\nprint(w.is_leaf, pred.is_leaf, w.grad, pred.grad, x.grad)",
+   "choices": [
+    "True, True, tensor(-24.), tensor(-8.), None",
+    "True, False, tensor(-24.), None, tensor(-16.)",
+    "True, False, None, None, None",
+    "False, False, tensor(-24.), None, None",
+    "True, False, tensor(-24.), None, None"
+   ],
+   "answer": 4,
+   "explain": "w는 직접 만든 leaf라서 True이고 grad가 저장돼요. pred는 계산으로 만들어진 중간 텐서라서 leaf가 아니고 .grad도 None이에요. x는 requires_grad=False라서 leaf여도 .grad가 None이에요.",
+   "src": "6주차 leaf tensor"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[gradient 누적] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nw = torch.tensor(2.0, requires_grad=True)\n(w ** 2).backward()\nprint(w.grad.item())\n(w ** 3).backward()\nprint(w.grad.item())\nw.grad.zero_()\n(w ** 4).backward()\nprint(w.grad.item())",
+   "choices": [
+    "4.0 → 12.0 → 32.0",
+    "4.0 → 16.0 → 48.0",
+    "4.0 → 16.0 → 32.0",
+    "4.0 → 16.0 → 16.0",
+    "4.0 → 12.0 → 44.0"
+   ],
+   "answer": 2,
+   "explain": "w=2에서 w²의 미분은 4예요. 지우지 않고 w³(미분 12)를 이어서 backward하면 덮어쓰지 않고 더해서 4+12 = 16이 돼요. zero_()로 지운 뒤 w⁴(미분 4w³ = 32)를 하면 32만 남아요.",
+   "src": "6주차 gradient 누적"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[zero_ 없이 반복] 다음 코드의 출력으로 올바른 것은? (줄마다 한 번씩 출력되고 → 로 구분해 적었다)\n\nimport torch\n\nw = torch.tensor(1.0, requires_grad=True)\nfor _ in range(3):\n    loss = 2 * w ** 2\n    loss.backward()\n    print(w.grad.item())",
+   "choices": [
+    "4.0 → 4.0 → 4.0",
+    "4.0 → 8.0 → 12.0",
+    "4.0 → 8.0 → 16.0",
+    "4.0 → 16.0 → 64.0",
+    "2.0 → 4.0 → 6.0"
+   ],
+   "answer": 1,
+   "explain": "loss = 2w²의 미분은 4w = 4예요. 매번 새로 계산한 그래프라도 grad를 지우지 않으면 4가 계속 더해져서 4, 8, 12가 돼요. 새 그래프를 만드는 것과 grad를 지우는 것은 서로 별개예요.",
+   "src": "6주차 기본 실습 2"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[backward 두 번] 다음 코드를 실행하면 어떻게 되는가?\n\nimport torch\n\nw = torch.tensor(2.0, requires_grad=True)\nL = w ** 2\nL.backward()\nL.backward()\nprint(w.grad)",
+   "choices": [
+    "tensor(8.)이 출력된다",
+    "tensor(4.)가 출력된다",
+    "None이 출력된다",
+    "에러 없이 tensor(4.)가 두 번 출력된다",
+    "두 번째 backward에서 RuntimeError가 난다"
+   ],
+   "answer": 4,
+   "explain": "backward를 한 번 하면 메모리를 아끼려고 계산 그래프가 풀려 버려요. 같은 L로 또 backward하면 '이미 지운 그래프를 다시 쓰려 한다'는 에러가 나요. 다시 하려면 forward부터 새로 해야 해요.",
+   "src": "6주차 그래프 재사용 불가"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[sum과 mean의 grad] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nw = torch.tensor([1.0, 2.0, 4.0], requires_grad=True)\n(w ** 3).sum().backward()\nprint(w.grad.tolist())\nw.grad.zero_()\n(w ** 3).mean().backward()\nprint(w.grad.tolist())",
+   "choices": [
+    "[3.0, 12.0, 48.0] / [1.0, 4.0, 16.0]",
+    "[3.0, 12.0, 48.0] / [3.0, 12.0, 48.0]",
+    "[1.0, 4.0, 16.0] / [3.0, 12.0, 48.0]",
+    "[3.0, 12.0, 48.0] / [9.0, 36.0, 144.0]",
+    "63.0 / 21.0"
+   ],
+   "answer": 0,
+   "explain": "w³의 미분은 3w²라서 w=1,2,4에서 3, 12, 48이에요. 그런데 mean은 원소 3개로 나누므로 grad도 3으로 나뉘어 1, 4, 16이 돼요. 그래서 sum의 grad가 mean의 grad보다 3배 커요.",
+   "src": "4주차 실습 2"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[벡터 파라미터] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nW = torch.tensor([1.0, 2.0, 3.0], requires_grad=True)\nX = torch.tensor([2.0, 1.0, 4.0])\nb = W @ X\nL = b ** 2\nL.backward()\nprint(b.item(), L.item(), W.grad.tolist())",
+   "choices": [
+    "16.0 256.0 [32.0, 16.0, 64.0]",
+    "16.0 256.0 [2.0, 1.0, 4.0]",
+    "16.0 16.0 [64.0, 32.0, 128.0]",
+    "16.0 256.0 [64.0, 32.0, 128.0]",
+    "16.0 256.0 [16.0, 16.0, 16.0]"
+   ],
+   "answer": 3,
+   "explain": "b = 1×2 + 2×1 + 3×4 = 16, L = b² = 256이에요. L의 미분은 2b × (각 X 값) = 32 × [2, 1, 4] = [64, 32, 128]이에요. W가 3개면 grad도 3개로 같은 모양이에요.",
+   "src": "6주차 벡터 parameter 예제"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[backward와 값 변화] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\n\nw = torch.tensor(3.0, requires_grad=True)\nloss = (w - 1) ** 2\nloss.backward()\nprint(w.item(), w.grad.item())\nwith torch.no_grad():\n    w -= 0.1 * w.grad\nprint(round(w.item(), 2))",
+   "choices": [
+    "1.0 4.0 → 2.6",
+    "3.0 4.0 → 3.4",
+    "3.0 4.0 → 2.6",
+    "3.0 2.0 → 2.8",
+    "3.0 4.0 → 3.0"
+   ],
+   "answer": 2,
+   "explain": "backward는 grad(여기서는 2(w−1) = 4)를 계산해 저장만 하고 w 값은 3.0 그대로예요. 업데이트는 우리가 no_grad 안에서 w −= 0.1×4로 직접 하므로 3−0.4 = 2.6이 돼요.",
+   "src": "6주차 핵심 문장"
+  },
+  {
+   "ch": "autograd",
+   "type": "mc",
+   "q": "[일반 텐서와 Parameter] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\nfrom torch import nn\n\nclass RegModel(nn.Module):\n    def __init__(self):\n        super().__init__()\n        self.tensor_w = torch.tensor(2.0, requires_grad=True)\n        self.parameter_w = nn.Parameter(torch.tensor(2.0))\n\n    def forward(self, x):\n        return self.tensor_w * x + self.parameter_w * x\n\nmodel = RegModel()\nloss = (model(torch.tensor(3.0)) - 10.0) ** 2\nloss.backward()\nprint([n for n, _ in model.named_parameters()], model.tensor_w.grad.item(), model.parameter_w.grad.item())",
+   "choices": [
+    "['tensor_w', 'parameter_w'] 12.0 12.0",
+    "['parameter_w'] None 12.0",
+    "['parameter_w'] 12.0 12.0",
+    "['parameter_w'] 6.0 6.0",
+    "['tensor_w'] 12.0 12.0"
+   ],
+   "answer": 2,
+   "explain": "pred = 2×3 + 2×3 = 12, loss = (12−10)² = 4이고, 두 w 모두 grad는 2×2×3 = 12로 똑같이 계산돼요. 하지만 nn.Parameter로 만든 것만 모델에 등록되어 named_parameters()에 나오고, 일반 텐서는 optimizer로 업데이트되지 않는 함정이 있어요.",
+   "src": "6주차 기본 실습 3"
+  },
+  {
+   "ch": "autograd",
+   "type": "ox",
+   "q": "requires_grad=True인 leaf 텐서를 no_grad 없이 w -= 0.1 * w.grad 처럼 제자리(in-place)로 수정하면 에러가 난다.",
+   "answer": true,
+   "explain": "맞아요. 값을 고치는 것까지 계산 그래프가 추적하려 해서 RuntimeError가 나요. 그래서 업데이트는 with torch.no_grad(): 안에서 해요.",
+   "src": "6주차 no_grad 설명"
+  },
+  {
+   "ch": "autograd",
+   "type": "ox",
+   "q": "원소가 여러 개인 텐서 loss에 곧바로 backward()를 호출하면 에러가 나고, sum()이나 mean()으로 숫자 하나로 만든 뒤에 호출해야 한다.",
+   "answer": true,
+   "explain": "backward는 숫자 하나(scalar)에 대해서만 불러요. 그래서 loss를 sum이나 mean으로 합쳐요. 보통 loss 함수는 원래부터 숫자 하나를 돌려줘요.",
+   "src": "6주차 녹취"
+  },
+  {
+   "ch": "autograd",
+   "type": "short",
+   "q": "계산이 끝난 뒤 .grad 값이 저장되는 텐서(직접 만든 requires_grad=True 텐서나 모델의 weight, bias)를 무슨 텐서라 하는가? 영어로 쓰시오.",
+   "answer": "leaf",
+   "alts": [
+    "leaf tensor",
+    "리프",
+    "리프 텐서",
+    "leaf 텐서"
+   ],
+   "explain": "계산 그래프의 맨 끝(잎)에 있는 텐서예요. 중간 계산 결과(prediction 등)는 leaf가 아니라서 .grad가 None이에요.",
+   "src": "6주차 leaf tensor"
+  },
+  {
+   "ch": "loss",
+   "type": "mc",
+   "q": "[MSE 계산] 다음 코드의 출력으로 올바른 것은? (첫 번째는 직접 계산, 두 번째는 nn.MSELoss)\n\nimport torch\nfrom torch import nn\n\nprediction = torch.tensor([3.0, 4.0])\ntarget = torch.tensor([1.0, 5.0])\nprint(((prediction - target) ** 2).mean().item(), nn.MSELoss()(prediction, target).item())",
+   "choices": [
+    "2.5 2.5",
+    "5.0 5.0",
+    "5.0 2.5",
+    "1.5 1.5",
+    "2.0 2.0"
+   ],
+   "answer": 0,
+   "explain": "차이를 제곱하면 (3−1)² = 4, (4−5)² = 1이고, 평균은 (4+1)/2 = 2.5예요. 5.0은 평균을 안 내고 더하기만 한 값이에요(nn.MSELoss는 직접 계산과 똑같은 값이 나와요).",
+   "src": "6주차 Week04 [4] MSE"
+  },
+  {
+   "ch": "loss",
+   "type": "mc",
+   "q": "[shape 함정] 다음 코드의 출력으로 올바른 것은? (첫 번째는 shape을 안 맞춘 loss, 두 번째는 맞춘 loss)\n\nimport torch\nfrom torch import nn\n\nprediction = torch.tensor([[2.0], [4.0], [6.0]])\ntarget = torch.tensor([1.0, 5.0, 4.0])\nwrong = nn.MSELoss()(prediction, target)\nright = nn.MSELoss()(prediction, target.reshape(-1, 1))\nprint(wrong.item(), right.item())",
+   "choices": [
+    "2.0 2.0",
+    "에러가 난다 (shape이 달라서)",
+    "2.0 6.0",
+    "6.0 2.0",
+    "54.0 2.0"
+   ],
+   "answer": 3,
+   "explain": "target을 (3, 1)로 맞추면 일대일로 비교해 (1+1+4)/3 = 2예요. (3,)로 그대로 두면 에러가 아니라 경고만 뜨고 브로드캐스팅으로 3×3 = 9쌍을 비교해 틀린 값 6이 나와요. 그래서 prediction과 target의 shape을 꼭 맞춰야 해요.",
+   "src": "6·7주차 shape 주의 강조"
+  },
+  {
+   "ch": "loss",
+   "type": "mc",
+   "q": "[SGD 한 번] 다음 코드의 출력으로 올바른 것은? (첫 줄은 backward 직후의 grad와 weight, 둘째 줄은 step 직후의 weight)\n\nimport torch\nfrom torch import nn, optim\n\nmodel = nn.Linear(1, 1, bias=False)\nwith torch.no_grad():\n    model.weight.fill_(1.0)\n\nx = torch.tensor([[1.0], [2.0]])\ntarget = torch.tensor([[2.0], [4.0]])\ncriterion = nn.MSELoss()\noptimizer = optim.SGD(model.parameters(), lr=0.1)\n\noptimizer.zero_grad()\nloss = criterion(model(x), target)\nloss.backward()\nprint(model.weight.grad.item(), model.weight.item())\noptimizer.step()\nprint(round(model.weight.item(), 2))",
+   "choices": [
+    "-5.0 1.5 → 1.5",
+    "-5.0 1.0 → 1.5",
+    "5.0 1.0 → 0.5",
+    "-5.0 1.0 → 1.0",
+    "-5.0 1.0 → 6.0"
+   ],
+   "answer": 1,
+   "explain": "샘플별 grad (−2, −8)의 평균이 −5이고, backward 직후에는 grad만 저장되어 weight는 1.0 그대로예요. step에서 w = 1 − 0.1×(−5) = 1.5로 바뀌고, 6.0은 lr을 안 곱한 값이에요.",
+   "src": "6·7주차 optimizer.step"
+  },
+  {
+   "ch": "loss",
+   "type": "mc",
+   "q": "[weight가 바뀌는 때] weight 값이 실제로 바뀌는 시점은 언제인가?",
+   "choices": [
+    "optimizer.step()이 실행될 때",
+    "optim.SGD(...)로 optimizer를 만들 때",
+    "loss.backward()가 실행될 때",
+    "criterion(prediction, target)으로 loss를 계산할 때"
+   ],
+   "answer": 0,
+   "explain": "optimizer를 만들기만 하면 '이렇게 고치겠다'는 설정만 해 둔 거예요. backward는 grad를 계산·저장만 하고, step이 저장된 grad를 써서 weight를 고쳐요.",
+   "src": "6·7주차 녹취 · 샘플 5번과 연결"
+  },
+  {
+   "ch": "loss",
+   "type": "short",
+   "q": "w = 1.0, gradient = -5, 학습률 lr = 0.1일 때 SGD(w ← w − lr × gradient)로 한 번 업데이트한 w는? 숫자만 쓰시오.",
+   "answer": "1.5",
+   "alts": [
+    "1.50"
+   ],
+   "explain": "w − lr×gradient = 1.0 − 0.1×(−5) = 1.0 + 0.5 = 1.5예요. gradient가 음수라서 w가 커져요.",
+   "src": "6·7주차 SGD 식"
+  },
+  {
+   "ch": "loss",
+   "type": "mc",
+   "q": "[회귀와 분류의 loss] 다음 중 문제 종류와 대표 loss 함수의 짝이 올바른 것은?",
+   "choices": [
+    "연속값을 맞히는 회귀는 nn.CrossEntropyLoss, 종류를 고르는 분류는 nn.MSELoss",
+    "연속값을 맞히는 회귀는 nn.MSELoss, 종류를 고르는 분류는 nn.CrossEntropyLoss",
+    "회귀와 분류 모두 nn.MSELoss만 쓸 수 있다",
+    "회귀와 분류는 loss 함수가 필요 없다"
+   ],
+   "answer": 1,
+   "explain": "수업에서는 MSE(차이를 제곱해 평균)를 주로 썼고, 분류에는 CrossEntropyLoss 같은 다른 loss를 쓴다고만 소개했어요. 식이 복잡해서 직접 쓰지 않고 모듈을 쓰는 거예요.",
+   "src": "6·7주차 녹취 (참고)"
+  },
+  {
+   "ch": "loss",
+   "type": "mc",
+   "q": "[criterion과 optimizer 만들기] 모델 model에 대해 평균제곱오차 loss와 학습률 0.1의 SGD optimizer를 만든 코드로 올바른 것은?",
+   "choices": [
+    "criterion = optim.MSELoss()\noptimizer = nn.SGD(model.parameters(), lr=0.1)",
+    "criterion = nn.MSELoss()\noptimizer = optim.SGD(lr=0.1)",
+    "criterion = nn.SGD()\noptimizer = optim.MSELoss(model.parameters(), lr=0.1)",
+    "criterion = nn.MSELoss()\noptimizer = optim.SGD(model.parameters(), lr=0.1)",
+    "criterion = nn.MSELoss\noptimizer = optim.SGD(model, lr=0.1)"
+   ],
+   "answer": 3,
+   "explain": "loss 함수는 nn 안에 있고(nn.MSELoss()), optimizer는 optim 안에 있어요(optim.SGD). optimizer에는 어떤 파라미터를 고칠지 model.parameters()를 꼭 넘겨야 해요.",
+   "src": "6·7주차 코드 빈칸"
+  },
+  {
+   "ch": "loss",
+   "type": "mc",
+   "q": "[loss는 숫자 하나] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\nfrom torch import nn\n\nprediction = torch.zeros(4, 2)\ntarget = torch.full((4, 2), 2.0)\nloss = nn.MSELoss()(prediction, target)\nprint(loss.item(), tuple(loss.shape))",
+   "choices": [
+    "4.0 ()",
+    "4.0 (4, 2)",
+    "16.0 ()",
+    "32.0 ()",
+    "4.0 (4,)"
+   ],
+   "answer": 0,
+   "explain": "prediction과 target이 (4, 2)여도 MSELoss는 8개 원소 전체의 제곱 오차 평균 하나만 돌려줘요. 오차 (0−2)² = 4이고 평균도 4예요. 그래서 shape이 ()인 숫자 하나(scalar)라서 바로 backward를 부를 수 있어요.",
+   "src": "6주차 loss 설명"
+  },
+  {
+   "ch": "loss",
+   "type": "ox",
+   "q": "optimizer.step()은 gradient를 새로 계산한 뒤 파라미터를 갱신한다.",
+   "answer": false,
+   "explain": "step은 이미 저장된 grad를 가져다 갱신만 해요. grad를 계산하는 건 loss.backward()예요.",
+   "src": "6·7주차 · 샘플 5번과 연결"
+  },
+  {
+   "ch": "loss",
+   "type": "ox",
+   "q": "optim.SGD(model.parameters(), lr=0.1)로 optimizer를 만들기만 해도 파라미터가 한 번 업데이트된다.",
+   "answer": false,
+   "explain": "만들기만 하면 설정만 해 둔 거예요. backward로 grad를 만들고 step을 불러야 업데이트돼요.",
+   "src": "7주차 녹취"
+  },
+  {
+   "ch": "data",
+   "type": "mc",
+   "q": "[Dataset과 DataLoader] 다음 코드의 실행 결과로 올바른 것은? (세 번의 print 결과를 순서대로 | 로 구분해 적었다)\n\nimport torch\nfrom torch.utils.data import TensorDataset, DataLoader\n\nx = torch.arange(20, dtype=torch.float32).reshape(10, 2)\ny = x[:, 0:1] + 2 * x[:, 1:2] + 3\n\ndataset = TensorDataset(x, y)\nloader = DataLoader(dataset, batch_size=4,\n                    shuffle=False, drop_last=False)\n\nbatch_sizes = []\nfor batch_x, batch_y in loader:\n    batch_sizes.append(len(batch_x))\n\nprint(len(dataset), len(loader))\nprint(batch_sizes)\nprint(batch_y.flatten().tolist())",
+   "choices": [
+    "10 2 | [4, 4] | [29.0, 35.0, 41.0, 47.0]",
+    "10 3 | [4, 4, 4] | [53.0, 59.0, 65.0, 71.0]",
+    "10 3 | [4, 4, 2] | [53.0, 59.0]",
+    "20 5 | [4, 4, 4, 4, 4] | [53.0, 59.0]",
+    "10 3 | [4, 4, 2] | [16.0, 18.0]"
+   ],
+   "answer": 2,
+   "explain": "len(dataset)=10이고 batch_size=4로 묶으면 4, 4, 2의 세 묶음이라 len(loader)=3, batch_sizes=[4, 4, 2]예요. 마지막 batch_y는 8번·9번 샘플의 정답이라서 x=(16, 17)이면 16+2×17+3 = 53, x=(18, 19)이면 18+2×19+3 = 59예요. ①은 batch 수를 2로, ④는 샘플 수를 20으로 센 오답이에요.",
+   "src": "문제샘플 4번"
+  },
+  {
+   "ch": "data",
+   "type": "mc",
+   "q": "[Dataset 직접 만들기] 다음 코드의 출력으로 올바른 것은?\n\nimport torch\nfrom torch.utils.data import Dataset\n\nclass MyDataset(Dataset):\n    def __init__(self, x, y):\n        super().__init__()\n        self.x = x\n        self.y = y\n\n    def __len__(self):\n        return len(self.x)\n\n    def __getitem__(self, index):\n        return self.x[index], self.y[index]\n\nx = torch.arange(10, dtype=torch.float32).reshape(-1, 1)\ny = 2 * x + 1\nds = MyDataset(x, y)\na, b = ds[3]\nprint(len(ds), a.item(), b.item())",
+   "choices": [
+    "10 3.0 6.0",
+    "9 3.0 7.0",
+    "10 4.0 9.0",
+    "3 3.0 7.0",
+    "10 3.0 7.0"
+   ],
+   "answer": 4,
+   "explain": "len(ds)는 샘플 수 10이에요. ds[3]은 __getitem__(3)이 불려서 (x[3], y[3]) 쌍을 돌려줘요. x[3] = 3.0이고 y = 2x+1이니 y[3] = 7.0이에요.",
+   "src": "7주차 MyDataset 예제"
+  },
+  {
+   "ch": "data",
+   "type": "mc",
+   "q": "[batch 크기 3] 다음 코드의 출력으로 올바른 것은? (첫 값은 len(loader), 둘째는 각 batch의 크기)\n\nimport torch\nfrom torch.utils.data import TensorDataset, DataLoader\n\nx = torch.arange(20, dtype=torch.float32).reshape(10, 2)\ny = x.sum(dim=1, keepdim=True)\nloader = DataLoader(TensorDataset(x, y), batch_size=3, shuffle=False)\nsizes = [len(bx) for bx, by in loader]\nprint(len(loader), sizes)",
+   "choices": [
+    "3 [3, 3, 3]",
+    "4 [3, 3, 3, 3]",
+    "4 [3, 3, 3, 1]",
+    "3 [3, 3, 4]",
+    "10 [3, 3, 3, 1]"
+   ],
+   "answer": 2,
+   "explain": "10개를 3개씩 자르면 3, 3, 3 그리고 남은 1개로 4묶음이에요. drop_last의 기본값은 False라서 남은 1개짜리 마지막 batch도 버리지 않아요.",
+   "src": "7주차 Week05 서로 다른 batch size"
+  },
+  {
+   "ch": "data",
+   "type": "mc",
+   "q": "[drop_last=True] 다음 코드의 출력으로 올바른 것은? (첫 값은 len(loader), 둘째는 각 batch의 크기)\n\nimport torch\nfrom torch.utils.data import TensorDataset, DataLoader\n\nx = torch.arange(20, dtype=torch.float32).reshape(10, 2)\ny = x.sum(dim=1, keepdim=True)\nloader = DataLoader(TensorDataset(x, y), batch_size=4, shuffle=False, drop_last=True)\nsizes = [len(bx) for bx, by in loader]\nprint(len(loader), sizes)",
+   "choices": [
+    "3 [4, 4, 2]",
+    "2 [4, 4]",
+    "2 [4, 4, 2]",
+    "3 [4, 4]",
+    "2 [5, 5]"
+   ],
+   "answer": 1,
+   "explain": "10개를 4개씩 자르면 4, 4, 2인데, drop_last=True는 batch_size보다 적게 남은 마지막 묶음(2개)을 버려요. 그래서 2묶음 [4, 4]만 남아요. 버려진 2개는 이번 epoch에서 안 쓰여요.",
+   "src": "7주차 drop_last 설명"
+  },
+  {
+   "ch": "data",
+   "type": "mc",
+   "q": "[sample과 batch의 모양] 다음 코드의 출력으로 올바른 것은? (dataset의 첫 샘플 x, 첫 batch의 x, 첫 batch의 y 순서)\n\nimport torch\nfrom torch.utils.data import TensorDataset, DataLoader\n\nx = torch.arange(20, dtype=torch.float32).reshape(10, 2)\ny = x.sum(dim=1, keepdim=True)\nds = TensorDataset(x, y)\nloader = DataLoader(ds, batch_size=4)\nbx, by = next(iter(loader))\nprint(tuple(ds[0][0].shape), tuple(bx.shape), tuple(by.shape))",
+   "choices": [
+    "(1, 2) (4, 2) (4, 1)",
+    "(2,) (4, 2) (4,)",
+    "(2,) (2, 4) (1, 4)",
+    "(10, 2) (4, 2) (4, 1)",
+    "(2,) (4, 2) (4, 1)"
+   ],
+   "answer": 4,
+   "explain": "dataset[0]은 샘플 하나라서 feature 2개짜리 (2,)예요. DataLoader는 샘플 4개를 쌓아서 x는 (4, 2), y는 (4, 1) 모양의 batch로 만들어 줘요. 맨 앞 4가 batch 크기예요.",
+   "src": "7주차 Week05 핵심 질문 1"
+  },
+  {
+   "ch": "data",
+   "type": "mc",
+   "q": "[총 업데이트 횟수] 샘플 90개를 batch_size=20, drop_last=False로 DataLoader에 담아 30 epoch 학습한다. 학습 전체에서 optimizer.step()은 몇 번 실행되는가?",
+   "choices": [
+    "150번",
+    "30번",
+    "90번",
+    "120번",
+    "600번"
+   ],
+   "answer": 0,
+   "explain": "한 epoch에 batch가 20, 20, 20, 20, 10으로 5개(= 90÷20을 올림)라서 step이 5번이에요. 30 epoch면 5×30 = 150번이에요. 120번은 drop_last=True일 때(4×30)예요.",
+   "src": "7주차 녹취 · Week05 마지막 예제"
+  },
+  {
+   "ch": "data",
+   "type": "mc",
+   "q": "[shuffle 설정] 학습(train) 데이터에는 shuffle=True, 검증(validation) 데이터에는 shuffle=False를 쓰는 이유로 알맞은 것은?",
+   "choices": [
+    "학습은 섞으면 loss가 항상 0이 되고, 검증은 섞으면 에러가 난다",
+    "학습은 데이터를 줄이려고 섞고, 검증은 데이터를 늘리려고 섞지 않는다",
+    "둘 다 섞는 것이 원칙이고 False는 옛날 방식이다",
+    "학습은 epoch마다 순서를 바꿔 한쪽 패턴에 치우치지 않게 하고, 검증은 순서가 결과에 영향이 없으니 섞을 필요가 없다"
+   ],
+   "answer": 3,
+   "explain": "배치 구성을 매번 다르게 하면 모델이 데이터 순서를 외우는 걸 막고 여러 상황을 보며 배울 수 있어요. 검증은 평가만 하므로 섞어도 얻는 게 없어요.",
+   "src": "7주차 녹취 · Week05 핵심 질문 3"
+  },
+  {
+   "ch": "data",
+   "type": "mc",
+   "q": "[Dataset 필수 메서드] 다음 Dataset 클래스의 빈칸 (A), (B)에 들어갈 메서드 이름을 올바르게 짝지은 것은? (len(ds)는 샘플 수를, ds[3]은 3번 샘플을 돌려준다)\n\nfrom torch.utils.data import Dataset\n\nclass MyDataset(Dataset):\n    def __init__(self, x, y):\n        super().__init__()\n        self.x = x\n        self.y = y\n\n    def ________(self):          # (A)\n        return len(self.x)\n\n    def ________(self, index):   # (B)\n        return self.x[index], self.y[index]",
+   "choices": [
+    "(A) __getitem__  (B) __len__",
+    "(A) __call__  (B) __init__",
+    "(A) __len__  (B) __getitem__",
+    "(A) __size__  (B) __get__",
+    "(A) len  (B) getitem"
+   ],
+   "answer": 2,
+   "explain": "len(ds)를 하면 __len__이, ds[3]처럼 번호로 꺼내면 __getitem__(3)이 자동으로 실행돼요. Dataset을 상속해서 이 두 가지를 만들어 주는 게 약속이에요.",
+   "src": "7주차 녹취 · Week05 표"
+  },
+  {
+   "ch": "data",
+   "type": "ox",
+   "q": "TensorDataset에 넘기는 텐서들은 첫 번째 차원의 크기(샘플 수)가 모두 같아야 한다.",
+   "answer": true,
+   "explain": "입력과 정답을 같은 번호끼리 짝지어야 하므로 개수가 같아야 해요. 다르면 에러가 나요.",
+   "src": "7주차 Week05 노트북"
+  },
+  {
+   "ch": "data",
+   "type": "short",
+   "q": "DataLoader에서 batch_size보다 적게 남은 마지막 batch를 버리고 싶을 때 True로 하는 옵션 이름은?",
+   "answer": "drop_last",
+   "alts": [
+    "drop_last=True",
+    "droplast"
+   ],
+   "explain": "drop_last=True면 모자란 마지막 묶음을 버려요. 기본값은 False라서 모자라도 그대로 써요.",
+   "src": "7주차 녹취"
+  },
+  {
+   "ch": "train",
+   "type": "mc",
+   "q": "[학습 함수의 역할] 다음은 한 배치를 학습하는 코드이다. 각 함수의 역할에 대한 설명으로 올바른 것은?\n\noptimizer.zero_grad()\nprediction = model(batch_x)\nloss = criterion(prediction, batch_y)\nloss.backward()\noptimizer.step()",
+   "choices": [
+    "optimizer.step()은 저장된 기울기를 이용해 옵티마이저에 전달된 파라미터를 갱신한다.",
+    "loss.backward()는 기울기를 계산한 뒤 파라미터 값까지 갱신한다.",
+    "optimizer.zero_grad()는 모델의 모든 파라미터 값을 0으로 만든다.",
+    "criterion(prediction, batch_y)는 손실을 계산하고 이전 기울기를 초기화한다.",
+    "optimizer.step()은 기울기를 새로 계산한 뒤 기존 기울기를 자동으로 제거한다."
+   ],
+   "answer": 0,
+   "explain": "①이 정답이에요. step()은 backward가 저장해 둔 기울기를 써서 optimizer에 맡긴 파라미터를 고쳐요. 오답은 backward가 값까지 바꾼다는 ②, zero_grad가 파라미터 값을 0으로 만든다는 ③, criterion이 기울기를 지운다는 ④, step이 기울기를 새로 계산하고 지운다는 ⑤로, 모두 각 함수의 역할을 섞어 놓았어요.",
+   "src": "문제샘플 5번"
+  },
+  {
+   "ch": "train",
+   "type": "mc",
+   "q": "[학습 5단계 순서] 한 번의 학습 step을 순서대로 바르게 나열한 것은?",
+   "choices": [
+    "forward(예측) → loss 계산 → step → backward → zero_grad",
+    "backward → forward(예측) → loss 계산 → zero_grad → step",
+    "zero_grad → forward(예측) → loss 계산 → backward → step",
+    "loss 계산 → forward(예측) → zero_grad → step → backward"
+   ],
+   "answer": 2,
+   "explain": "먼저 지난 기울기를 지우고(zero_grad), 예측하고, loss를 구하고, 기울기를 계산하고(backward), 마지막에 파라미터를 고쳐요(step). 이 다섯 단계는 batch마다 반복해요.",
+   "src": "6·7주차 학습 5단계"
+  },
+  {
+   "ch": "train",
+   "type": "mc",
+   "q": "[순서가 틀린 학습] 다음 코드의 출력으로 올바른 것은? (weight의 처음 값은 1.0이다)\n\nimport torch\nfrom torch import nn, optim\n\nmodel = nn.Linear(1, 1, bias=False)\nwith torch.no_grad():\n    model.weight.fill_(1.0)\ncriterion = nn.MSELoss()\noptimizer = optim.SGD(model.parameters(), lr=0.1)\nx = torch.tensor([[1.0], [2.0]])\ny = torch.tensor([[2.0], [4.0]])\n\nloss = criterion(model(x), y)\nloss.backward()\noptimizer.zero_grad()\noptimizer.step()\nprint(round(model.weight.item(), 2))",
+   "choices": [
+    "1.0",
+    "1.5",
+    "0.5",
+    "2.0",
+    "에러가 난다"
+   ],
+   "answer": 0,
+   "explain": "backward로 grad를 만든 뒤에 zero_grad를 하면 그 grad가 바로 지워져요. 그래서 step을 해도 고칠 기울기가 없어 weight가 1.0 그대로예요. zero_grad는 backward 앞에 와야 해요.",
+   "src": "6·7주차 zero_grad 위치"
+  },
+  {
+   "ch": "train",
+   "type": "mc",
+   "q": "[epoch loss 평균] 한 epoch에서 batch 3개(크기 4, 4, 2)의 평균 loss가 각각 3.0, 3.0, 6.0이었다. 샘플 수를 반영한(가중) epoch 평균 loss는?",
+   "choices": [
+    "4.0",
+    "3.0",
+    "12.0",
+    "3.6",
+    "3.5"
+   ],
+   "answer": 3,
+   "explain": "batch마다 loss에 그 batch의 샘플 수를 곱해 모두 더하고(3×4 + 3×4 + 6×2 = 36), 전체 샘플 수 10으로 나눠요. 36 ÷ 10 = 3.6이에요. 그냥 batch loss 평균 (3+3+6)/3 = 4.0은 작은 마지막 batch를 과대평가해요.",
+   "src": "7주차 녹취 (total_loss ÷ total_samples)"
+  },
+  {
+   "ch": "train",
+   "type": "mc",
+   "q": "[epoch×batch 횟수] 다음 코드의 출력으로 올바른 것은? (첫 값은 step 횟수, 둘째는 사용한 샘플의 총합)\n\nimport torch\nfrom torch.utils.data import TensorDataset, DataLoader\n\nx = torch.zeros(90, 1)\ny = torch.zeros(90, 1)\nloader = DataLoader(TensorDataset(x, y), batch_size=20, shuffle=True, drop_last=False)\n\ncount = 0\ntotal = 0\nfor epoch in range(3):\n    for bx, by in loader:\n        count += 1\n        total += bx.size(0)\nprint(count, total)",
+   "choices": [
+    "3 270",
+    "15 270",
+    "15 90",
+    "12 240",
+    "15 300"
+   ],
+   "answer": 1,
+   "explain": "샘플 90개를 20개씩 자르면 20, 20, 20, 20, 10으로 batch가 5개예요. epoch 3번이면 5×3 = 15번 돌고, 한 epoch마다 샘플 90개를 다 쓰니 90×3 = 270이에요.",
+   "src": "7주차 Week05 마지막 예제"
+  },
+  {
+   "ch": "train",
+   "type": "mc",
+   "q": "[loss에 샘플 수 곱하기] epoch 학습 코드에서 total_loss += loss.item() * batch_x.size(0) 처럼 batch의 loss에 샘플 수를 곱해 더하는 이유는?",
+   "choices": [
+    "마지막 batch처럼 크기가 다른 batch가 있어도, 샘플 수에 비례한 올바른 전체 평균 loss를 구하기 위해서",
+    "loss를 더 크게 만들어 학습이 빨라지게 하려고",
+    "gradient를 계산하려고",
+    "batch 크기를 자동으로 늘리려고"
+   ],
+   "answer": 0,
+   "explain": "criterion은 batch의 평균 loss를 돌려줘요. 평균을 다시 샘플 수로 풀어서(×) 모두 더한 다음 전체 샘플 수로 나눠야 진짜 전체 평균이 돼요.",
+   "src": "7주차 녹취 · Week05 노트북"
+  },
+  {
+   "ch": "train",
+   "type": "mc",
+   "q": "[validation에서 backward 금지] 검증(validation) 데이터의 loss로 backward()와 step()을 실행하면 생기는 문제로 알맞은 것은?",
+   "choices": [
+    "아무 문제가 없고 오히려 정확도가 더 정확해진다",
+    "모델이 검증 데이터까지 학습해 버려서, 처음 보는 데이터에서의 성능을 공정하게 잴 수 없다",
+    "GPU가 자동으로 꺼진다",
+    "DataLoader의 shuffle 값이 바뀐다"
+   ],
+   "answer": 1,
+   "explain": "검증 데이터는 '시험지'처럼 학습에 안 쓴 데이터로 성능만 재는 용도예요. 거기서 weight를 고치면 시험 문제를 보고 공부한 셈이라 점수가 믿을 수 없어요.",
+   "src": "Week05 노트북 핵심 질문 6 (참고)"
+  },
+  {
+   "ch": "train",
+   "type": "mc",
+   "q": "[eval과 no_grad] model.eval()만 실행했을 때 gradient 계산도 함께 꺼지는가?",
+   "choices": [
+    "예. eval()을 하면 gradient 계산이 자동으로 꺼진다",
+    "예. 그리고 파라미터도 모두 0으로 초기화된다",
+    "아니오. eval()은 아무 일도 하지 않는 함수이다",
+    "아니오. eval()은 Dropout·BatchNorm 같은 층의 동작을 평가용으로 바꿀 뿐이고, gradient 추적을 끄려면 torch.no_grad()를 따로 써야 한다"
+   ],
+   "answer": 3,
+   "explain": "eval()은 모드 스위치, no_grad()는 계산 기록 스위치로 서로 달라요. 평가할 때는 보통 둘 다 써요. 이 내용은 Week05 노트북 핵심 질문에만 나온 참고용이에요.",
+   "src": "Week05 노트북 핵심 질문 4 (참고)"
+  },
+  {
+   "ch": "train",
+   "type": "ox",
+   "q": "validation 단계에서도 optimizer.step()으로 weight를 업데이트한다.",
+   "answer": false,
+   "explain": "평가만 하고 weight는 고치지 않아요. 평가에서는 gradient 추적도 꺼서 계산을 아껴요.",
+   "src": "Week05 노트북 핵심 질문 6 (참고)"
+  },
+  {
+   "ch": "train",
+   "type": "short",
+   "q": "optimizer가 가진 파라미터들의 gradient를 지우는(0으로 만드는) 메서드 이름은?",
+   "answer": "zero_grad",
+   "alts": [
+    "zero_grad()",
+    "optimizer.zero_grad()",
+    "optimizer.zero_grad"
+   ],
+   "explain": "매 step 시작 때 optimizer.zero_grad()를 불러요. 기울기는 계속 누적되기 때문이에요.",
+   "src": "6·7주차 녹취"
+  }
+ ],
+ "essay": [
+  {
+   "ch": "class",
+   "q": "자식 클래스의 __init__() 안에서 super().__init__()을 호출해야 하는 이유를 설명하시오.",
+   "easy": "자식이 __init__을 새로 쓰면 부모의 __init__은 자동으로 안 불려요. 그러면 부모가 만들어 주던 값(예 self.name)이 없어서 나중에 쓸 때 에러가 나요. 그래서 super().__init__(...)으로 부모의 초기화를 직접 불러 줘요.",
+   "a": "자식 클래스가 __init__()을 오버라이딩하면 부모의 __init__()은 자동으로 호출되지 않는다. 그러면 부모가 초기화하는 속성(예 name)이 만들어지지 않아 이후 사용할 때 AttributeError가 난다. 따라서 자식 __init__() 안에서 super().__init__(...)을 호출해 부모 초기화를 직접 실행해야 한다. nn.Module을 상속한 모델에서도 layer와 파라미터를 관리할 준비를 하려고 맨 먼저 호출한다.",
+   "keys": [
+    "오버라이딩",
+    "부모 __init__ 자동 호출 안 됨",
+    "super().__init__()",
+    "nn.Module 등록 준비"
+   ]
+  },
+  {
+   "ch": "module",
+   "q": "model(x)를 호출하면 forward()가 실행되는 과정을 설명하시오.",
+   "easy": "우리가 만든 모델 클래스에는 __call__이 없어요. 그래서 부모인 nn.Module의 __call__이 대신 불려요. 이 __call__이 필요한 준비 작업(hook 등)을 한 뒤 우리가 쓴 forward를 실행해요. forward를 직접 부르면 이 준비 작업을 건너뛰니까 model(x)로 불러요.",
+   "a": "model은 MyModel의 인스턴스이고 MyModel에는 __call__이 없으므로 부모 nn.Module의 __call__()이 상속되어 실행된다. 이 __call__()은 hook 실행과 상태 관리에 필요한 처리를 한 뒤 자식 클래스에 정의된 forward()를 호출한다. 그래서 model.forward(x)를 직접 부르거나 __call__을 재정의하지 않고 model(x)로 호출한다.",
+   "keys": [
+    "nn.Module의 __call__ 상속",
+    "hook·상태 관리",
+    "forward 실행",
+    "forward 직접 호출 금지"
+   ]
+  },
+  {
+   "ch": "module",
+   "q": "nn.Module을 상속한 모델에서 __init__()과 forward()의 역할을 쓰고, layer를 self에 저장해야 하는 이유를 설명하시오.",
+   "easy": "__init__은 모델에 필요한 부품(층, 학습할 값)을 만들어 등록하는 곳이고, forward는 입력이 들어왔을 때 그 부품을 어떤 순서로 쓸지 적는 곳이에요. 부품을 self에 저장해야 PyTorch가 학습 대상으로 알아봐요. forward 안에서 매번 새로 만들면 등록이 안 돼서 업데이트가 안 돼요.",
+   "a": "__init__()은 모델의 구성 요소(layer, 파라미터)를 정의하고 등록하며, forward()는 입력에서 출력까지의 계산 흐름을 정의한다. layer를 self의 attribute로 저장해야 nn.Module이 이를 하위 모듈과 파라미터로 인식해 parameters()에 포함하고 gradient 계산과 weight 업데이트 대상이 된다. forward 안에서 layer를 새로 만들면 등록되지 않아 학습되지 않는다.",
+   "keys": [
+    "__init__은 등록",
+    "forward는 계산 흐름",
+    "self에 저장",
+    "parameters()에 포함",
+    "업데이트 대상"
+   ]
+  },
+  {
+   "ch": "train",
+   "q": "한 번의 학습 step을 이루는 다섯 단계를 순서대로 쓰고 각 역할을 설명하시오.",
+   "easy": "1) zero_grad로 지난번 기울기를 지워요. 2) forward로 예측해요. 3) 예측과 정답을 비교해 loss를 구해요. 4) backward로 기울기를 계산해요. 5) step으로 기울기를 써서 weight를 고쳐요. 이 다섯 줄을 batch마다 반복해요.",
+   "a": "optimizer.zero_grad()로 이전 step에서 쌓인 gradient를 초기화하고, prediction = model(x)로 예측값을 계산하며, loss = criterion(prediction, target)으로 예측과 정답의 차이를 구한다. loss.backward()로 각 파라미터의 gradient를 계산해 .grad에 저장하고, optimizer.step()으로 저장된 gradient를 이용해 파라미터를 갱신한다. 이 단계를 batch마다 반복한다.",
+   "keys": [
+    "zero_grad",
+    "forward(예측)",
+    "loss",
+    "backward(gradient 계산)",
+    "step(업데이트)"
+   ]
+  },
+  {
+   "ch": "autograd",
+   "q": "loss.backward()와 optimizer.step()의 차이를 쓰고, gradient가 누적되기 때문에 zero_grad가 필요한 이유를 설명하시오.",
+   "easy": "backward는 기울기를 계산해서 .grad에 적어 두기만 해요. weight는 안 바꿔요. step이 그 기울기를 읽어서 weight를 실제로 고쳐요. 그런데 backward를 부를 때마다 기울기가 덮어써지지 않고 더해져요. 안 지우면 지난번 값이 섞여 틀린 방향으로 가서, 매번 zero_grad로 지워요.",
+   "a": "loss.backward()는 chain rule로 gradient를 계산해 각 파라미터의 .grad에 저장(누적)할 뿐 파라미터 값은 바꾸지 않는다. optimizer.step()은 저장된 gradient를 이용해 파라미터 값을 갱신하며 gradient를 계산하거나 초기화하지는 않는다. gradient는 기존 .grad에 더해지므로 매 step 시작에 zero_grad()로 초기화하지 않으면 이전 step의 gradient가 섞여 잘못 업데이트된다.",
+   "keys": [
+    "backward는 계산·저장만",
+    "step이 값 갱신",
+    ".grad 누적",
+    "zero_grad로 초기화"
+   ]
+  },
+  {
+   "ch": "autograd",
+   "q": "일반 텐서와 nn.Parameter의 차이를 쓰고, 모델 안에서 일반 텐서를 weight로 쓰면 생기는 문제를 설명하시오.",
+   "easy": "둘 다 requires_grad를 켜면 기울기는 계산돼요. 하지만 nn.Parameter만 모델에 자동 등록돼서 parameters()에 나와요. 일반 텐서는 등록이 안 되니까 optimizer에 안 넘어가고, 그러면 기울기는 있어도 weight가 업데이트되지 않아요.",
+   "a": "nn.Parameter는 nn.Module의 attribute로 대입하면 자동으로 모델에 등록되고 기본적으로 requires_grad=True이며 parameters()와 named_parameters()에 나타난다. 일반 텐서는 requires_grad=True여도 등록되지 않아 parameters()에 포함되지 않으므로 optimizer에 전달되지 않고 gradient가 계산되어도 업데이트되지 않는다.",
+   "keys": [
+    "자동 등록",
+    "requires_grad=True",
+    "parameters()에 포함",
+    "optimizer 전달",
+    "일반 텐서는 업데이트 안 됨"
+   ]
+  },
+  {
+   "ch": "data",
+   "q": "샘플 10개, batch_size=4인 DataLoader를 사용할 때 한 epoch의 batch 구성을 쓰고, Dataset·DataLoader·batch·epoch의 관계를 설명하시오.",
+   "easy": "Dataset은 샘플을 번호로 꺼낼 수 있는 데이터 모음이고, DataLoader는 거기서 샘플을 4개씩 묶어 batch로 내주는 도구예요. 10개를 4개씩 자르면 4, 4, 2개로 세 묶음이에요. 이 세 묶음을 다 쓰면 데이터를 한 바퀴 돈 거라서 1 epoch이고, 그동안 weight는 세 번 업데이트돼요.",
+   "a": "Dataset은 인덱스로 (입력, 정답) 샘플을 꺼낼 수 있는 데이터 모음이고, DataLoader는 Dataset에서 샘플을 모아 지정한 batch_size로 묶어 반복해서 내준다. 샘플 10개, batch_size=4, drop_last=False이면 4개, 4개, 2개의 batch 3개가 되고 len(loader)는 3이다. 모든 batch를 한 번 사용하면 학습 데이터 전체를 한 번 사용한 것이므로 1 epoch이며 이때 weight 업데이트는 3번 일어난다.",
+   "keys": [
+    "Dataset은 샘플 모음",
+    "DataLoader가 batch로 묶음",
+    "4·4·2 세 묶음",
+    "1 epoch = 전체 한 번",
+    "step 3번"
+   ]
+  },
+  {
+   "ch": "tensor",
+   "q": "브로드캐스팅의 규칙을 설명하고, (2, 3) + (3,)은 되는데 (2, 3) + (2,)는 왜 안 되는지 쓰시오.",
+   "easy": "두 모양을 오른쪽 끝에 맞추고 뒤에서부터 하나씩 비교해요. 크기가 같거나, 한쪽이 1이거나, 한쪽에 그 차원이 없으면 돼요. (2,3)과 (3,)은 3과 3이 같고 앞은 비어 있어서 돼요. (2,3)과 (2,)는 3과 2가 만나는데 같지도 1도 아니라서 안 돼요.",
+   "a": "서로 다른 shape의 텐서를 연산할 때 PyTorch가 크기를 자동으로 맞추는 기능이다. 두 shape을 오른쪽 끝에 맞추고 마지막 차원부터 비교해 각 차원이 같거나 둘 중 하나가 1이거나 한쪽에 그 차원이 없어야 한다. (2,3)+(3,)은 3=3이고 앞 차원이 없어 가능하지만 (2,3)+(2,)는 3과 2가 같지도 1도 아니어서 불가능하다.",
+   "keys": [
+    "오른쪽 끝 정렬",
+    "같거나 1이거나 없음",
+    "(2,3)+(3,) 가능",
+    "3과 2 불일치로 불가능"
+   ]
+  },
+  {
+   "ch": "gpu",
+   "q": "같은 코드를 GPU가 있는 컴퓨터와 없는 컴퓨터에서 모두 돌리려면 어떻게 작성해야 하는지 쓰고, device와 관련해 주의할 점 두 가지를 설명하시오.",
+   "easy": "device를 'cuda'로 못 박지 않고 torch.cuda.is_available()로 물어봐서 GPU가 있으면 cuda, 없으면 cpu로 정해요. 주의할 점은 두 가지예요. 하나는 모델과 데이터가 같은 device에 있어야 한다는 것이고, 다른 하나는 x.to(device)를 하면 x = x.to(device)처럼 다시 저장해야 한다는 거예요.",
+   "a": "device = \"cuda\" if torch.cuda.is_available() else \"cpu\"로 환경에 맞게 device를 정하고 텐서와 모델을 .to(device)로 옮긴다. 주의할 점은 첫째 텐서와 모델이 반드시 같은 device에 있어야 하며 다르면 연산에서 에러가 난다는 것, 둘째 .to(device)는 옮겨진 새 텐서를 반환하므로 x = x.to(device)처럼 다시 저장해야 한다는 것이다.",
+   "keys": [
+    "torch.cuda.is_available()",
+    "cuda/cpu 선택",
+    "같은 device",
+    ".to(device) 재저장"
+   ]
+  },
+  {
+   "ch": "intro",
+   "q": "딥러닝 모델이 학습으로 weight를 고쳐 가는 과정을 gradient와 학습률을 사용해 설명하시오.",
+   "easy": "처음엔 weight를 랜덤으로 채워서 예측이 틀려요. 예측과 정답의 차이가 loss예요. 각 weight를 조금 바꿨을 때 loss가 어느 쪽으로 변하는지가 gradient예요. 그래서 w ← w − 학습률 × gradient로 loss가 줄어드는 쪽으로 조금씩 옮겨요. 학습률은 한 번에 옮기는 폭이라 보통 아주 작게 해요. 이 과정을 데이터로 계속 반복해요.",
+   "a": "weight를 랜덤으로 초기화한 뒤 데이터를 모델에 넣어 예측값을 구하고 정답과의 차이인 loss를 계산한다. 각 weight에 대해 loss의 변화율인 gradient를 구하고 w ← w − lr × gradient로 loss가 줄어드는 방향으로 업데이트한다. gradient가 양수이면 w를 줄이고 음수이면 늘린다. 학습률 lr은 한 번에 움직이는 크기를 정하며 보통 0.001처럼 작게 쓴다. 이를 여러 batch와 epoch 동안 반복해 loss가 작은 값으로 수렴하게 한다.",
+   "keys": [
+    "랜덤 초기화",
+    "loss",
+    "gradient",
+    "w ← w − lr×grad",
+    "학습률은 작게",
+    "반복(수렴)"
+   ]
+  },
+  {
+   "ch": "tensor",
+   "q": "reshape()와 view()의 차이, cat()과 stack()의 차이를 각각 설명하시오.",
+   "easy": "reshape와 view는 둘 다 원소 수는 그대로 두고 모양만 바꿔요. view는 메모리를 같이 쓰는 게 보장되지만 쓸 수 없는 경우가 있고, reshape는 어디서나 되지만 공유가 보장되지 않아요. cat은 있는 차원에 이어 붙여서 차원 수가 그대로이고, stack은 새 차원을 만들어 쌓아서 차원이 하나 늘어요.",
+   "a": "reshape()와 view()는 원소 수를 유지하면서 shape만 바꾼다. view()는 메모리 공유가 보장되지만 non-contiguous 텐서에는 사용할 수 없고, reshape()는 어디서나 사용할 수 있지만 메모리 공유를 보장하지 않는다. torch.cat()은 기존 차원을 따라 텐서를 이어 붙여 차원 수가 그대로이고, torch.stack()은 새 차원을 만들어 쌓으므로 차원 수가 하나 늘어난다.",
+   "keys": [
+    "원소 수 유지",
+    "view 메모리 공유",
+    "reshape는 항상 가능",
+    "cat은 기존 차원",
+    "stack은 새 차원"
+   ]
+  },
+  {
+   "ch": "train",
+   "q": "학습 데이터와 검증 데이터의 shuffle 설정이 다른 이유를 쓰고, 검증 단계에서 backward()와 step()을 하지 않는 이유를 설명하시오. (참고 문제)",
+   "easy": "학습 데이터는 epoch마다 순서를 섞어서 모델이 순서를 외우거나 한쪽에 치우치지 않게 해요(shuffle=True). 검증은 점수만 재니까 섞을 필요가 없어요(False). 검증 데이터로 backward와 step을 하면 시험지를 보고 공부한 셈이라 처음 보는 데이터에서의 실력을 공정하게 잴 수 없어서 안 해요.",
+   "a": "학습 데이터는 epoch마다 데이터 순서를 섞어 batch 구성을 다양하게 해 순서나 한쪽 패턴에 치우치지 않도록 shuffle=True를 쓰고, 검증 데이터는 평가만 하므로 섞을 필요가 없어 shuffle=False를 쓴다. 검증 단계에서 backward()와 step()을 실행하면 모델이 검증 데이터까지 학습하게 되어 학습에 쓰지 않은 데이터에서의 성능을 공정하게 평가할 수 없으므로 하지 않는다.",
+   "keys": [
+    "학습 shuffle=True",
+    "검증 shuffle=False",
+    "검증 데이터로 학습 금지",
+    "공정한 성능 평가"
+   ]
+  }
+ ]
+}

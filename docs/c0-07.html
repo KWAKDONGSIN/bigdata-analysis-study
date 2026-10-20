@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>조건 — if, elif, else와 한 줄 조건식 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k0"><a href="index.html#c0">← 보드</a><span>왕초보 코드 읽기 · 7/11</span></div><h1>조건 — if, elif, else와 한 줄 조건식</h1>
+<p><b><a class="w" href="words.html#w13" data-w="13">if</a></b>는 "조건이 맞을 때만 실행해라"예요. 조건이 틀리면 <b>elif</b>(그게 아니고 이것이 맞으면), 모두 틀리면 <b>else</b>(나머지 전부) 줄이 실행돼요. 위에서부터 보다가 <b>처음으로 맞는 하나만</b> 실행하고 나머지는 건너뛰어요.</p>
+<div class="code">score = 85
+if score &gt;= 90:
+    print("A")
+elif score &gt;= 80:
+    print("B")
+else:
+    print("C")</div>
+<div class="code">B</div>
+<div class="tw"><table>
+  <tr><th style="width:40%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>if score &gt;= 90:</code></td><td>85 &gt;= 90은 False라서 아래 줄을 건너뛰어요</td></tr>
+  <tr><td><code>elif score &gt;= 80:</code></td><td>85 &gt;= 80은 True라서 <code>print("B")</code> 실행. 그리고 if 묶음 전체가 끝나요</td></tr>
+  <tr><td><code>else:</code></td><td>앞이 다 틀렸을 때만. 이번엔 실행 안 돼요</td></tr>
+</table></div>
+<p>조건이 맞는지에 따라 값을 고르는 한 줄짜리 <a class="w" href="words.html#w35" data-w="35">모양</a>도 자주 나와요. <b><code>값1 if 조건 else 값2</code></b> 형태이고 "조건이 맞으면 값1, 아니면 값2"예요. <a class="w" href="words.html#w60" data-w="60">GPU</a> 장에서 보는 <code>'cuda' if torch.cuda.is_available() else 'cpu'</code>가 바로 이 모양이에요.</p>
+<div class="code">cuda_ok = False
+device = 'cuda' if cuda_ok else 'cpu'
+print(device)
+print(max(0, 5 - 20), min(3, 9))</div>
+<div class="code">cpu
+0 3</div>
+<p><code>max(a, b)</code>는 큰 쪽, <code>min(a, b)</code>는 작은 쪽을 돌려줘요. <code>max(0, 5 - 20)</code>은 5−20 = −15와 0 중 큰 쪽이라서 0이에요. "음수가 되면 0으로 막아 둔다"는 뜻으로 <a class="w" href="words.html#w17" data-w="17">클래스</a> 예제(자동차 속도)에 나와요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>if-elif-else는 위에서부터 조건을 하나씩 확인하고 <b>처음 True인 줄 하나만</b> 실행해요. <code>A if 조건 else B</code>는 먼저 조건이 True인지 False인지 정한 뒤 A 또는 B를 골라요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x = 3일 때 'big' if x &gt;= 5 else 'small'의 값은?</summary>
+<p>'small'이에요. 3 &gt;= 5는 False라서 else 쪽 값을 골라요.</p></details>
+
+<div class="done"><a class="go" href="c0-08.html">다음 카드 → import와 점(.) 표기 — 도구 상자에서 도구 꺼내기 ★★</a><div class="pn"><a href="c0-06.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c0"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2~4주차 · Week02/Week03 노트북(풀이포함) · 빅분02(2주차)·빅데이터03(3주차)·빅데이터04(4주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

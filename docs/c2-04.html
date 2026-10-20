@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>인덱싱과 슬라이싱 — x[:, 1]과 x[:, 1:2]는 어떻게 다를까 ★★★ 시험 단골 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k2"><a href="index.html#c2">← 보드</a><span>Tensor · 4/11</span></div><h1>인덱싱과 슬라이싱 — x[:, 1]과 x[:, 1:2]는 어떻게 다를까 ★★★ 시험 단골</h1>
+<p><a class="w" href="words.html#w31" data-w="31">Tensor</a>에서 일부를 꺼내는 방법이에요. 규칙은 0장에서 배운 <a class="w" href="words.html#w1" data-w="1">리스트</a>와 똑같고, <a class="w" href="words.html#w34" data-w="34">2차원</a>이면 <b><code>x[행, 열]</code></b>처럼 쉼표로 자리를 나눠요. <a class="w" href="words.html#w2" data-w="2">번호</a>는 0부터이고, 콜론 <code>:</code>은 "그 자리 전부"예요.</p>
+<div class="tw"><table>
+  <tr><th style="width:20%">x (3행 4열)</th><th>열 0</th><th>열 1</th><th>열 2</th><th>열 3</th></tr>
+  <tr><th>행 0</th><td>10</td><td>20</td><td>30</td><td>40</td></tr>
+  <tr><th>행 1</th><td>50</td><td>60</td><td>70</td><td>80</td></tr>
+  <tr><th>행 2</th><td>90</td><td>100</td><td>110</td><td>120</td></tr>
+</table></div>
+<div class="code">print(x[0, 0])
+print(x[1, 2])
+print(x[0, :])
+print(x[:, 1])
+print(x[:2, :])
+print(x[1:, 1:3])
+print(x[::2, ::2])</div>
+<div class="code">tensor(10)
+tensor(70)
+tensor([10, 20, 30, 40])
+tensor([ 20,  60, 100])
+tensor([[10, 20, 30, 40],
+        [50, 60, 70, 80]])
+tensor([[ 60,  70],
+        [100, 110]])
+tensor([[ 10,  30],
+        [ 90, 110]])</div>
+<div class="tw"><table>
+  <tr><th style="width:26%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>x[0, 0]</code></td><td>0행 0열 한 칸 → 10</td></tr>
+  <tr><td><code>x[1, 2]</code></td><td>1행 2열 한 칸 → 70</td></tr>
+  <tr><td><code>x[0, :]</code></td><td>0행, 열은 전부 → 첫 번째 행 전체</td></tr>
+  <tr><td><code>x[:, 1]</code></td><td>행은 전부, 열은 1번 → 두 번째 열 전체 [20, 60, 100]</td></tr>
+  <tr><td><code>x[:2, :]</code></td><td>행은 0, 1번(처음~2 앞), 열은 전부 → 앞의 두 행</td></tr>
+  <tr><td><code>x[1:, 1:3]</code></td><td>행은 1번부터 끝까지, 열은 1, 2번 → 오른쪽 일부 영역</td></tr>
+  <tr><td><code>x[::2, ::2]</code></td><td>행도 열도 2칸씩 건너뛰기 → 0, 2행과 0, 2열의 교차점</td></tr>
+</table></div>
+<p>이제 가장 중요한 부분이에요. <b>정수로 고르면 그 차원이 사라지고, 슬라이스(a:b)로 고르면 길이가 1이어도 차원이 남아요.</b></p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><b>자리에 "숫자 하나"를 쓰면 그 방향이 사라지고(<a class="w" href="words.html#w35" data-w="35">shape</a>에서 빠짐), 자리에 "a:b"를 쓰면 그 방향이 남아요(shape에 길이가 남음).</b> 그래서 <code>x[:, 1]</code>은 한 줄(<a class="w" href="words.html#w33" data-w="33">1차원</a>)이고 <code>x[:, 1:2]</code>는 열 하나짜리 표(2차원)예요.</p>
+</div>
+<div class="box eg"><span class="t">비유 — 엑셀에서 열 복사하기</span>
+<p>엑셀에서 B열을 복사했는데 "한 줄로 쭉 풀어서 가져온 것"(1차원)과 "표 모양 그대로 열 하나만 가져온 것"(2차원)은 달라요. <code>x[:, 1]</code>은 풀어서 가져온 것이고, <code>x[:, 1:2]</code>는 표 모양을 유지한 것이에요.</p>
+</div>
+<div class="box eg"><span class="t">시험 샘플 1번 — 직접 따라가 봐요</span>
+<div class="code">x = torch.arange(12).reshape(3, 4)
+a = x[:, 1]
+b = x[:, 1:2]
+
+print(tuple(a.shape))
+print(tuple(b.shape))</div>
+<p><b>1단계 — x를 만들어요.</b> <code>arange(12)</code>는 0~11이고, <code>reshape(3, 4)</code>로 3행 4열로 나눠요.</p>
+<div class="tw"><table>
+  <tr><th style="width:20%">x</th><th>열 0</th><th>열 1</th><th>열 2</th><th>열 3</th></tr>
+  <tr><th>행 0</th><td>0</td><td style="background:#fff1d6"><b>1</b></td><td>2</td><td>3</td></tr>
+  <tr><th>행 1</th><td>4</td><td style="background:#fff1d6"><b>5</b></td><td>6</td><td>7</td></tr>
+  <tr><th>행 2</th><td>8</td><td style="background:#fff1d6"><b>9</b></td><td>10</td><td>11</td></tr>
+</table></div>
+<p><b>2단계 — a = x[:, 1].</b> 열 자리에 정수 1 → 열 방향이 사라져요. 남는 건 행 방향 3개 한 줄이에요. 값은 [1, 5, 9], shape은 <b>(3,)</b>.</p>
+<p><b>3단계 — b = x[:, 1:2].</b> 열 자리에 1:2 → "1번 열부터 2 앞까지"라서 같은 열이지만 열 방향이 길이 1로 남아요. 값은 [[1], [5], [9]], shape은 <b>(3, 1)</b>.</p>
+<div class="paper"><svg viewBox="0 0 380 150" width="96mm">
+  <text x="10" y="18" font-size="13" font-weight="bold" fill="#1b2333">a = x[:, 1]</text>
+  <rect x="20" y="36" width="34" height="30" fill="#fff1d6" stroke="#1b2333"/><text x="37" y="56" text-anchor="middle" font-size="14" fill="#1b2333">1</text>
+  <rect x="54" y="36" width="34" height="30" fill="#fff1d6" stroke="#1b2333"/><text x="71" y="56" text-anchor="middle" font-size="14" fill="#1b2333">5</text>
+  <rect x="88" y="36" width="34" height="30" fill="#fff1d6" stroke="#1b2333"/><text x="105" y="56" text-anchor="middle" font-size="14" fill="#1b2333">9</text>
+  <text x="20" y="92" font-size="13" font-weight="bold" fill="#1d4ed8">shape (3,)</text>
+  <text x="20" y="110" font-size="12" fill="#1b2333">한 줄, 1차원</text>
+  <text x="210" y="18" font-size="13" font-weight="bold" fill="#1b2333">b = x[:, 1:2]</text>
+  <rect x="220" y="30" width="34" height="30" fill="#dbe6ff" stroke="#1b2333"/><text x="237" y="50" text-anchor="middle" font-size="14" fill="#1b2333">1</text>
+  <rect x="220" y="60" width="34" height="30" fill="#dbe6ff" stroke="#1b2333"/><text x="237" y="80" text-anchor="middle" font-size="14" fill="#1b2333">5</text>
+  <rect x="220" y="90" width="34" height="30" fill="#dbe6ff" stroke="#1b2333"/><text x="237" y="110" text-anchor="middle" font-size="14" fill="#1b2333">9</text>
+  <text x="268" y="70" font-size="13" font-weight="bold" fill="#1d4ed8">shape (3, 1)</text>
+  <text x="268" y="88" font-size="12" fill="#1b2333">3행 1열, 2차원</text>
+</svg></div>
+<p>그래서 출력은 <code>(3,)</code>, <code>(3, 1)</code>이고 <a class="w" href="words.html#w101" data-w="101">정답</a>은 <b>② (3,) → (3, 1)</b>이에요. 나머지 선택지는 이렇게 걸러져요.</p>
+<div class="tw"><table>
+  <tr><th style="width:36%">선택지</th><th>왜 오답인가</th></tr>
+  <tr><td>① (3,) → (3,)</td><td>둘이 같다고 했지만 슬라이스 1:2는 차원을 남겨요</td></tr>
+  <tr><td>③ (1, 3) → (3, 1)</td><td>a는 "한 행"이 아니라 길이 3짜리 한 줄이에요. (1, 3)이면 행이 1개 있는 표예요</td></tr>
+  <tr><td>④ (4,) → (4, 1)</td><td>열을 골랐는데 길이가 4이면 행 방향이 4여야 해요. x는 3행이라 3이에요</td></tr>
+  <tr><td>⑤ (3, 1) → (3, 1)</td><td>정수 1로 고른 a는 차원이 사라져서 (3, 1)이 될 수 없어요</td></tr>
+</table></div>
+</div>
+<p>같은 규칙으로 아래 결과를 표로 외워 두면 편해요. (x는 위 3×4 표예요.)</p>
+<div class="tw"><table>
+  <tr><th style="width:36%">코드</th><th style="width:26%">shape</th><th>이유</th></tr>
+  <tr><td><code>x[:, 1]</code></td><td><b>(3,)</b></td><td>열 자리가 정수 → 열 방향 사라짐</td></tr>
+  <tr><td><code>x[:, 1:2]</code></td><td><b>(3, 1)</b></td><td>열 자리가 슬라이스 → 열 방향 길이 1로 남음</td></tr>
+  <tr><td><code>x[1]</code></td><td><b>(4,)</b></td><td>행 자리가 정수 → 행 방향 사라짐. 열은 전부</td></tr>
+  <tr><td><code>x[1:2]</code></td><td><b>(1, 4)</b></td><td>행 자리가 슬라이스 → 행 방향 길이 1로 남음</td></tr>
+  <tr><td><code>x[0, 0]</code></td><td><b>()</b></td><td>둘 다 정수 → 둘 다 사라져 숫자 하나(<a class="w" href="words.html#w32" data-w="32">0차원</a>)</td></tr>
+  <tr><td><code>x[0:1, 0:1]</code></td><td><b>(1, 1)</b></td><td>둘 다 슬라이스 → 둘 다 남음</td></tr>
+</table></div>
+<p>음수 번호도 써요. <code>x[:, -1]</code>은 맨 마지막 열, <code>x[-1, :]</code>은 맨 마지막 행, <code>x[-2:, -2:]</code>는 "오른쪽 아래 2×2 영역"이에요(수업 실습 4).</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>숫자는 지우고, 콜론은 남긴다</b>". <code>x[:, 1]</code>은 숫자가 열을 지워 한 줄, <code>x[:, 1:2]</code>는 콜론(범위)이 열을 남겨 표예요. 답을 낼 때는 자리마다 "정수인가, 범위인가"만 표시하세요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>① 원래 shape을 확인한다. ② 자리마다 정수(차원 삭제)인지 슬라이스(차원 유지)인지 구분한다. ③ 슬라이스 길이는 <code>끝 − 시작</code>이다(<code>1:2</code>는 1개, <code>:2</code>는 2개). ④ 남은 차원들의 크기를 순서대로 적으면 shape이다. 값을 직접 쓸 때는 0부터 번호를 붙인 표를 그려요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x가 (3, 4)일 때 x[1:3, 2]의 shape은?</summary>
+<p><code>(2,)</code>예요. 행은 1~2번(2개)으로 남고, 열은 정수 2라서 사라져요.</p></details>
+
+<div class="done"><a class="go" href="c2-05.html">다음 카드 → 조건으로 고르기 — Boolean indexing</a><div class="pn"><a href="c2-03.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c2"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2주차 · Week02_Tensor_and_GPU(pdf, 풀이포함 ipynb) · 빅분02(2주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

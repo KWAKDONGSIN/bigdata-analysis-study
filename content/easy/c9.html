@@ -1,0 +1,298 @@
+<!-- 9장: 학습 루프와 검증. 한 배치 학습 5줄(zero_grad, forward, loss, backward, step), epoch 반복, 배치 이중 반복, epoch 평균 loss, 중간고사 5번 풀이, train/validation과 model.eval()(참고) -->
+<h2>학습 루프와 검증 — 지금까지 배운 것을 한 줄로 이어서 반복하기</h2>
+<p class="lead">5장의 모델, 6장의 기울기, 7장의 손실과 옵티마이저, 8장의 배치가 모두 한곳에 모이는 장이에요. 핵심은 <b>한 배치를 학습하는 5줄(<code>zero_grad → forward → loss → backward → step</code>)</b>이고, 이것을 배치마다, epoch마다 반복하는 것이 <b>학습 루프</b>예요. 샘플 시험 5번이 바로 이 5줄이에요.</p>
+
+<h3>9-1. 학습의 큰 그림과 한 배치 5줄 <span class="st">★★★</span></h3>
+<p>교수님이 "딥러닝 모델 Training 과정" 자료에서 정리한 학습의 큰 흐름은 이래요.</p>
+<ol>
+  <li><b>데이터 준비</b> — 입력 x와 정답 T</li>
+  <li><b>Forward</b> — 모델에 x를 넣어 예측 ŷ를 얻어요.</li>
+  <li><b>Loss</b> — ŷ와 정답을 비교해 틀린 정도를 숫자 하나로 만들어요.</li>
+  <li><b>Gradient</b> — 각 weight를 어느 쪽으로 바꾸면 loss가 줄어드는지(기울기)를 구해요.</li>
+  <li><b>Update</b> — 기울기의 반대 방향으로 weight를 조금 고쳐요.</li>
+  <li>다른 배치로 2~5를 <b>계속 반복</b>해요.</li>
+</ol>
+<div class="box eg"><span class="t">비유 — 양궁 연습</span>
+<p>화살을 쏘고(forward), 과녁에서 얼마나 빗나갔는지 보고(loss), 어느 쪽으로 조준을 고쳐야 할지 판단하고(gradient), 실제로 조준을 고쳐요(update). 그리고 이전 판단은 잊고 다시 쏴요(zero_grad). 이 한 사이클을 수없이 반복하는 것이 학습이에요.</p>
+</div>
+<p>이 흐름을 코드로 쓰면 딱 5줄이에요. 5개를 순서대로 외워 두세요.</p>
+<div class="code">optimizer.zero_grad()                          # 1. 기울기 지우기
+prediction = model(batch_x)                    # 2. forward로 예측
+loss = criterion(prediction, batch_y)          # 3. loss 계산
+loss.backward()                                # 4. 기울기 계산
+optimizer.step()                               # 5. 파라미터 갱신</div>
+<table>
+  <tr><th style="width:8%">순서</th><th style="width:34%">코드</th><th style="width:30%">하는 일</th><th>값이 바뀌는 곳</th></tr>
+  <tr><td>1</td><td><code>optimizer.zero_grad()</code></td><td>지난 step의 기울기를 <b>비워요</b></td><td><code>.grad</code>만 비워지고 weight는 그대로</td></tr>
+  <tr><td>2</td><td><code>prediction = model(batch_x)</code></td><td>모델이 예측값을 계산하고 계산 그래프를 만들어요</td><td>weight, grad 모두 그대로</td></tr>
+  <tr><td>3</td><td><code>loss = criterion(prediction, batch_y)</code></td><td>예측과 정답을 비교해 숫자 하나(loss)를 만들어요</td><td>weight, grad 모두 그대로</td></tr>
+  <tr><td>4</td><td><code>loss.backward()</code></td><td>각 파라미터의 기울기를 <b>계산해서 .grad에 저장</b>해요</td><td><code>.grad</code>가 채워져요 (weight는 그대로)</td></tr>
+  <tr><td>5</td><td><code>optimizer.step()</code></td><td>저장된 기울기로 파라미터를 <b>갱신</b>해요</td><td><b>weight가 바뀌어요</b></td></tr>
+</table>
+<p><b>왜 zero_grad가 맨 앞일까요?</b> 6장에서 배운 것처럼 기울기는 쌓이기 때문에, 지난 step의 값을 지우고 시작해야 이번 step의 기울기만 정확히 담겨요. 교수님은 <code>zero_grad</code>를 <b>backward 전에만</b> 하면 된다고 했어요. backward 뒤에 하면 방금 구한 기울기가 사라지기 때문이에요. 관례는 맨 앞에 두는 거예요.</p>
+<p><b>왜 forward와 loss를 매번 다시 할까요?</b> 6장에서 본 것처럼 계산 그래프는 backward를 하면 풀려요. 매 반복마다 <code>model(x)</code>와 <code>criterion(...)</code>을 새로 실행하니까 새 그래프가 만들어져서 문제가 없어요. 또 업데이트된 weight로 새로 계산해야 다음 예측이 나아져요.</p>
+<figure class="slide"><img src="slides/b_w4_five_steps.jpg" alt="한 번의 학습 step 다섯 단계"><figcaption>교수님 슬라이드 — 한 번의 학습 Step, 다섯 단계와 "왜 zero_grad가 맨 앞?"</figcaption></figure>
+<p>5줄 중 하나를 빼먹으면 이런 일이 생겨요. 교수님 자료의 오류 점검표예요.</p>
+<table>
+  <tr><th style="width:34%">빼먹은 것</th><th>결과</th></tr>
+  <tr><td><code>zero_grad()</code></td><td>기울기가 계속 쌓여서 실제보다 커져요. 업데이트가 이상해져요.</td></tr>
+  <tr><td><code>forward</code> / <code>loss</code></td><td>backward할 loss가 없어요(또는 지난 loss를 다시 써서 오류).</td></tr>
+  <tr><td><code>backward()</code></td><td><code>.grad</code>가 비어 있어서 <code>step()</code>이 갱신할 것이 없어요. weight 불변.</td></tr>
+  <tr><td><code>step()</code></td><td>기울기는 구했지만 weight가 안 바뀌어요. 학습이 안 돼요.</td></tr>
+</table>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>지우고 → 예측하고 → 채점하고 → 기울기 구하고 → 고친다</b>". 영어로는 zero_grad → forward → loss → backward → step이에요. 교수님 슬라이드가 "핵심 한 줄"이라고 부른 순서예요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>5줄이 나오면 각 줄에 <b>한 단어</b>를 붙여 보세요. 지우기(zero_grad), 예측(model), 점수(criterion), 기울기 계산(backward), 갱신(step). 보기가 "이 함수가 하는 일"을 다르게 말하면 오답이에요. 특히 <b>backward = 계산, step = 갱신</b>을 바꿔 놓은 보기가 자주 나와요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 학습 5단계에서 weight 값이 실제로 바뀌는 줄은 몇 번째일까요?</summary>
+<p>5번째 <code>optimizer.step()</code>이에요. backward까지는 기울기(.grad)만 만들어져요.</p></details>
+
+<h3>9-2. epoch 반복 — 같은 데이터를 여러 바퀴 <span class="st">★★</span></h3>
+<p>한 번 업데이트하는 것만으로는 원하는 weight를 얻기 어려워요. 학습률만큼만 조금씩 움직이기 때문이에요. 그래서 같은 학습 데이터를 <b>여러 번</b> 사용하면서 5줄을 반복해요. 전체 데이터를 한 번 쓴 횟수가 <b>epoch</b>이에요.</p>
+<p>교수님 노트북의 예제예요. 정답이 <code>y = 2x + 1</code>인 데이터 5개를 <code>nn.Linear(1, 1)</code>에 학습시켜서, 처음엔 랜덤이던 weight와 bias가 2와 1에 가까워지는지 봐요. 데이터가 5개뿐이라 전부 한 번에 넣어요. 그러면 <b>한 epoch이 한 step</b>이에요.</p>
+<div class="code">x_train = torch.arange(-2.0, 3.0).reshape(-1, 1)    # [-2, -1, 0, 1, 2], 크기 (5, 1)
+y_train = 2 * x_train + 1                            # 정답: [-3, -1, 1, 3, 5]
+
+model = nn.Linear(1, 1)
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.02)
+
+for epoch in range(201):
+    optimizer.zero_grad()
+    prediction = model(x_train)
+    loss = criterion(prediction, y_train)
+    loss.backward()
+    optimizer.step()
+
+    if epoch % 20 == 0:
+        print(
+            f"epoch={epoch:3d} loss={loss.item():.6f} "
+            f"w={model.weight.item():.4f} b={model.bias.item():.4f}"
+        )</div>
+<div class="code">epoch=  0 loss=20.231350 w=-0.7189 b=-0.5958
+epoch= 20 loss=1.161789 w=1.4870 b=0.2947
+epoch= 40 loss=0.127610 w=1.9032 b=0.6882
+epoch= 60 loss=0.021393 w=1.9817 b=0.8622
+epoch= 80 loss=0.004053 w=1.9966 b=0.9391
+epoch=100 loss=0.000787 w=1.9993 b=0.9731
+epoch=120 loss=0.000154 w=1.9999 b=0.9881
+epoch=140 loss=0.000030 w=2.0000 b=0.9947
+epoch=160 loss=0.000006 w=2.0000 b=0.9977
+epoch=180 loss=0.000001 w=2.0000 b=0.9990
+epoch=200 loss=0.000000 w=2.0000 b=0.9995</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.arange(-2.0, 3.0).reshape(-1, 1)</code></td><td>-2부터 2까지 5개 숫자를 5줄 1칸으로 놓아요. 입력 특성 1개짜리 데이터 5개예요.</td></tr>
+  <tr><td><code>y_train = 2 * x_train + 1</code></td><td>맞혀야 할 정답이에요. 모델은 이 "2와 1"을 모르고 시작해요.</td></tr>
+  <tr><td><code>nn.Linear(1, 1)</code></td><td>입력 1개, 출력 1개. weight와 bias가 하나씩 있고 처음에는 랜덤 값이에요.</td></tr>
+  <tr><td><code>for epoch in range(201):</code></td><td>5줄을 201번 반복해요. 매번 전체 데이터를 한 번에 사용해요.</td></tr>
+  <tr><td><code>if epoch % 20 == 0:</code></td><td>20번에 한 번만 출력해요. (<code>%</code>는 나머지예요. 나머지가 0이면 20의 배수)</td></tr>
+  <tr><td><code>loss.item()</code></td><td>loss Tensor에서 순수한 숫자를 꺼내요.</td></tr>
+</table>
+<p>위 출력 숫자는 교수님 노트북에서 나온 거예요. 결과를 보면 <b>loss는 20.23에서 0에 가까워지고, weight는 −0.72에서 2에, bias는 −0.60에서 1에 가까워져요.</b> 시작 값이 랜덤이라 처음 숫자는 실행할 때마다 조금 달라요. 학습이 끝난 모델에 새 입력 5와 10을 넣으면 약 11과 21이 나와요(2×5+1, 2×10+1).</p>
+<p>자료의 심화 실습은 같은 방식으로 <code>y = 3x − 2</code>를 200 epoch 학습해요. 학습에 쓰지 않은 <code>x = 3.0</code>을 넣으면 정답 7에 가까운 값이 나와요. 이때 최종 weight가 정확히 3, −2가 아니라 가까운 값이어도 되는 이유는 <b>학습 횟수가 유한하고 컴퓨터 계산에 미세한 오차가 있기 때문</b>이에요. 또 optimizer는 <b>반복문 밖에서 한 번만</b> 만들어요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>학습 루프에서 "<code>range(201)</code>이면 step이 몇 번인가"는 전체 데이터를 한 번에 넣을 때 <b>201번</b>이에요. 학습이 잘 되면 loss는 줄어들어요. 그래서 학습 전후 loss 비교 문제에서는 "학습 후 loss가 더 작다"를 고르세요. 또 <code>zero_grad()</code>를 매 epoch 실행하는 이유는 <b>이전 기울기의 누적을 막기 위해서</b>예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 학습이 잘 진행되면 epoch이 늘수록 loss는 어떻게 변하나요?</summary>
+<p>0에 가까워져요. 위 예제에서도 20.23에서 거의 0으로 줄어들었어요.</p></details>
+
+<h3>9-3. 배치로 나눠 학습하기 — 반복문 안의 반복문 <span class="st">★★★</span></h3>
+<p>데이터가 많으면 8장의 DataLoader로 배치를 만들어서 쓰고, 5줄을 <b>배치마다</b> 실행해요. 그래서 반복문이 2겹이 돼요. 바깥은 epoch, 안쪽은 배치예요.</p>
+<svg viewBox="0 0 380 200" width="96mm"><rect x="0" y="0" width="380" height="200" rx="10" fill="#f8fafc"/>
+  <rect x="6" y="6" width="368" height="188" rx="10" fill="#f3f6ff" stroke="#1d4ed8" stroke-width="1.8"/>
+  <text x="18" y="26" font-size="12" font-weight="bold" fill="#1b2333">for epoch in range(30)   (데이터 전체 한 바퀴를 30번)</text>
+  <rect x="20" y="38" width="340" height="132" rx="8" fill="#ffffff" stroke="#0f7a4f" stroke-width="1.6"/>
+  <text x="30" y="56" font-size="12" font-weight="bold" fill="#1b2333">for batch_x, batch_y in train_loader   (배치 5개를 하나씩)</text>
+  <g stroke="#1b2333" stroke-width="1">
+    <rect x="30" y="68" width="58" height="48" rx="5" fill="#fde2e2"/><rect x="94" y="68" width="58" height="48" rx="5" fill="#dbe6ff"/><rect x="158" y="68" width="58" height="48" rx="5" fill="#dbe6ff"/><rect x="222" y="68" width="58" height="48" rx="5" fill="#dbe6ff"/><rect x="286" y="68" width="64" height="48" rx="5" fill="#fff1d6"/>
+  </g>
+  <g font-size="11" fill="#1b2333" text-anchor="middle">
+    <text x="59" y="88" font-weight="bold">1 지우기</text><text x="59" y="104">zero_grad</text>
+    <text x="123" y="88" font-weight="bold">2 예측</text><text x="123" y="104">model(x)</text>
+    <text x="187" y="88" font-weight="bold">3 채점</text><text x="187" y="104">criterion</text>
+    <text x="251" y="88" font-weight="bold">4 기울기</text><text x="251" y="104">backward</text>
+    <text x="318" y="88" font-weight="bold">5 갱신</text><text x="318" y="104">step</text>
+  </g>
+  <text x="190" y="136" text-anchor="middle" font-size="12" fill="#1b2333">배치 하나마다 5줄을 실행해요 (= step 1번)</text>
+  <text x="190" y="156" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b2333">step 횟수 = 배치 수 × epoch 수 = 5 × 30 = 150번</text>
+  <text x="190" y="188" text-anchor="middle" font-size="12" fill="#1b2333">sample 90개, batch_size 20이면 배치는 5개(20, 20, 20, 20, 10)</text>
+</svg>
+<p>교수님 노트북의 코드예요. sample 90개를 배치 20개씩 묶어서 30 epoch 학습해요.</p>
+<div class="code">torch.manual_seed(0)                      # 난수를 고정해서 매번 같은 결과가 나오게 해요
+
+x_train = torch.linspace(-2.0, 2.0, steps=90).reshape(-1, 1)
+y_train = 2 * x_train + 1
+
+train_dataset = TensorDataset(x_train, y_train)
+train_loader = DataLoader(train_dataset, batch_size=20,
+                          shuffle=True, drop_last=False)
+
+class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = nn.Linear(1, 1)
+
+    def forward(self, x):
+        return self.fc(x)
+
+model = MyModel()
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.02)
+
+for epoch in range(30):
+    total_loss = 0.0
+    total_samples = 0
+
+    for batch_x, batch_y in train_loader:
+        optimizer.zero_grad()
+        prediction = model(batch_x)
+        loss = criterion(prediction, batch_y)
+        loss.backward()
+        optimizer.step()
+
+        batch_samples = batch_x.size(0)
+        total_loss += loss.item() * batch_samples
+        total_samples += batch_samples
+
+    epoch_loss = total_loss / total_samples
+    print(f"epoch={epoch+1} 평균 loss={epoch_loss:.6f} "
+          f"w={model.fc.weight.item():.4f} b={model.fc.bias.item():.4f}")</div>
+<div class="code">epoch=1 평균 loss=4.750661 w=0.4857 b=0.6444
+epoch=2 평균 loss=2.711969 w=0.8489 b=0.7055
+epoch=3 평균 loss=1.574250 w=1.1350 b=0.7765
+...
+epoch=10 평균 loss=0.032139 w=1.8791 b=0.9484
+...
+epoch=30 평균 loss=0.000001 w=1.9996 b=0.9992</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.manual_seed(0)</code></td><td>랜덤 값을 고정해요. 그래서 처음 weight와 섞는 순서가 같아져 아래 출력과 똑같은 결과를 얻어요.</td></tr>
+  <tr><td><code>torch.linspace(-2.0, 2.0, steps=90)</code></td><td>-2부터 2까지 같은 간격으로 90개 숫자를 만들어요. sample 90개예요.</td></tr>
+  <tr><td><code>TensorDataset(x_train, y_train)</code></td><td>입력과 정답을 짝지어 Dataset으로 만들어요. (8장)</td></tr>
+  <tr><td><code>DataLoader(..., batch_size=20, shuffle=True)</code></td><td>20개씩 묶고 epoch마다 섞어요. 90 ÷ 20 = 4.5이니 배치는 <b>5개</b>(20, 20, 20, 20, 10)예요.</td></tr>
+  <tr><td><code>self.fc = nn.Linear(1, 1)</code></td><td>5장의 모델 클래스예요. 층 한 개를 가져요.</td></tr>
+  <tr><td><code>for epoch in range(30):</code></td><td>바깥 반복. 데이터 전체를 30번 돌아요.</td></tr>
+  <tr><td><code>for batch_x, batch_y in train_loader:</code></td><td>안쪽 반복. 이 for 문 한 번을 끝까지 돌면 1 epoch이에요. 한 epoch에 <b>5번</b> 돌아요.</td></tr>
+  <tr><td>5줄</td><td>배치마다 실행돼요. 그러니 weight는 한 epoch에 5번 업데이트돼요.</td></tr>
+  <tr><td><code>total_loss</code>, <code>total_samples</code></td><td>epoch의 loss 합계와 사용한 sample 수를 모아요. 다음 절에서 설명해요.</td></tr>
+</table>
+<p>weight가 업데이트되는 횟수를 세 보면 5 × 30 = <b>150번</b>이에요. 데이터를 한꺼번에 넣었던 앞 예제(1 epoch에 1번)와 달라요. 한 epoch 안에서 업데이트가 여러 번 일어난다는 점이 다른 거예요. 결과도 30 epoch 만에 w가 2에, b가 1에 매우 가까워졌어요. 교수님 자료에서는 weight가 한 번 업데이트될 때마다 <b>1 iteration</b>이라고 해요(여기서 말하는 step과 같은 뜻이에요). 전체 데이터를 한 바퀴 쓰면 <b>1 epoch</b>이에요.</p>
+<figure class="slide"><img src="slides/b_train_iter.jpg" alt="반복 학습"><figcaption>교수님 슬라이드 — 다른 batch로 Forward ~ Update를 계속 반복, weight 한 번 업데이트 = 1 iteration, 한 바퀴 = 1 epoch</figcaption></figure>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>step 횟수 문제는 <b>"한 epoch의 배치 수 × epoch 수"</b>로 풀어요. sample 90개, batch_size 20, 30 epoch이면 5 × 30 = 150이에요. 배치 수는 8장처럼 올림(4.5 → 5)이에요. 또 "<code>for batch_x, batch_y in loader</code> 안에 5줄이 있다"는 보기는 <b>배치마다 업데이트한다</b>는 뜻이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — sample 100개, batch_size 25, 10 epoch이면 weight는 모두 몇 번 업데이트될까요?</summary>
+<p>배치 수 4(100 ÷ 25) × 10 = 40번이에요.</p></details>
+
+<h3>9-4. epoch 평균 loss — 마지막 배치가 작을 때 <span class="st">★★</span></h3>
+<p>한 epoch이 끝나면 "이번 epoch의 평균 loss"를 보고 싶어요. 그런데 단순히 배치 loss들을 평균 내면 안 돼요. 배치 크기가 다르면(예 20, 20, 20, 20, 10) <b>sample이 적은 마지막 배치가 같은 비중으로 계산돼</b>서 값이 틀어져요. 그래서 교수님은 "각 배치 loss에 그 배치의 sample 수를 곱해서 모두 더한 뒤, 전체 sample 수로 나눈다"고 했어요.</p>
+<div class="box eg"><span class="t">비유 — 반별 평균 점수</span>
+<p>1반 학생이 40명, 2반이 10명이에요. 두 반의 평균이 각각 80점, 60점일 때 전교 평균은 (80+60)/2 = 70점이 아니라 <b>(80×40 + 60×10)/50 = 76점</b>이에요. 인원이 많은 반이 더 크게 반영돼야 하기 때문이에요. 배치 loss도 똑같아요.</p>
+</div>
+<p>배치 3개의 크기가 4, 4, 2이고 각각의 평균 loss가 3, 6, 9라고 해 봐요.</p>
+<table>
+  <tr><th style="width:40%">방법</th><th style="width:36%">계산</th><th>결과</th></tr>
+  <tr><td>단순 평균 (틀림)</td><td>(3 + 6 + 9) ÷ 3</td><td>6.0</td></tr>
+  <tr><td><b>sample 수로 가중 (맞음)</b></td><td>(3×4 + 6×4 + 9×2) ÷ 10 = (12 + 24 + 18) ÷ 10</td><td><b>5.4</b></td></tr>
+</table>
+<p>코드의 해당 줄은 이래요.</p>
+<div class="code">batch_samples = batch_x.size(0)               # 이 배치의 sample 수
+total_loss += loss.item() * batch_samples     # loss × sample 수를 계속 더함
+total_samples += batch_samples                # 사용한 sample 수를 계속 더함
+...
+epoch_loss = total_loss / total_samples       # epoch 끝에서 한 번 나눔</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>batch_x.size(0)</code></td><td>batch_x의 첫 번째 차원 크기예요. 이 배치에 sample이 몇 개인지 알려 줘요. (4, 2)이면 4.</td></tr>
+  <tr><td><code>loss.item()</code></td><td>그 배치의 평균 loss(숫자 하나)예요.</td></tr>
+  <tr><td><code>loss.item() * batch_samples</code></td><td>평균에 개수를 다시 곱해서 그 배치의 <b>loss 총합</b>으로 되돌려요.</td></tr>
+  <tr><td><code>total_loss / total_samples</code></td><td>모든 loss 총합을 전체 sample 수로 나눠서 올바른 epoch 평균을 구해요.</td></tr>
+</table>
+<p>이것은 학습(<code>backward</code>, <code>step</code>)에는 영향이 없고 <b>기록용</b>이에요. 숫자만 필요하니까 <code>.item()</code>으로 순수 숫자를 꺼내서 쌓아요. 교수님은 "어려운 수학은 아니고 산수"라고 했어요. 시험에는 개념으로 나올 수 있으니 왜 이렇게 하는지만 알아 두세요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"마지막 배치가 작을 때 epoch 평균 loss를 구하는 올바른 방법"은 <b>각 배치 loss에 sample 수를 곱해 합산하고 전체 sample 수로 나눈다</b>예요. "배치 loss를 단순 평균한다"는 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 크기 4, 4, 2인 배치의 loss가 3, 6, 9일 때 epoch 평균 loss는?</summary>
+<p>(3×4 + 6×4 + 9×2) ÷ 10 = 5.4예요.</p></details>
+
+<h3>9-5. 샘플 시험 5번 손으로 풀기 <span class="st">★★★</span></h3>
+<p>문제의 5줄은 위의 9-1과 같아요. 보기는 각 함수의 역할을 묻고 있어요.</p>
+<div class="code">optimizer.zero_grad()
+prediction = model(batch_x)
+loss = criterion(prediction, batch_y)
+loss.backward()
+optimizer.step()</div>
+<table>
+  <tr><th style="width:8%">보기</th><th style="width:42%">내용</th><th style="width:10%">판정</th><th>이유</th></tr>
+  <tr><td>①</td><td><code>optimizer.step()</code>은 저장된 기울기를 이용해 옵티마이저에 전달된 파라미터를 갱신한다.</td><td><b>맞음</b></td><td>step의 정의 그대로예요. 계산된 <code>.grad</code>를 읽어 값을 고쳐요.</td></tr>
+  <tr><td>②</td><td><code>loss.backward()</code>는 기울기를 계산한 뒤 파라미터 값까지 갱신한다.</td><td>틀림</td><td>backward는 기울기만 계산·저장해요. 갱신은 step이에요(7장 실험에서 backward 직후 weight 1.0이 그대로였어요).</td></tr>
+  <tr><td>③</td><td><code>optimizer.zero_grad()</code>는 모델의 모든 파라미터 값을 0으로 만든다.</td><td>틀림</td><td>0으로 만드는(비우는) 대상은 <b>기울기</b>예요. 파라미터 값(weight)은 건드리지 않아요.</td></tr>
+  <tr><td>④</td><td><code>criterion(prediction, batch_y)</code>는 손실을 계산하고 이전 기울기를 초기화한다.</td><td>틀림</td><td>criterion은 loss 점수만 계산해요. 기울기 초기화는 zero_grad가 해요.</td></tr>
+  <tr><td>⑤</td><td><code>optimizer.step()</code>은 기울기를 새로 계산한 뒤 기존 기울기를 자동으로 제거한다.</td><td>틀림</td><td>step은 계산도 제거도 안 해요. 이미 저장된 기울기를 읽어 갱신만 해요.</td></tr>
+</table>
+<p>정답은 <b>①번</b>이에요. 교수님은 이 문제를 보여 주면서 수업 때 계속 얘기한 다섯 개 과정에 대한 설명 중 올바른 것을 고르는 문제라고 했고, 기울기를 초기화하는 일은 <code>zero_grad</code>가 한다고 말했어요. 시험에 이 모양 그대로 나오지는 않는다고 했지만 유형은 같아요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>대상으로 구분하세요. <b>zero_grad는 "기울기"를 비우고, backward는 "기울기"를 구하고, step은 "파라미터"를 바꾸고, criterion은 "loss"를 만들어요.</b> 보기에서 함수와 대상이 어긋나면 틀린 문장이에요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>① 보기마다 <b>(함수, 하는 일, 대상)</b>을 뽑아요. ② 위의 짝(zero_grad-기울기 비우기, backward-기울기 계산, step-파라미터 갱신, criterion-loss 계산)과 하나라도 다르면 지워요. ③ "A가 B도 같이 해 준다"는 보기(②, ④, ⑤처럼 한 함수가 두 가지 일을 한다고 말하는 것)는 거의 오답이에요. 각 함수는 <b>한 가지 일만</b> 해요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — zero_grad() 없이 backward()를 2번 연속 하면 기울기는 어떻게 될까요?</summary>
+<p>두 번째 값이 첫 번째 값에 더해져서 2배 정도로 쌓여요. 학습에서는 매번 새 기울기만 필요해서 zero_grad로 지워야 해요.</p></details>
+
+<h3>9-6. 학습 데이터와 검증 데이터 — 참고 <span class="st">참고</span></h3>
+<p>이 절은 교수님 5주차 노트북의 <b>학습 목표와 "오늘의 핵심 질문"</b>에 나오는 내용이에요. 녹취에서 5주차 자료는 "반 정도만 준비했다"고 했고 시험 범위는 2~5주차이니, 코드까지 외우기보다 개념만 이해해 두세요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><b>train 데이터</b>는 모델이 학습에 쓰는 데이터이고, <b>validation(검증) 데이터</b>는 학습에는 쓰지 않고 <b>모델이 처음 보는 데이터에서도 잘 맞히는지 확인</b>하려고 따로 떼어 둔 데이터예요.</p>
+</div>
+<div class="box eg"><span class="t">비유 — 연습문제와 모의고사</span>
+<p>연습문제로 공부하고, 한 번도 안 풀어 본 모의고사로 실력을 확인해요. 연습문제 답만 외웠다면 연습문제는 만점이어도 모의고사에서 점수가 떨어져요. 이렇게 학습 데이터에만 지나치게 맞춰진 상태를 <b>과적합(overfitting)</b>이라고 해요. (과적합은 교수님 자료에는 안 나오는 용어이고 참고용이에요.) 모의고사를 따로 두면 이것을 알아챌 수 있어요.</p>
+</div>
+<p>노트북의 핵심 질문을 풀이와 함께 정리하면 이래요.</p>
+<table>
+  <tr><th style="width:42%">핵심 질문</th><th>답</th></tr>
+  <tr><td>train은 <code>shuffle=True</code>, validation은 <code>shuffle=False</code>인 이유는?</td><td>학습은 순서에 길들여지지 않게 섞고, 평가는 섞을 필요가 없어서 순서를 고정해 매번 같은 조건으로 비교해요.</td></tr>
+  <tr><td><code>model.eval()</code>만 실행하면 기울기 계산도 꺼질까요?</td><td><b>아니에요.</b> <code>model.eval()</code>은 모델을 "평가 모드"로 바꾸는 스위치일 뿐이고, 기울기 추적은 <code>torch.no_grad()</code>로 따로 꺼요.</td></tr>
+  <tr><td>마지막 batch가 작을 때 epoch 평균 loss는?</td><td>9-4처럼 sample 수로 가중해서 구해요.</td></tr>
+  <tr><td>validation loss로 <code>backward()</code>와 <code>step()</code>을 하면?</td><td>검증 데이터로 weight를 고치게 돼서 더 이상 "처음 보는 데이터"가 아니에요. 평가의 의미가 없어져요. 검증은 <b>점수만 계산</b>해요.</td></tr>
+</table>
+<p>모드 스위치는 두 개예요. <code>model.train()</code>은 학습 모드, <code>model.eval()</code>은 평가 모드예요. 층 중에는 학습할 때와 평가할 때 동작이 달라지는 것이 있어서 알려 주는 용도예요. 지금까지 쓴 <code>nn.Linear</code>와 ReLU는 둘 사이에 차이가 없어요. 교수님 4주차 슬라이드에도 학습이 끝난 모델로 예측할 때 이렇게 써요.</p>
+<div class="code">model.eval()
+with torch.no_grad():
+    y = model(torch.tensor([[5.0], [10.0]]))      # 결과는 약 [[11.0], [21.0]]</div>
+<p>평가 함수를 만들면 이런 모양이에요. 학습 5줄과 비교해서 보세요. 이 코드는 노트북의 학습 목표(<code>evaluate()</code>)에 맞춰 제가 쓴 예시예요.</p>
+<div class="code">def evaluate(model, loader, criterion):
+    model.eval()                              # 평가 모드
+    total_loss, total_samples = 0.0, 0
+    with torch.no_grad():                     # 기울기 추적 끄기
+        for batch_x, batch_y in loader:
+            prediction = model(batch_x)
+            loss = criterion(prediction, batch_y)
+            n = batch_x.size(0)
+            total_loss += loss.item() * n
+            total_samples += n
+    return total_loss / total_samples</div>
+<table>
+  <tr><th style="width:42%">비교</th><th>학습(train) 5줄</th><th>평가(evaluate)</th></tr>
+  <tr><td><code>zero_grad()</code></td><td>있음</td><td><b>없음</b> (기울기를 안 만드니까)</td></tr>
+  <tr><td><code>model(x)</code>, <code>criterion</code></td><td>있음</td><td>있음</td></tr>
+  <tr><td><code>backward()</code>, <code>step()</code></td><td>있음</td><td><b>없음</b> (weight를 고치면 안 돼요)</td></tr>
+  <tr><td>모드와 추적</td><td><code>model.train()</code></td><td><code>model.eval()</code> + <code>torch.no_grad()</code></td></tr>
+  <tr><td>DataLoader</td><td><code>shuffle=True</code></td><td><code>shuffle=False</code></td></tr>
+</table>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>평가 단계 설명에서는 <b>"weight를 갱신하지 않는다. backward와 step을 쓰지 않고 loss만 계산한다"</b>가 맞아요. <code>model.eval()</code>이 기울기 계산도 꺼 준다는 보기는 오답이에요. 그건 <code>torch.no_grad()</code>의 일이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 검증 데이터로 loss를 구한 뒤 loss.backward()와 optimizer.step()을 하면 왜 안 될까요?</summary>
+<p>검증 데이터가 학습에 쓰이는 셈이라서 "처음 보는 데이터에서의 성능"을 잴 수 없어요. 검증은 weight를 건드리지 않고 점수만 매겨야 해요.</p></details>
+
+<div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>한 배치 학습은 5줄이에요. <code>zero_grad</code>(기울기 지우기) → <code>model(x)</code>(예측) → <code>criterion</code>(loss) → <code>backward</code>(기울기 계산, 값은 그대로) → <code>step</code>(파라미터 갱신). 각 함수는 한 가지 일만 해요.</li>
+  <li>이 5줄을 배치마다 실행하고(안쪽 for), 그것을 epoch만큼 반복해요(바깥 for). step 횟수는 배치 수 × epoch 수이고(90개, 20씩, 30 epoch이면 150번), epoch 평균 loss는 각 loss에 배치 sample 수를 곱해 더한 뒤 전체 sample 수로 나눠요.</li>
+  <li>(참고) 검증 데이터는 학습에 쓰지 않고 성능만 확인하는 데이터예요. 평가할 때는 <code>model.eval()</code>과 <code>torch.no_grad()</code>를 쓰고 backward·step은 하지 않아요. <code>model.eval()</code>만으로는 기울기 계산이 꺼지지 않아요.</li>
+</ul>
+</div>

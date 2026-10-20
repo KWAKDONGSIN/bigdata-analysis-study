@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>왜 기울기가 필요할까 — 방향과 민감도 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k6"><a href="index.html#c6">← 보드</a><span>Autograd — 자동으로 기울기 구하기 · 1/8</span></div><h1>왜 기울기가 필요할까 — 방향과 민감도</h1>
+<p>모델에는 W와 B 같은 숫자(<a class="w" href="words.html#w7" data-w="7">파라미터</a>)가 있어요. 처음에는 아무 값이나 넣어 두기 때문에 예측이 많이 틀려요. 이 틀린 정도를 숫자 하나로 나타낸 것이 <b><a class="w" href="words.html#w99" data-w="99">손실</a>(loss)</b>이에요. 우리 목표는 loss가 작아지도록 파라미터를 고치는 거예요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><b><a class="w" href="words.html#w83" data-w="83">기울기</a>(gradient)</b> = 파라미터를 살짝 바꿨을 때 loss가 얼마나, 어느 방향으로 변하는지를 알려 주는 숫자예요. <b>부호는 방향, 크기는 민감도</b>예요.</p>
+</div>
+<div class="box eg"><span class="t">비유 — 안개 낀 산에서 내려오기</span>
+<p>안개가 짙은 산에서 가장 낮은 곳으로 내려가려면 발밑의 경사를 느껴서 "내리막 쪽"으로 한 걸음 가면 돼요. 기울기가 바로 그 발밑의 경사예요. 경사가 가파를수록(크기가 클수록) loss가 그 방향에 더 민감하다는 뜻이에요.</p>
+</div>
+<div class="paper"><svg viewBox="0 0 380 180" width="96mm"><rect x="0" y="0" width="380" height="180" rx="10" fill="#f8fafc"/>
+  <defs><marker id="b6g" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#c2410c"/></marker></defs>
+  <line x1="30" y1="160" x2="350" y2="160" stroke="#9aa7bd" stroke-width="1.5"/>
+  <path d="M 60 20 Q 190 280 320 20" fill="none" stroke="#1d4ed8" stroke-width="3"/>
+  <circle cx="281" cy="86" r="7" fill="#c2410c"/>
+  <line x1="268" y1="78" x2="226" y2="124" stroke="#c2410c" stroke-width="3" marker-end="url(#b6g)"/>
+  <text x="190" y="176" text-anchor="middle" font-size="12" fill="#1b2333">w (파라미터)</text>
+  <text x="48" y="14" font-size="12" fill="#1b2333">loss</text>
+  <text x="372" y="124" text-anchor="end" font-size="12" font-weight="bold" fill="#1b2333">w=3, 기울기 +6</text>
+  <text x="120" y="60" font-size="12" fill="#1b2333">기울기가 양수면 w를 줄여요</text>
+</svg></div>
+<p><a class="w" href="words.html#w98" data-w="98">업데이트 식</a>은 이렇게 써요. <a class="w" href="words.html#w97" data-w="97">학습률</a>(learning rate, η)은 "한 걸음의 크기"예요. 7장에서 자세히 배워요.</p>
+<div class="code">w ← w − η × (loss를 w로 미분한 기울기)</div>
+<p>예를 들어 loss가 <code>L = w²</code>이고 <code>w = 3</code>이면 기울기는 <code>2w = 6</code>이에요. 학습률이 0.1이면 <code>w = 3 − 0.1 × 6 = 2.4</code>가 돼요. loss는 3² = 9에서 2.4² = 5.76으로 줄었어요. 기울기가 양수라서 w를 줄인 거예요. 반대로 기울기가 음수면 w를 늘려요.</p>
+<div class="tw"><table>
+  <tr><th style="width:30%">기울기</th><th style="width:30%">뜻</th><th>업데이트</th></tr>
+  <tr><td>양수 (+)</td><td>w가 커지면 loss도 커져요</td><td>w를 <b>줄여요</b></td></tr>
+  <tr><td>음수 (−)</td><td>w가 커지면 loss가 줄어요</td><td>w를 <b>늘려요</b></td></tr>
+  <tr><td>크기가 큼</td><td>loss가 w에 민감해요</td><td>많이 움직여요</td></tr>
+</table></div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>기울기를 설명하는 보기에서는 <b>"파라미터를 바꿨을 때 loss가 변하는 방향과 정도"</b>가 맞는 문장이에요. 업데이트는 <b>기울기의 반대 방향</b>으로 해서 loss를 줄이니, "기울기 방향으로 더한다"는 보기는 오답이에요. 식은 w ← w − 학습률 × 기울기예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 기울기가 −24이고 학습률이 0.01이면 w는 커질까요, 작아질까요?</summary>
+<p>커져요. w − 0.01 × (−24) = w + 0.24이니까 0.24만큼 커져요. 기울기가 음수이면 w를 늘려요.</p></details>
+
+<div class="done"><a class="go" href="c6-02.html">다음 카드 → requires_grad, backward(), .grad — 가장 기본 예제 ★★★</a><div class="pn"><a href="index.html#c6"><b>← 이전</b>보드로</a><a class="next" href="quiz.html#c6"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 6주차 · Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

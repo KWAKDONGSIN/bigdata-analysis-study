@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gradient — loss가 줄어드는 방향 찾기 ★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k1"><a href="index.html#c1">← 보드</a><span>딥러닝이 뭐예요 + 학습 과정 큰 그림 · 6/11</span></div><h1>Gradient — loss가 줄어드는 방향 찾기 ★★</h1>
+<p>이제 <a class="w" href="words.html#w68" data-w="68">weight</a>를 어느 쪽으로 고칠지 정해야 해요. 방법은 이래요. weight 하나(예 w)를 조금 키워 봤더니 <a class="w" href="words.html#w99" data-w="99">loss</a>가 커지면 그 방향은 나쁜 방향이에요. 조금 줄여 봤더니 loss가 작아지면 그 방향이 좋은 방향이에요.</p>
+<figure class="slide"><img src="slides/tr10.jpg" alt="gradient 설명 슬라이드"><figcaption>교수님 슬라이드 — w를 조금 늘리면 loss가 커지고, 줄이면 작아지므로 줄이는 방향을 택함</figcaption></figure>
+<p>이 확인을 <b>51개 weight 하나하나에 대해</b> 해야 해요. weight 하나만 바뀌어도 <a class="w" href="words.html#w100" data-w="100">예측값</a> ŷ이 바뀌고, 그러면 loss도 바뀌기 때문이에요.</p>
+<p>그런데 실제로는 일일이 바꿔 보지 않아요. 수학으로 "w를 아주 조금 바꿀 때 loss가 얼마나 변하는가"(변화율)를 바로 계산해요. 이 값이 <b><a class="w" href="words.html#w83" data-w="83">gradient</a>(기울기)</b>이고 <code>dLoss/dw</code>라고 써요. PyTorch의 <a class="w" href="words.html#w84" data-w="84">autograd</a> 기능이 이 계산을 대신해 줘요(다음 장들에서 배워요).</p>
+<div class="paper"><svg viewBox="0 0 380 200" width="96mm">
+  <defs><marker id="c1ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker></defs>
+  <text x="8" y="16" font-size="12" font-weight="bold" fill="#1b2333">Loss (틀린 정도)</text>
+  <path d="M40,26 Q190,226 340,26" fill="none" stroke="#1d4ed8" stroke-width="3"/>
+  <line x1="20" y1="150" x2="360" y2="150" stroke="#5d6b80" stroke-width="1.5"/>
+  <text x="358" y="144" font-size="11" fill="#5d6b80" text-anchor="end">w (조절하는 숫자)</text>
+  <circle cx="190" cy="126" r="5" fill="#0f7a4f"/>
+  <text x="190" y="170" font-size="11" fill="#0f7a4f" text-anchor="middle" font-weight="bold">가장 좋은 자리</text>
+  <circle cx="280" cy="88" r="6" fill="#d9480f"/>
+  <text x="292" y="82" font-size="12" font-weight="bold" fill="#d9480f">A</text>
+  <circle cx="100" cy="88" r="6" fill="#d9480f"/>
+  <text x="80" y="82" font-size="12" font-weight="bold" fill="#d9480f">B</text>
+  <line x1="280" y1="96" x2="240" y2="96" stroke="#1d4ed8" stroke-width="3" marker-end="url(#c1ar)"/>
+  <line x1="100" y1="96" x2="140" y2="96" stroke="#1d4ed8" stroke-width="3" marker-end="url(#c1ar)"/>
+  <text x="280" y="190" font-size="11" fill="#1b2333" text-anchor="middle">A: 기울기 +</text>
+  <text x="100" y="190" font-size="11" fill="#1b2333" text-anchor="middle">B: 기울기 −</text>
+</svg></div>
+<p>그림에서 loss는 밥그릇 <a class="w" href="words.html#w35" data-w="35">모양</a>이에요. 그릇 바닥이 loss가 가장 작은 자리예요. 점 A처럼 오른쪽 비탈에 있으면 기울기가 <b>양수(+)</b>이고, 바닥으로 가려면 w를 <b>줄여야</b> 해요. 점 B처럼 왼쪽 비탈에 있으면 기울기가 <b>음수(−)</b>이고 w를 <b>늘려야</b> 해요. 즉 기울기의 <b>부호는 방향</b>, 크기는 얼마나 가파른지(민감도)를 알려줘요.</p>
+<div class="box eg"><span class="t">비유 — 눈 가리고 산 내려오기</span>
+<p>안개 낀 산에서 가장 낮은 곳을 찾아간다고 해 봐요. 발밑이 어느 쪽으로 기울어 있는지 느끼고(gradient), 내리막 쪽으로 한 걸음 내딛어요(update). 이걸 반복하면 골짜기 바닥에 도착해요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>gradient(dLoss/dw)는 weight를 바꿀 때 loss가 변하는 정도로, loss가 줄어드는 방향을 알려준다. gradient가 양수면 weight를 줄이고 음수면 weight를 늘린다. 선택지에서 부호와 방향이 거꾸로 된 것은 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 어떤 weight의 gradient가 −3입니다. weight를 늘려야 하나요, 줄여야 하나요?</summary>
+<p>늘려야 해요. gradient가 음수라는 것은 weight를 키우면 loss가 줄어든다는 뜻이에요.</p></details>
+
+<div class="done"><a class="go" href="c1-07.html">다음 카드 → Update — weight를 아주 조금만 고쳐요 ★★★</a><div class="pn"><a href="c1-05.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c1"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 4주차 · 딥러닝 모델 Training 과정.pdf, Week04 Autograd_Loss_Optimizer.ipynb · 빅데이터04(4주차) 녹취, 빅데이터03·07 녹취 일부</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

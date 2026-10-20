@@ -1,0 +1,7 @@
+[
+  {"id":"c5","title":"nn.Module로 모델 만들기","sub":"클래스 뼈대, nn.Linear(입력, 출력), model(x)와 forward, 파라미터 등록","groups":["module"],"srcs":"3·6주차 · Week03_Class_for_PyTorch(업데이트), Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)"},
+  {"id":"c6","title":"Autograd — 자동으로 기울기 구하기","sub":"requires_grad, backward(), .grad, 기울기 누적과 zero_grad, torch.no_grad","groups":["autograd"],"srcs":"6주차 · Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)"},
+  {"id":"c7","title":"손실 함수와 옵티마이저","sub":"MSE, criterion, shape 맞추기, SGD와 step(), 학습률","groups":["loss"],"srcs":"6·7주차 · Week04_Autograd_Loss_Optimizer · 7주차 녹취(빅데이터07)"},
+  {"id":"c8","title":"Dataset과 DataLoader","sub":"sample·batch·epoch, TensorDataset, batch_size·shuffle·drop_last, 배치 개수 계산","groups":["data"],"srcs":"7주차 · Week05_Dataset_DataLoader_Train_Validation(part1) · 7주차 녹취(빅데이터07)"},
+  {"id":"c9","title":"학습 루프와 검증","sub":"학습 5줄, epoch과 배치 반복, epoch 평균 loss, train/validation과 eval","groups":["train"],"srcs":"6·7주차 · Week04_Autograd_Loss_Optimizer, Week05_Dataset_DataLoader_Train_Validation(part1), 딥러닝 모델 Training 과정.pdf · 7주차 녹취(빅데이터07)"}
+]

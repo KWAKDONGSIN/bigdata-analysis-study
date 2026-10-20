@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>학습과 추론, 그리고 앞으로 배울 지도 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k1"><a href="index.html#c1">← 보드</a><span>딥러닝이 뭐예요 + 학습 과정 큰 그림 · 10/11</span></div><h1>학습과 추론, 그리고 앞으로 배울 지도</h1>
+<p><b><a class="w" href="words.html#w135" data-w="135">학습</a>(training)</b>은 <a class="w" href="words.html#w7" data-w="7">파라미터</a>를 고치는 일이에요. <b><a class="w" href="words.html#w136" data-w="136">추론</a>(inference)</b>은 학습이 끝난 모델의 파라미터를 그대로 두고 <b>예측만</b> 하는 일이에요. 휴대폰 카메라가 개와 고양이를 구분하는 것은 학습이 아니라 추론이에요. 학습에는 수 개월이 걸리기도 해서, 실제 서비스는 학습된 파라미터를 저장해 불러와서 써요(1주차 교수님 설명).</p>
+<p>이제 이 학기에 배우는 도구들이 5단계 중 어디에 쓰이는지 연결해 볼게요. 교수님이 1주차에 말한 대로 "이미지가 중요한 것이 아니라 프레임워크(틀)를 연습하는 것"이에요.</p>
+<div class="tw"><table>
+  <tr><th style="width:26%">도구</th><th style="width:30%">학습 5단계에서의 위치</th><th>시험 샘플 문제</th></tr>
+  <tr><td><b><a class="w" href="words.html#w31" data-w="31">Tensor</a></b> (2장)</td><td>데이터와 <a class="w" href="words.html#w68" data-w="68">weight</a>를 담는 그릇</td><td>1번 <a class="w" href="words.html#w3" data-w="3">슬라이싱</a>과 <a class="w" href="words.html#w35" data-w="35">shape</a></td></tr>
+  <tr><td><b><a class="w" href="words.html#w60" data-w="60">GPU</a></b> (3장)</td><td>계산을 빠르게 해 주는 <a class="w" href="words.html#w37" data-w="37">장치</a></td><td>(개념으로 나올 수 있어요)</td></tr>
+  <tr><td><b><a class="w" href="words.html#w17" data-w="17">클래스</a>, <a class="w" href="words.html#w66" data-w="66">nn.Module</a></b> (4장)</td><td>모델을 코드로 만드는 틀</td><td>2번 <a class="w" href="words.html#w23" data-w="23">상속</a>, 3번 모델 정의와 호출</td></tr>
+  <tr><td><b><a class="w" href="words.html#w84" data-w="84">Autograd</a>, <a class="w" href="words.html#w99" data-w="99">Loss</a>, <a class="w" href="words.html#w105" data-w="105">Optimizer</a></b></td><td>Loss, <a class="w" href="words.html#w83" data-w="83">Gradient</a>, Update</td><td>5번 학습 <a class="w" href="words.html#w6" data-w="6">함수</a>의 역할</td></tr>
+  <tr><td><b><a class="w" href="words.html#w118" data-w="118">Dataset</a>, <a class="w" href="words.html#w122" data-w="122">DataLoader</a></b></td><td>Data 단계와 <a class="w" href="words.html#w114" data-w="114">batch</a></td><td>4번 batch 결과 예측</td></tr>
+</table></div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>학습은 파라미터를 갱신하는 과정이고 추론은 학습된 파라미터로 예측만 하는 과정이다. 시험 <a class="w" href="words.html#w113" data-w="113">샘플</a> 5문제는 위 표처럼 이 장의 큰 그림 어딘가에 하나씩 들어가요. 문제를 읽을 때 "지금 5단계 중 어디 이야기지?"를 먼저 떠올리면 선택지가 훨씬 잘 보여요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 학습이 끝난 모델로 새 사진이 개인지 고양이인지 맞히는 일은 학습인가요, 추론인가요?</summary>
+<p>추론이에요. 파라미터를 더 고치지 않고 예측만 해요.</p></details>
+
+<div class="done"><a class="go" href="c1-11.html">다음 카드 → 이 장 3줄 요약</a><div class="pn"><a href="c1-09.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c1"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 4주차 · 딥러닝 모델 Training 과정.pdf, Week04 Autograd_Loss_Optimizer.ipynb · 빅데이터04(4주차) 녹취, 빅데이터03·07 녹취 일부</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

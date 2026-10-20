@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dataset — 입력과 정답을 한 쌍으로 묶은 명부 ★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k8"><a href="index.html#c8">← 보드</a><span>Dataset과 DataLoader · 2/8</span></div><h1>Dataset — 입력과 정답을 한 쌍으로 묶은 명부 ★★</h1>
+<p><b><a class="w" href="words.html#w118" data-w="118">Dataset</a></b>은 "<a class="w" href="words.html#w2" data-w="2">번호</a>를 말하면 그 번호의 (입력, <a class="w" href="words.html#w101" data-w="101">정답</a>) 한 쌍을 꺼내 주는" 데이터 모음이에요. PyTorch의 <code>torch.utils.data.Dataset</code> <a class="w" href="words.html#w17" data-w="17">클래스</a>를 <a class="w" href="words.html#w23" data-w="23">상속</a>해서 만들어요. 반드시 알아야 할 <a class="w" href="words.html#w20" data-w="20">메서드</a>가 세 개 있어요.</p>
+<div class="tw"><table>
+  <tr><th style="width:30%">메서드</th><th style="width:36%">역할</th><th>이렇게 불려요</th></tr>
+  <tr><td><code>__init__(self, x, y)</code></td><td>입력과 정답을 저장하고 개수가 같은지 확인</td><td><code>MyDataset(x, y)</code>로 만들 때</td></tr>
+  <tr><td><code>__len__(self)</code></td><td>전체 <a class="w" href="words.html#w113" data-w="113">sample</a> 개수를 돌려줘요</td><td><code>len(dataset)</code></td></tr>
+  <tr><td><code>__getitem__(self, index)</code></td><td>해당 번호의 (입력, 정답) 쌍을 돌려줘요</td><td><code>dataset[3]</code></td></tr>
+</table></div>
+<div class="box eg"><span class="t">비유</span>
+<p>출석 번호가 붙은 명부예요. "3번 학생"이라고 말하면(<code>dataset[3]</code>) 그 학생의 정보를 꺼내 주고, "전체 몇 명?"이라고 물으면(<code>len(dataset)</code>) 인원수를 알려 줘요. 번호는 0번부터 시작해요.</p>
+</div>
+<p><code>dataset[3]</code>이라고 쓰면 파이썬이 내부에서 <code>dataset.__getitem__(3)</code>을 호출해요. <code>len(dataset)</code>은 <code>dataset.__len__()</code>을 호출하고요. 앞 장에서 배운 "<code>f(x)</code>가 <code>__call__</code>을 부른다"와 같은 원리예요. 교수님이 직접 만든 코드를 볼게요.</p>
+<div class="code">class MyDataset(Dataset):
+    def __init__(self, x, y):
+        super().__init__()
+        if len(x) != len(y):
+            raise ValueError("입력과 정답의 sample 수가 달라요.")
+        self.x = x
+        self.y = y
+
+    def __len__(self):
+        return len(self.x)
+
+    def __getitem__(self, index):
+        return self.x[index], self.y[index]
+
+toy_x = torch.arange(10, dtype=torch.float32).reshape(-1, 1)
+toy_y = 2 * toy_x + 1
+
+custom_dataset = MyDataset(toy_x, toy_y)
+print("sample 수:", len(custom_dataset))
+x0, y0 = custom_dataset[0]
+print("첫 sample:", x0, y0)
+print("sample shape:", x0.shape, y0.shape)</div>
+<div class="code">sample 수: 10
+첫 sample: tensor([0.]) tensor([1.])
+sample shape: torch.Size([1]) torch.Size([1])</div>
+<div class="tw"><table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>class MyDataset(Dataset):</code></td><td>Dataset을 물려받는 클래스를 만들어요.</td></tr>
+  <tr><td><code>super().__init__()</code></td><td><a class="w" href="words.html#w24" data-w="24">부모</a> 준비 작업이에요. 모델 때와 똑같아요.</td></tr>
+  <tr><td><code>if len(x) != len(y): raise ValueError</code></td><td>입력과 정답 개수가 다르면 <a class="w" href="words.html#w14" data-w="14">오류</a>를 내요. 쌍이 안 맞으면 안 되니까요.</td></tr>
+  <tr><td><code>self.x = x</code>, <code>self.y = y</code></td><td>데이터를 <a class="w" href="words.html#w18" data-w="18">객체</a> 안에 저장해요.</td></tr>
+  <tr><td><code>return len(self.x)</code></td><td>sample 개수는 x의 길이예요.</td></tr>
+  <tr><td><code>return self.x[index], self.y[index]</code></td><td>같은 번호의 입력과 정답을 <b>짝지어</b> 돌려줘요.</td></tr>
+  <tr><td><code>toy_y = 2 * toy_x + 1</code></td><td>정답 y = 2x + 1. x = 0이면 y = 1, x = 3이면 y = 7이에요.</td></tr>
+  <tr><td><code>custom_dataset[0]</code></td><td>0번 sample (x = [0.], y = [1.])을 돌려줘요. 각각 크기가 (1,)예요.</td></tr>
+</table></div>
+<p>교수님은 직접 만들 수도 있지만 이미 만들어진 <code>TensorDataset</code>을 쓰면 된다고 했어요. 시험에서는 직접 만드는 코드보다 <b><code>__len__</code>과 <code>__getitem__</code>이 각각 무슨 일을 하는지</b>를 이해하는 게 중요해요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>Dataset 설명 보기에서 맞는 것은 <b>"<code>__len__</code>은 전체 sample 수를, <code>__getitem__(index)</code>는 해당 번호의 (입력, 정답) 쌍을 돌려준다"</b>예요. <code>dataset[3]</code>은 네 번째 sample이에요(0번부터 세요).</p>
+</div>
+<details class="check"><summary>잠깐 확인 — dataset[3]을 쓰면 내부에서 어떤 메서드가 호출될까요?</summary>
+<p><code>__getitem__(3)</code>이에요. 3번 인덱스(네 번째) sample의 (입력, 정답) 쌍이 나와요.</p></details>
+
+<div class="done"><a class="go" href="c8-03.html">다음 카드 → TensorDataset — 이미 만들어진 Dataset ★★★</a><div class="pn"><a href="c8-01.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c8"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 7주차 · Week05_Dataset_DataLoader_Train_Validation(part1) · 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

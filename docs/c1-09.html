@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>코드로 한 번 보기 — 학습 5줄 ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k1"><a href="index.html#c1">← 보드</a><span>딥러닝이 뭐예요 + 학습 과정 큰 그림 · 9/11</span></div><h1>코드로 한 번 보기 — 학습 5줄 ★★★</h1>
+<p>위 개념을 PyTorch 코드로 쓰면 이렇게 5줄이에요. 아직 외우지 않아도 돼요. "각 줄이 어느 단계인지"만 연결해 보세요. 데이터는 <code>y = 2x + 1</code>을 따르는 점 5개이고, 모델이 <a class="w" href="words.html#w83" data-w="83">기울기</a> 2와 절편 1을 찾아내는 <a class="w" href="words.html#w135" data-w="135">학습</a>이에요.</p>
+<div class="code">import torch
+from torch import nn
+import torch.optim as optim
+
+x_train = torch.arange(-2.0, 3.0).reshape(-1, 1)
+y_train = 2 * x_train + 1
+
+model = nn.Linear(1, 1)
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.02)
+
+for epoch in range(201):
+    optimizer.zero_grad()
+    prediction = model(x_train)
+    loss = criterion(prediction, y_train)
+    loss.backward()
+    optimizer.step()
+
+    if epoch % 20 == 0:
+        print(f"epoch={epoch:3d} loss={loss.item():.6f} "
+              f"w={model.weight.item():.4f} b={model.bias.item():.4f}")</div>
+<div class="code">epoch=  0 loss=20.231350 w=-0.7189 b=-0.5958
+epoch= 20 loss=1.161789 w=1.4870 b=0.2947
+epoch= 40 loss=0.127610 w=1.9032 b=0.6882
+epoch= 60 loss=0.021393 w=1.9817 b=0.8622
+epoch= 80 loss=0.004053 w=1.9966 b=0.9391
+epoch=100 loss=0.000787 w=1.9993 b=0.9731
+epoch=120 loss=0.000154 w=1.9999 b=0.9881
+epoch=140 loss=0.000030 w=2.0000 b=0.9947
+epoch=160 loss=0.000006 w=2.0000 b=0.9977
+epoch=180 loss=0.000001 w=2.0000 b=0.9995
+epoch=200 loss=0.000000 w=2.0000 b=0.9995</div>
+<p>위 출력은 수업 <a class="w" href="words.html#w16" data-w="16">노트북</a>의 실행 결과예요. 시작 <a class="w" href="words.html#w68" data-w="68">weight</a>가 랜덤이라 실행할 때마다 처음 숫자는 조금씩 달라요. 하지만 <a class="w" href="words.html#w99" data-w="99">loss</a>가 0에 가까워지고 w는 2, b는 1에 가까워지는 <a class="w" href="words.html#w35" data-w="35">모양</a>은 늘 같아요.</p>
+<div class="tw"><table>
+  <tr><th style="width:44%">코드 줄</th><th>어느 단계 / 무슨 뜻</th></tr>
+  <tr><td><code>model = nn.Linear(1, 1)</code></td><td>모델 만들기. 입력 1개 → 출력 1개, weight 1개와 <a class="w" href="words.html#w69" data-w="69">bias</a> 1개가 랜덤으로 시작</td></tr>
+  <tr><td><code>optimizer.zero_grad()</code></td><td>이전 바퀴에서 저장해 둔 gradient를 지워요(0으로). 안 지우면 계속 쌓여요</td></tr>
+  <tr><td><code>prediction = model(x_train)</code></td><td><b><a class="w" href="words.html#w70" data-w="70">Forward</a></b> — <a class="w" href="words.html#w100" data-w="100">예측값</a> 계산</td></tr>
+  <tr><td><code>loss = criterion(prediction, y_train)</code></td><td><b>Loss</b> — 예측과 <a class="w" href="words.html#w101" data-w="101">정답</a>의 차이를 숫자 하나로</td></tr>
+  <tr><td><code>loss.backward()</code></td><td><b>Gradient</b> — 각 weight의 기울기를 계산해서 저장 (weight 값은 아직 그대로)</td></tr>
+  <tr><td><code>optimizer.step()</code></td><td><b>Update</b> — 저장된 기울기로 weight 값을 실제로 고침</td></tr>
+  <tr><td><code>for epoch in range(201):</code></td><td>이 5줄을 201번 반복. 데이터 5개를 한 번에 다 넣으니 <a class="w" href="words.html#w116" data-w="116">epoch</a> 하나에 <a class="w" href="words.html#w108" data-w="108">step</a> 하나</td></tr>
+  <tr><td><code>if epoch % 20 == 0:</code></td><td>epoch를 20으로 나눈 나머지가 0일 때만(0, 20, 40, …) 찍어요</td></tr>
+</table></div>
+<p>이 순서 <b><a class="w" href="words.html#w92" data-w="92">zero_grad</a> → forward → loss → <a class="w" href="words.html#w86" data-w="86">backward</a> → step</b>이 학습의 기본 틀이에요. 이 시험 <a class="w" href="words.html#w113" data-w="113">샘플</a> 5번이 이 순서를 그대로 보여 주고 각 줄의 역할을 물어요.</p>
+<div class="box eg"><span class="t">시험 샘플 5번 — 각 함수의 역할</span>
+<p>이 코드의 각 줄 설명 중 맞는 것을 고르는 문제예요. 선택지는 아래처럼 판단하면 돼요.</p>
+<div class="tw"><table>
+  <tr><th style="width:56%">선택지 내용</th><th>판정</th></tr>
+  <tr><td>optimizer.step()은 저장된 기울기로 <a class="w" href="words.html#w105" data-w="105">optimizer</a>에 전달된 <a class="w" href="words.html#w7" data-w="7">파라미터</a>를 갱신한다</td><td><b>맞음 (정답)</b></td></tr>
+  <tr><td>loss.backward()는 기울기를 계산한 뒤 파라미터 값까지 갱신한다</td><td>틀림. backward는 기울기를 계산해 저장만 해요. 값 갱신은 step</td></tr>
+  <tr><td>optimizer.zero_grad()는 파라미터 값을 0으로 만든다</td><td>틀림. 0으로 만드는 것은 저장된 <b>기울기</b>예요. 파라미터 값은 그대로</td></tr>
+  <tr><td><a class="w" href="words.html#w103" data-w="103">criterion</a>(...)은 손실을 계산하고 이전 기울기를 <a class="w" href="words.html#w137" data-w="137">초기화</a>한다</td><td>틀림. 손실 계산만 해요. 기울기 초기화는 zero_grad</td></tr>
+  <tr><td>optimizer.step()은 기울기를 새로 계산하고 기존 기울기를 지운다</td><td>틀림. 계산은 backward, 지우기는 zero_grad. step은 갱신만</td></tr>
+</table></div>
+</div>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>지우고(zero_grad) → 예측하고(model) → 재고(criterion) → 방향 구하고(backward) → 고친다(step)</b>". 각자 한 가지 일만 해요. 기울기를 구하는 건 backward, 값을 바꾸는 건 step, 기울기를 지우는 건 zero_grad예요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>loss.backward()는 각 파라미터의 기울기를 계산해 저장하고, optimizer.step()은 저장된 기울기로 파라미터 값을 갱신하며, optimizer.zero_grad()는 이전 기울기를 초기화한다. "한 줄이 두 가지 일을 한다"는 선택지는 대개 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 파라미터 값을 실제로 바꾸는 줄은 backward와 step 중 어느 것인가요?</summary>
+<p>step이에요. backward는 기울기를 계산해서 저장하기만 해요.</p></details>
+
+<div class="done"><a class="go" href="c1-10.html">다음 카드 → 학습과 추론, 그리고 앞으로 배울 지도</a><div class="pn"><a href="c1-08.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c1"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 4주차 · 딥러닝 모델 Training 과정.pdf, Week04 Autograd_Loss_Optimizer.ipynb · 빅데이터04(4주차) 녹취, 빅데이터03·07 녹취 일부</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

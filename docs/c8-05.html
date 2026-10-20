@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>배치 개수와 마지막 배치 크기 계산 ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k8"><a href="index.html#c8">← 보드</a><span>Dataset과 DataLoader · 5/8</span></div><h1>배치 개수와 마지막 배치 크기 계산 ★★★</h1>
+<p><a class="w" href="words.html#w113" data-w="113">샘플</a> 시험 4번의 핵심이에요. 규칙은 두 가지뿐이에요.</p>
+<div class="box def"><span class="t">배치 개수 공식</span>
+<p><b><a class="w" href="words.html#w124" data-w="124">drop_last</a>=False</b>(기본)이면 <a class="w" href="words.html#w114" data-w="114">배치</a> 수 = <b>올림(sample 수 ÷ <a class="w" href="words.html#w115" data-w="115">batch_size</a>)</b>이고, 마지막 배치는 남은 만큼(나머지)만 들어요. 나머지가 없으면 마지막도 꽉 차요.</p>
+<p><b>drop_last=True</b>이면 배치 수 = <b>내림</b>이고 모자란 마지막 배치는 <b>버려요</b>.</p>
+</div>
+<p>예를 들어 10 ÷ 4 = 2.5이니까 올림하면 3개예요. 4개 + 4개 + (10 − 8 = 2개)로 나뉘어요. 교수님 <a class="w" href="words.html#w16" data-w="16">노트북</a>과 제가 실행한 결과를 표로 모았어요.</p>
+<div class="tw"><table>
+  <tr><th style="width:15%">sample 수</th><th style="width:15%">batch_size</th><th style="width:16%">drop_last</th><th style="width:14%">배치 수</th><th>각 배치 크기</th></tr>
+  <tr><td>10</td><td>3</td><td>False</td><td>4</td><td>[3, 3, 3, 1]</td></tr>
+  <tr><td>10</td><td><b>4</b></td><td><b>False</b></td><td><b>3</b></td><td><b>[4, 4, 2]</b></td></tr>
+  <tr><td>10</td><td>6</td><td>False</td><td>2</td><td>[6, 4]</td></tr>
+  <tr><td>10</td><td>4</td><td><b>True</b></td><td>2</td><td>[4, 4] (마지막 2개 버림)</td></tr>
+  <tr><td>90</td><td>20</td><td>False</td><td>5</td><td>[20, 20, 20, 20, 10]</td></tr>
+  <tr><td>90</td><td>20</td><td>True</td><td>4</td><td>[20, 20, 20, 20]</td></tr>
+  <tr><td>1000</td><td>20</td><td>False</td><td>50</td><td>20이 50번</td></tr>
+  <tr><td>100</td><td>32</td><td>False</td><td>4</td><td>[32, 32, 32, 4]</td></tr>
+</table></div>
+<div class="paper"><svg viewBox="0 0 380 100" width="96mm"><rect x="0" y="0" width="380" height="100" rx="10" fill="#f8fafc"/>
+  <g stroke="#1b2333" stroke-width="1.2">
+    <rect x="10" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="44" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="78" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/><rect x="112" y="26" width="30" height="30" rx="4" fill="#dbe6ff"/>
+    <rect x="156" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="190" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="224" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/><rect x="258" y="26" width="30" height="30" rx="4" fill="#e3f6ec"/>
+    <rect x="302" y="26" width="30" height="30" rx="4" fill="#e5e7eb" stroke-dasharray="4 3"/><rect x="336" y="26" width="30" height="30" rx="4" fill="#e5e7eb" stroke-dasharray="4 3"/>
+  </g>
+  <g font-size="13" font-weight="bold" fill="#1b2333" text-anchor="middle">
+    <text x="25" y="46">0</text><text x="59" y="46">1</text><text x="93" y="46">2</text><text x="127" y="46">3</text>
+    <text x="171" y="46">4</text><text x="205" y="46">5</text><text x="239" y="46">6</text><text x="273" y="46">7</text>
+    <text x="317" y="46" fill="#6b7280">8</text><text x="351" y="46" fill="#6b7280">9</text>
+  </g>
+  <g font-size="12" fill="#1b2333" text-anchor="middle">
+    <text x="190" y="14" font-weight="bold">drop_last=True 이면 모자란 마지막 배치는 버려져요</text>
+    <text x="76" y="76">배치 1</text><text x="222" y="76">배치 2</text><text x="334" y="76">버려짐</text>
+    <text x="190" y="96">배치 수 = 2, 마지막으로 나오는 배치는 4~7번 sample</text>
+  </g>
+</svg></div>
+<p>마지막 배치를 구하는 요령은 이래요. <a class="w" href="words.html#w4" data-w="4">반복문</a>이 끝난 뒤의 <code>batch_x</code>, <code>batch_y</code>는 <b>마지막으로 꺼낸 배치</b>예요. 파이썬에서 for 문 <a class="w" href="words.html#w0" data-w="0">변수</a>는 반복이 끝나도 마지막 값이 남아 있기 때문이에요. drop_last=False이면 마지막 배치는 맨 끝 sample들이고, drop_last=True이면 버려진 것을 뺀 마지막 꽉 찬 배치예요.</p>
+<ul>
+  <li>drop_last=False, batch_size=4 → 마지막 배치는 8번, 9번 sample → y = <b>[53.0, 59.0]</b></li>
+  <li>drop_last=True, batch_size=4 → 마지막 배치는 4~7번 sample → y = <b>[29.0, 35.0, 41.0, 47.0]</b></li>
+</ul>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>배치 수는 <b>"올림"</b>이에요(drop_last를 안 쓰면). 10 ÷ 4 = 2.5 → 3. 90 ÷ 20 = 4.5 → 5. 마지막 크기는 <b>나머지</b>예요. 10을 4로 나눈 나머지 2, 90을 20으로 나눈 나머지 10이에요. 나머지가 0이면 마지막도 꽉 차요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>① 배치 수는 올림(drop_last=True면 내림)으로 계산해요. ② 배치 크기 목록은 batch_size를 반복하다가 마지막에 나머지를 적어요. ③ 마지막 배치 값은 <b>맨 뒤 sample</b>을 직접 계산해요. 그리고 문제 코드에서 <code>shuffle=False</code>인지도 확인하세요. True이면 마지막 배치에 어떤 sample이 들어갈지 매번 달라져서 값을 하나로 정할 수 없어요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — sample 100개, batch_size 32, drop_last=False이면 배치 수와 마지막 배치 크기는?</summary>
+<p>배치 수는 올림(100 ÷ 32 = 3.125) = 4이고, 마지막 크기는 100 − 32×3 = 4예요. [32, 32, 32, 4]예요.</p></details>
+
+<div class="done"><a class="go" href="c8-06.html">다음 카드 → shuffle — 매 epoch마다 섞기 ★★</a><div class="pn"><a href="c8-04.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c8"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 7주차 · Week05_Dataset_DataLoader_Train_Validation(part1) · 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

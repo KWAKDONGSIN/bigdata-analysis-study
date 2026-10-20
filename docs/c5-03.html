@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>nn.Linear(입력, 출력) — 같은 계산을 한 줄로 ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k5"><a href="index.html#c5">← 보드</a><span>nn.Module로 모델 만들기 · 3/8</span></div><h1>nn.Linear(입력, 출력) — 같은 계산을 한 줄로 ★★★</h1>
+<p>W와 B를 매번 직접 만들고 <code>x @ W.T + B</code>를 쓰는 건 번거로워요. 그래서 PyTorch가 이 일을 해 주는 부품을 미리 만들어 뒀어요. 그게 <b><code>nn.Linear</code></b>예요. <a class="w" href="words.html#w67" data-w="67">Linear</a>는 "선형(일차식) 계산"이라는 뜻이에요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><code>nn.Linear(in_features, out_features)</code> = <b><a class="w" href="words.html#w73" data-w="73">입력 특성</a> 개수, 출력 특성 개수</b>를 넣으면 W와 B를 자동으로 만들고, 호출하면 <code>x @ W.T + B</code>를 계산해 주는 층이에요.</p>
+</div>
+<div class="code">fc = nn.Linear(3, 2)       # 입력 특성 3개 → 출력 특성 2개
+print(fc.weight.shape)
+print(fc.bias.shape)
+x = torch.ones(4, 3)       # 데이터 4개, 특성 3개
+print(fc(x).shape)</div>
+<div class="code">torch.Size([2, 3])
+torch.Size([2])
+torch.Size([4, 2])</div>
+<div class="tw"><table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>nn.Linear(3, 2)</code></td><td><b>앞 숫자가 입력</b>, 뒤 숫자가 출력이에요. 입력 3개를 출력 2개로 바꿔요.</td></tr>
+  <tr><td><code>fc.weight.shape</code></td><td>자동으로 만들어진 <a class="w" href="words.html#w68" data-w="68">가중치</a>. 크기는 (출력, 입력) = (2, 3)이에요. 괄호 안 순서와 반대라서 헷갈리기 쉬워요.</td></tr>
+  <tr><td><code>fc.bias.shape</code></td><td><a class="w" href="words.html#w69" data-w="69">편향</a>. 크기는 (출력,) = (2,)예요.</td></tr>
+  <tr><td><code>fc(x)</code></td><td>층도 <a class="w" href="words.html#w6" data-w="6">함수</a>처럼 부를 수 있어요. 결과 크기는 (4, 2)예요.</td></tr>
+</table></div>
+<div class="paper"><svg viewBox="0 0 380 190" width="96mm"><rect x="0" y="0" width="380" height="190" rx="10" fill="#f8fafc"/>
+  <g stroke="#9aa7bd" stroke-width="1.4">
+    <line x1="72" y1="40" x2="298" y2="65"/><line x1="72" y1="40" x2="298" y2="125"/>
+    <line x1="72" y1="95" x2="298" y2="65"/><line x1="72" y1="95" x2="298" y2="125"/>
+    <line x1="72" y1="150" x2="298" y2="65"/><line x1="72" y1="150" x2="298" y2="125"/>
+  </g>
+  <g fill="#dbe6ff" stroke="#1d4ed8" stroke-width="2">
+    <circle cx="60" cy="40" r="14"/><circle cx="60" cy="95" r="14"/><circle cx="60" cy="150" r="14"/>
+  </g>
+  <g fill="#fff1d6" stroke="#c2410c" stroke-width="2">
+    <circle cx="310" cy="65" r="14"/><circle cx="310" cy="125" r="14"/>
+  </g>
+  <text x="60" y="18" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b2333">입력 3개</text>
+  <text x="310" y="40" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b2333">출력 2개</text>
+  <text x="185" y="178" text-anchor="middle" font-size="12" fill="#1b2333">선 6개 = 가중치 3×2 = 6개, 출력마다 편향 1개 = 2개</text>
+</svg></div>
+<p>입력 3개가 출력 2개와 모두 선으로 이어져요. 이 선 하나하나가 가중치이고, 출력 칸마다 편향이 하나씩 붙어요. 그래서 <b><a class="w" href="words.html#w135" data-w="135">학습</a>할 숫자(<a class="w" href="words.html#w7" data-w="7">파라미터</a>) 개수 = 입력 × 출력 + 출력</b>이에요.</p>
+<div class="tw"><table>
+  <tr><th style="width:28%">층</th><th style="width:36%">계산</th><th>파라미터 개수</th></tr>
+  <tr><td><code>nn.Linear(3, 2)</code></td><td>3×2 + 2</td><td><b>8개</b></td></tr>
+  <tr><td><code>nn.Linear(8, 4)</code></td><td>8×4 + 4</td><td><b>36개</b></td></tr>
+  <tr><td><code>nn.Linear(4, 6)</code></td><td>4×6 + 6</td><td><b>30개</b></td></tr>
+  <tr><td><code>nn.Linear(6, 2)</code></td><td>6×2 + 2</td><td><b>14개</b></td></tr>
+</table></div>
+<p>이제 <code>nn.Linear</code>를 모델 <a class="w" href="words.html#w17" data-w="17">클래스</a> 안에 넣어 볼게요. 교수님이 수업에서 쓴 <a class="w" href="words.html#w35" data-w="35">형태</a>이고, <a class="w" href="words.html#w113" data-w="113">샘플</a> 시험 3번도 이 모양이에요.</p>
+<div class="code">class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = nn.Linear(in_features=3, out_features=2)
+
+    def forward(self, x):
+        return self.fc(x)
+
+model = MyModel()
+x = torch.ones(4, 3)
+y = model(x)
+print(tuple(y.shape))
+for name, p in model.named_parameters():
+    print(name, tuple(p.shape))</div>
+<div class="code">(4, 2)
+fc.weight (2, 3)
+fc.bias (2,)</div>
+<div class="tw"><table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>self.fc = nn.Linear(3, 2)</code></td><td>층 하나를 만들어 <code>self.fc</code>라는 이름으로 모델에 붙여요. 이렇게 붙이면 모델이 자동으로 기억해요.</td></tr>
+  <tr><td><code>return self.fc(x)</code></td><td>x를 층에 넣은 결과를 돌려줘요. <b>괄호와 x를 꼭 써야</b> 계산이 실행돼요.</td></tr>
+  <tr><td><code>model.named_parameters()</code></td><td>학습할 숫자들을 이름과 함께 보여줘요. 이름은 <code>fc.weight</code>, <code>fc.bias</code>예요.</td></tr>
+</table></div>
+<p>3주차의 직접 만든 방식과 4주차의 <code>nn.Linear</code> 방식을 비교하면 이래요.</p>
+<div class="tw"><table>
+  <tr><th style="width:22%">구분</th><th style="width:39%">직접 만들기</th><th>nn.Linear 쓰기</th></tr>
+  <tr><td>만들기</td><td><code>self.W</code>, <code>self.B</code></td><td><code>self.fc = nn.Linear(3, 2)</code></td></tr>
+  <tr><td>계산</td><td><code>x @ self.W.T + self.B</code></td><td><code>self.fc(x)</code></td></tr>
+  <tr><td>값 접근</td><td><code>model.W</code>, <code>model.B</code></td><td><code>model.fc.weight</code>, <code>model.fc.bias</code></td></tr>
+  <tr><td>등록된 이름</td><td><code>W</code>, <code>B</code></td><td><code>fc.weight</code>, <code>fc.bias</code></td></tr>
+</table></div>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p><code>nn.Linear(입력, 출력)</code>은 <b>말하는 순서 그대로</b> 써요("3개를 2개로"). 하지만 안에 든 <code>weight</code>는 <b>(출력, 입력)</b>이라 반대로 저장돼요. 문제에서 <code>nn.Linear(2, 3)</code>처럼 순서가 뒤집힌 보기는 오답이에요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>① 문제 설명에서 "입력 특성 몇 개 → 출력 특성 몇 개"를 찾아요. ② 그 순서대로 <code>nn.Linear(입력, 출력)</code>을 골라요. ③ 입력의 첫 숫자(<code>torch.ones(4, 3)</code>의 4)는 <b><a class="w" href="words.html#w115" data-w="115">배치 크기</a></b>라서 Linear 숫자와 상관없어요. 4와 3을 헷갈려 <code>nn.Linear(4, 2)</code>를 고르면 틀려요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — nn.Linear(10, 5)의 weight 크기와 파라미터 개수는?</summary>
+<p>weight는 (5, 10)이고 bias는 (5,)예요. 파라미터는 10×5 + 5 = 55개예요.</p></details>
+
+<div class="done"><a class="go" href="c5-04.html">다음 카드 → model(x)는 어떻게 forward를 실행할까 — __call__ ★★★</a><div class="pn"><a href="c5-02.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c5"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3·6주차 · Week03_Class_for_PyTorch(업데이트), Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

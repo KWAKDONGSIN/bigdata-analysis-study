@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>requires_grad, backward(), .grad — 가장 기본 예제 ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k6"><a href="index.html#c6">← 보드</a><span>Autograd — 자동으로 기울기 구하기 · 2/8</span></div><h1>requires_grad, backward(), .grad — 가장 기본 예제 ★★★</h1>
+<p>PyTorch에게 "이 값의 <a class="w" href="words.html#w83" data-w="83">기울기</a>가 필요해"라고 알려 주는 표시가 <b><code>requires_grad=True</code></b>예요. 이 표시가 붙은 <a class="w" href="words.html#w31" data-w="31">Tensor</a>에서 시작한 계산은 PyTorch가 전부 기록해 두었다가, 나중에 기울기를 한꺼번에 계산해요.</p>
+<ul>
+  <li><b><code>requires_grad=True</code></b> : "이 값부터 계산 과정을 기록해 줘."</li>
+  <li><b><code>L.backward()</code></b> : 마지막 결과 L에서 거꾸로 거슬러 가며 기울기를 <b>계산해서 저장</b>해요.</li>
+  <li><b><code>w.grad</code></b> : 저장된 기울기를 꺼내 보는 곳이에요. <a class="w" href="words.html#w86" data-w="86">backward</a> 전에는 <code>None</code>(아직 없음)이에요.</li>
+</ul>
+<div class="code">w = torch.tensor(3.0, requires_grad=True)
+L = w ** 2
+
+print("w:", w)
+print("L:", L)
+print("backward 전 w.grad:", w.grad)
+
+L.backward()
+
+print("backward 후 w.grad:", w.grad)</div>
+<div class="code">w: tensor(3., requires_grad=True)
+L: tensor(9., grad_fn=&lt;PowBackward0&gt;)
+backward 전 w.grad: None
+backward 후 w.grad: tensor(6.)</div>
+<div class="tw"><table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>w = torch.tensor(3.0, requires_grad=True)</code></td><td>값이 3.0인 w를 만들고 기울기를 추적하라고 표시해요.</td></tr>
+  <tr><td><code>L = w ** 2</code></td><td>L = w² = 9. 이 계산도 기록돼요. 출력의 <code>grad_fn</code>이 "기록 중"이라는 표시예요.</td></tr>
+  <tr><td><code>print(w.grad)</code> (첫 번째)</td><td>아직 backward 전이라 <code>None</code>이에요.</td></tr>
+  <tr><td><code>L.backward()</code></td><td>L을 w로 미분해요. L = w²이므로 2w = 2×3 = 6을 계산해서 <code>w.grad</code>에 저장해요.</td></tr>
+  <tr><td><code>print(w.grad)</code> (두 번째)</td><td><code>tensor(6.)</code>이에요.</td></tr>
+</table></div>
+<p>꼭 알아둘 점이 두 가지 있어요. 첫째, <code>backward()</code>는 <b>w.backward()가 아니라 마지막 값 L에 걸어요.</b> 둘째, <code>backward()</code>는 기울기를 <b>계산해서 저장만</b> 해요. w의 값(3.0)은 그대로이고, 값을 바꾸는 일은 나중에 업데이트(<a class="w" href="words.html#w105" data-w="105">옵티마이저</a>)가 해요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>미분을 몰라도 시험은 풀 수 있어요. 교수님도 <a class="w" href="words.html#w87" data-w="87">chain rule</a>로 구하든 한 번에 미분하든 값만 맞으면 된다는 취지로 말했어요. 필요한 규칙은 딱 3개예요. ① <b>wⁿ의 기울기는 n × wⁿ⁻¹</b> (w²는 2w, w³는 3w², w⁴는 4w³) ② 상수 곱하기는 그대로 따라 나와요(3w는 3) ③ 상수만 더한 것은 사라져요(w+1은 1).</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"backward()를 호출하면 무엇이 일어나는가"는 <b>기울기를 계산해 <a class="w" href="words.html#w90" data-w="90">.grad</a>에 저장한다</b>가 <a class="w" href="words.html#w101" data-w="101">정답</a>이에요. "<a class="w" href="words.html#w7" data-w="7">파라미터</a> 값까지 갱신한다"는 보기는 오답이에요. 갱신은 <code>optimizer.step()</code>이 해요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — w=3, loss=(w−1)²에서 backward 후 w.grad는? 그리고 w의 값은 바뀔까요?</summary>
+<p>w.grad는 2×(3−1) = 4예요. w는 3 그대로예요. backward는 기울기만 계산하고 w 값은 바꾸지 않아요.</p></details>
+
+<div class="done"><a class="go" href="c6-03.html">다음 카드 → 계산 그래프와 chain rule — 뒤에서 앞으로 곱하기 ★★</a><div class="pn"><a href="c6-01.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c6"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 6주차 · Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

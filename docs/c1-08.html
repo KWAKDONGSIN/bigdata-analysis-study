@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>반복 — batch, iteration, epoch ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k1"><a href="index.html#c1">← 보드</a><span>딥러닝이 뭐예요 + 학습 과정 큰 그림 · 8/11</span></div><h1>반복 — batch, iteration, epoch ★★★</h1>
+<p>한 번만 고쳐서는 부족해요. 학생이 한 명뿐이면 <a class="w" href="words.html#w135" data-w="135">학습</a>이 안 되고, 수천 명의 데이터로 계속 반복해야 해요. 그런데 데이터를 전부 한 번에 넣으면 계산이 너무 많아서, 보통은 <b>조금씩 잘라서(<a class="w" href="words.html#w114" data-w="114">batch</a>)</b> 넣어요.</p>
+<figure class="slide"><img src="slides/tr12.jpg" alt="batch를 바꿔 가며 반복"><figcaption>교수님 슬라이드 — 다른 batch로 Forward ~ Update 반복. weight 한 번 업데이트 = 1 iteration, 전체 데이터 한 바퀴 = 1 epoch</figcaption></figure>
+<div class="tw"><table>
+  <tr><th style="width:22%">용어</th><th>뜻</th><th style="width:34%">예</th></tr>
+  <tr><td><b><a class="w" href="words.html#w113" data-w="113">sample</a></b></td><td>입력 하나와 <a class="w" href="words.html#w101" data-w="101">정답</a> 하나의 짝</td><td>학생 한 명의 (<a class="w" href="words.html#w73" data-w="73">feature</a>, 기말 점수)</td></tr>
+  <tr><td><b>batch</b></td><td>한 번에 처리하는 sample 묶음</td><td>학생 20명씩</td></tr>
+  <tr><td><b><a class="w" href="words.html#w117" data-w="117">iteration</a></b></td><td>batch 하나로 <a class="w" href="words.html#w68" data-w="68">weight</a>를 한 번 업데이트하는 것 (<a class="w" href="words.html#w108" data-w="108">step</a>이라고도 해요)</td><td>20명으로 한 번 고침</td></tr>
+  <tr><td><b><a class="w" href="words.html#w116" data-w="116">epoch</a></b></td><td><a class="w" href="words.html#w126" data-w="126">학습 데이터</a> <b>전체를 한 바퀴</b> 다 쓰는 것</td><td>학생 전원을 한 번씩 사용</td></tr>
+</table></div>
+<p>계산 연습을 해 볼게요. 학생이 1만 명이고 batch가 20명이면 한 epoch에 <b>10000 ÷ 20 = 500번</b>(iteration) 업데이트해요(교수님 예시). 데이터가 10개이고 batch가 4이면 4개, 4개, 2개로 나뉘어서 한 epoch에 <b>3번</b>이에요. 마지막 묶음은 남는 만큼만 들어가요. 이 "10개, batch 4" 예는 이 과목 시험 샘플 4번에도 그대로 나와요.</p>
+<p>보통은 여러 epoch를 반복하고, epoch마다 데이터를 <b>랜덤한 순서</b>로 꺼내요. 이 일을 해 주는 도구가 나중에 배울 <a class="w" href="words.html#w122" data-w="122">DataLoader</a>예요. 데이터를 전부 한 번에 넣으면 1 epoch에 step이 1번이고, batch로 나누면(mini-batch) 1 epoch에 step이 여러 번이에요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>epoch은 학습 데이터 전체를 한 번 사용하는 것이고, weight를 한 번 업데이트하는 것이 1 iteration이다. 한 epoch의 iteration 수는 <b>올림(데이터 수 ÷ batch 크기)</b>이다(마지막 batch가 작아도 한 번으로 센다). 계산할 때는 "나머지가 남으면 한 번 더"로 기억하세요. 단, DataLoader에서 <a class="w" href="words.html#w124" data-w="124">drop_last=True</a>로 하면 모자란 마지막 묶음을 버려서 내림이 돼요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 데이터 100개, batch 30이면 한 epoch에 iteration은 몇 번인가요?</summary>
+<p>4번이에요. 30, 30, 30, 10개로 나뉘어서 마지막 10개짜리도 한 번으로 세요.</p></details>
+
+<div class="done"><a class="go" href="c1-09.html">다음 카드 → 코드로 한 번 보기 — 학습 5줄 ★★★</a><div class="pn"><a href="c1-07.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c1"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 4주차 · 딥러닝 모델 Training 과정.pdf, Week04 Autograd_Loss_Optimizer.ipynb · 빅데이터04(4주차) 녹취, 빅데이터03·07 녹취 일부</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

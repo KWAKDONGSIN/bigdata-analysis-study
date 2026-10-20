@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GPU Tensor를 NumPy로 바꾸기 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k3"><a href="index.html#c3">← 보드</a><span>GPU와 Colab · 5/8</span></div><h1>GPU Tensor를 NumPy로 바꾸기</h1>
+<p><a class="w" href="words.html#w15" data-w="15">NumPy</a> <a class="w" href="words.html#w1" data-w="1">배열</a>은 <b><a class="w" href="words.html#w59" data-w="59">CPU</a> 메모리에만</b> 있어요. <a class="w" href="words.html#w60" data-w="60">GPU</a>에 있는 <a class="w" href="words.html#w31" data-w="31">Tensor</a>를 바로 NumPy로 바꿀 수 없고, <b>먼저 CPU로 옮긴 뒤</b> 바꿔요. <a class="w" href="words.html#w83" data-w="83">기울기</a>를 추적 중인 Tensor(<code>requires_grad=True</code>)는 <code>detach()</code>로 추적을 끊고 바꿔요(<a class="w" href="words.html#w84" data-w="84">Autograd</a> 장에서 배워요).</p>
+<div class="tw"><table>
+  <tr><th style="width:34%">목적</th><th>방법</th></tr>
+  <tr><td>CPU → GPU</td><td><code>x = x.to('cuda')</code></td></tr>
+  <tr><td>GPU → CPU</td><td><code>x = x.to('cpu')</code></td></tr>
+  <tr><td>GPU Tensor → NumPy</td><td><code>x.to('cpu').numpy()</code> (CPU로 먼저)</td></tr>
+  <tr><td>기울기 추적 중인 Tensor → NumPy</td><td><code>x.detach().to('cpu').numpy()</code></td></tr>
+</table></div>
+<div class="code">t = torch.randn(3, requires_grad=True)
+print(t.detach().to('cpu').numpy().shape)</div>
+<div class="code">(3,)</div>
+<p>기울기를 추적하는 Tensor에 <code>detach()</code> 없이 <code>.numpy()</code>를 하면 "requires grad인 Tensor에는 <a class="w" href="words.html#w57" data-w="57">numpy()</a>를 쓸 수 없고 <a class="w" href="words.html#w95" data-w="95">detach()</a>.numpy()를 쓰라"는 <a class="w" href="words.html#w14" data-w="14">에러</a>가 나요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>NumPy 배열은 CPU 메모리에만 저장되므로 GPU Tensor는 .<a class="w" href="words.html#w63" data-w="63">to</a>('cpu').numpy()로 CPU로 옮긴 뒤 변환한다. <a class="w" href="words.html#w85" data-w="85">requires_grad=True</a>인 Tensor는 detach()로 <a class="w" href="words.html#w88" data-w="88">계산 그래프</a>에서 분리한 뒤 변환한다. 순서는 "(필요하면 detach) → CPU → numpy"예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — GPU에 있는 Tensor g를 NumPy로 바꾸는 올바른 한 줄은?</summary>
+<p><code>g.to('cpu').numpy()</code>예요. CPU로 먼저 옮겨야 해요.</p></details>
+
+<div class="done"><a class="go" href="c3-06.html">다음 카드 → 내 컴퓨터에 GPU가 없다면 — Google Colab에서 GPU 켜기 ★</a><div class="pn"><a href="c3-04.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c3"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2주차(+1·3주차) · Week02_Tensor_and_GPU, 구글 Colab GPU 환경 사용법.pdf · 빅분01(1주차)·빅분02(2주차)·빅데이터03(3주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

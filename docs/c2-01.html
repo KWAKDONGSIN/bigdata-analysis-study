@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tensor가 뭐예요 — 차원별 숫자 상자 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k2"><a href="index.html#c2">← 보드</a><span>Tensor · 1/11</span></div><h1>Tensor가 뭐예요 — 차원별 숫자 상자</h1>
+<p><b><a class="w" href="words.html#w31" data-w="31">Tensor</a>(텐서)</b>는 숫자를 저장하는 <b>다차원 <a class="w" href="words.html#w1" data-w="1">배열</a></b>이에요. "배열"은 숫자를 줄 세운 것이고, "다차원"은 줄이 한 줄이거나, 표(행과 열)이거나, 표가 여러 장 쌓인 것까지 모두 포함한다는 뜻이에요. 교수님은 <a class="w" href="words.html#w15" data-w="15">NumPy</a>의 ndarray, 판다스의 DataFrame, PyTorch의 Tensor가 같은 층위의 개념이라고 했어요. Tensor는 NumPy 배열과 아주 비슷해요.</p>
+<div class="box eg"><span class="t">비유 — 실험 데이터 엑셀</span>
+<p>숫자 하나(시료 무게 한 값)는 <b><a class="w" href="words.html#w32" data-w="32">0차원</a></b>이에요. 한 줄(시료 한 개의 측정값 세 항목)은 <b><a class="w" href="words.html#w33" data-w="33">1차원</a></b>이에요. 엑셀 시트 한 장(시료 여러 개 × 항목 여러 개)은 <b><a class="w" href="words.html#w34" data-w="34">2차원</a></b>이에요. 시트를 여러 장 묶은 통합 문서는 <b>3차원</b>이에요.</p>
+</div>
+<div class="tw"><table>
+  <tr><th style="width:18%">차원</th><th style="width:20%">이름</th><th style="width:22%">shape 예시</th><th>모양</th></tr>
+  <tr><td>0차원</td><td>scalar</td><td><code>()</code></td><td>숫자 하나</td></tr>
+  <tr><td>1차원</td><td>vector</td><td><code>(3,)</code></td><td>한 줄에 숫자 3개</td></tr>
+  <tr><td>2차원</td><td>matrix</td><td><code>(2, 3)</code></td><td>2행 3열 표</td></tr>
+  <tr><td>3차원 이상</td><td>tensor</td><td><code>(2, 3, 4)</code></td><td>3행 4열 표가 2장 쌓인 입체 (2 × 3 × 4)</td></tr>
+</table></div>
+<div class="code">import torch
+
+scalar = torch.tensor(7)
+vector = torch.tensor([1, 2, 3])
+matrix = torch.tensor([[1, 2, 3],
+                       [4, 5, 6]])
+tensor_3d = torch.tensor([[[1, 2], [3, 4]],
+                          [[5, 6], [7, 8]]])
+
+print(scalar.shape)
+print(vector.shape)
+print(matrix.shape)
+print(tensor_3d.shape)</div>
+<div class="code">torch.Size([])
+torch.Size([3])
+torch.Size([2, 3])
+torch.Size([2, 2, 2])</div>
+<div class="tw"><table>
+  <tr><th style="width:38%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.tensor(7)</code></td><td>숫자 7 하나를 Tensor로 만들어요. 괄호가 없으니 0차원이고 <a class="w" href="words.html#w35" data-w="35">shape</a>은 비어 있어요</td></tr>
+  <tr><td><code>torch.tensor([1, 2, 3])</code></td><td>대괄호 한 겹 → 1차원, 원소 3개 → <code>[3]</code></td></tr>
+  <tr><td><code>torch.tensor([[...], [...]])</code></td><td>대괄호 두 겹 → 2차원. 바깥 칸 2개, 안쪽 3개 → <code>[2, 3]</code></td></tr>
+  <tr><td>대괄호 세 겹</td><td>3차원. 바깥부터 2개, 2개, 2개 → <code>[2, 2, 2]</code></td></tr>
+</table></div>
+<p>이미지도 Tensor예요. 이미지 한 장은 <b>(channel, height, width)</b> 순서(색 채널 수, 세로, 가로)이고, 여러 장을 한꺼번에 처리하면 맨 앞에 <b><a class="w" href="words.html#w114" data-w="114">batch</a></b> 차원이 붙어서 <b>(batch, channel, height, width)</b>, 줄여서 <b><a class="w" href="words.html#w55" data-w="55">(N, C, H, W)</a></b>예요. 흑백 28×28이면 (28, 28), 색 채널 3개이면 (3, 28, 28), 이런 이미지 64장이면 (64, 3, 28, 28)이에요.</p>
+<figure class="slide"><img src="slides/w24.jpg" alt="이미지와 batch 차원 표현"><figcaption>교수님 슬라이드 — 이미지 한 장 (C, H, W), 여러 장 (B, C, H, W)</figcaption></figure>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>Tensor는 숫자를 저장하는 다차원 배열이며 0차원은 scalar, 1차원은 vector, 2차원은 matrix, 3차원 이상은 tensor라고 부른다. 이미지 batch의 shape은 (N, C, H, W) 순서이다. shape을 볼 때는 "대괄호가 몇 겹인지"가 <a class="w" href="words.html#w38" data-w="38">차원 수</a>예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 흑백 28×28 이미지 32장을 묶은 batch의 shape은?</summary>
+<p>(32, 1, 28, 28)이에요. 순서는 (장 수, 채널, 세로, 가로)이고 흑백이라 채널은 1이에요.</p></details>
+
+<div class="done"><a class="go" href="c2-02.html">다음 카드 → shape 읽기와 확인 3종 — shape, dtype, device ★★★</a><div class="pn"><a href="index.html#c2"><b>← 이전</b>보드로</a><a class="next" href="quiz.html#c2"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2주차 · Week02_Tensor_and_GPU(pdf, 풀이포함 ipynb) · 빅분02(2주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

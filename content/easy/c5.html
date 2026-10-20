@@ -1,0 +1,385 @@
+<!-- 5장: nn.Module로 모델 만들기. 클래스 뼈대, x @ W.T + B, nn.Linear(입력, 출력), model(x)와 __call__, nn.Parameter, Sequential, 중간고사 3번 풀이 -->
+<h2>nn.Module로 모델 만들기 — 숫자를 넣으면 예측이 나오는 계산기 상자</h2>
+<p class="lead">딥러닝 모델은 파이썬 클래스 하나로 만들어요. 이 장에서는 그 뼈대(<code>__init__</code>과 <code>forward</code>), 한 층을 만드는 <code>nn.Linear(입력, 출력)</code>, 그리고 <code>model(x)</code>가 <code>forward</code>를 실행하는 과정을 배워요. 샘플 시험 3번이 바로 이 장이에요.</p>
+
+<h3>5-1. 모델은 클래스예요 — nn.Module 뼈대 <span class="st">★★★</span></h3>
+<p>앞 장에서 클래스(설계도)와 상속(부모의 기능을 물려받기)을 배웠죠. PyTorch에서 모델을 만들 때는 <b>부모 클래스 <code>nn.Module</code></b>을 물려받아서 나만의 모델 클래스를 만들어요. <code>nn.Module</code>에는 모델이 일하는 데 필요한 기본 기능이 이미 들어 있어요.</p>
+<div class="box eg"><span class="t">비유</span>
+<p>모델은 <b>계산기 상자</b>예요. 상자를 만들 때(<code>__init__</code>) 안에 쓸 부품(층)을 넣어 두고, 숫자가 들어오면(<code>forward</code>) 어떤 순서로 계산해서 결과를 내보낼지 적어 둬요. 교수님 자료도 <code>__init__</code>은 층과 구성 요소를 정의하고 등록하는 곳, <code>forward</code>는 입력에서 출력까지의 계산 흐름을 정의하는 곳이라고 정리했어요.</p>
+</div>
+<div class="code">import torch
+from torch import nn
+
+class MyModel(nn.Module):        # nn.Module을 물려받는다
+    def __init__(self):
+        super().__init__()       # 부모 준비를 가장 먼저
+        # 여기서 층(layer)을 만들어 self에 붙인다
+
+    def forward(self, x):
+        # 입력 x가 들어오면 어떻게 계산할지 쓴다
+        return x                 # 계산 결과를 돌려준다</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>class MyModel(nn.Module):</code></td><td>"MyModel은 nn.Module의 자식이다."</td></tr>
+  <tr><td><code>def __init__(self):</code></td><td>모델을 처음 만들 때 한 번 실행되는 곳. 층을 만들어 두는 자리예요.</td></tr>
+  <tr><td><code>super().__init__()</code></td><td>부모(nn.Module)의 준비 작업을 실행해요. 층과 파라미터를 관리할 준비를 하는 거예요.</td></tr>
+  <tr><td><code>def forward(self, x):</code></td><td>입력 x에서 출력까지의 계산 흐름을 쓰는 곳. 이름은 꼭 <code>forward</code>여야 해요.</td></tr>
+  <tr><td><code>return x</code></td><td>계산 결과를 내보내요.</td></tr>
+</table>
+<p><b>왜 <code>super().__init__()</code>을 맨 앞에 쓸까요?</b> 자식 클래스가 <code>__init__</code>을 직접 만들면 부모의 <code>__init__</code>은 <b>자동으로 실행되지 않아요.</b> 그래서 "부모 것도 실행해 줘"라고 직접 불러야 해요. 안 부르면 층을 붙이는 순간 오류가 나요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>모델 뼈대 3줄은 <b>클래스 이름 뒤에 (nn.Module) / 첫 줄에 super().__init__() / 계산은 forward</b>예요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>모델 코드가 나오면 먼저 세 가지를 확인하세요. ① <code>(nn.Module)</code>을 물려받았는지 ② <code>__init__</code> 맨 앞에 <code>super().__init__()</code>이 있는지 ③ 계산이 <code>forward</code> 안에 있는지. 보기에서 "층은 <code>__init__</code>에서 만들고 계산 흐름은 <code>forward</code>에서 정의한다"는 문장이 맞는 설명이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — __init__ 안에서 super().__init__()을 빼먹고 self.fc = nn.Linear(3, 2)를 쓰면 어떻게 될까요?</summary>
+<p>오류가 나요. 직접 실행해 보면 "cannot assign module before Module.__init__() call"이라는 메시지가 나와요. 부모의 준비 작업이 끝나기 전에는 층을 붙일 수 없다는 뜻이에요.</p></details>
+
+<h3>5-2. 가장 쉬운 한 층 모델 — x @ W.T + B <span class="st">★★★</span></h3>
+<p>딥러닝에서 <b>한 층(layer)</b>은 "입력 숫자 여러 개를 섞어서 출력 숫자 여러 개로 바꾸는 계산"이에요. 용어부터 풀어 볼게요.</p>
+<ul>
+  <li><b>특성(feature)</b> : 입력 숫자 하나하나예요. 학생 정보라면 중간고사 점수, 공부 시간 같은 것이에요.</li>
+  <li><b>배치(batch)</b> : 한 번에 넣는 데이터 묶음이에요. 학생 4명을 한꺼번에 넣으면 배치 크기는 4예요.</li>
+  <li><b>가중치(weight, W)</b> : 각 입력에 곱하는 "중요도 점수"예요.</li>
+  <li><b>편향(bias, B)</b> : 마지막에 더하는 "기본 점수"예요.</li>
+</ul>
+<div class="box eg"><span class="t">비유</span>
+<p>성적 환산과 같아요. "국어 × 0.3 + 영어 × 0.3 + 수학 × 0.4 + 가산점 5점"처럼, 각 점수에 반영 비율(W)을 곱해서 더하고 마지막에 가산점(B)을 더해요. 딥러닝은 이 비율과 가산점을 학습으로 찾아내요.</p>
+</div>
+<p>3주차 업데이트본에서 교수님은 이 계산을 <code>nn.Linear</code> 없이 직접 써서 보여 줬어요. "<code>nn.Linear</code>가 바로 나오면 점프가 크다"는 질문이 많았기 때문이에요. 먼저 숫자를 직접 정한 모델을 볼게요.</p>
+<div class="code">import torch
+from torch import nn
+
+class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        # 입력 특성 3개 → 출력 특성 2개
+        self.W = torch.tensor([[1., 0., 2.],
+                               [0., 1., 1.]])   # 크기 (2, 3)
+        self.B = torch.tensor([0.5, -1.0])      # 크기 (2,)
+
+    def forward(self, x):
+        return x @ self.W.T + self.B
+
+model = MyModel()
+x = torch.tensor([[1., 2., 3.],
+                  [0., 0., 1.],
+                  [1., 1., 1.],
+                  [2., 0., 0.]])                # 크기 (4, 3)
+y = model(x)
+print(y)
+print(y.shape)</div>
+<p>실행 결과는 아래와 같아요.</p>
+<div class="code">tensor([[ 7.5000,  4.0000],
+        [ 2.5000,  0.0000],
+        [ 3.5000,  1.0000],
+        [ 2.5000, -1.0000]])
+torch.Size([4, 2])</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>self.W = torch.tensor([[1,0,2],[0,1,1]])</code></td><td>가중치 W. 2줄 × 3칸이라 크기가 (2, 3)이에요. 한 줄이 출력 하나를 만드는 비율표예요.</td></tr>
+  <tr><td><code>self.B = torch.tensor([0.5, -1.0])</code></td><td>편향 B. 출력이 2개라서 숫자 2개예요.</td></tr>
+  <tr><td><code>x @ self.W.T</code></td><td><code>@</code>는 행렬 곱셈이에요. <code>.T</code>는 W의 가로세로를 뒤집은 것(전치)이라서 (3, 2)가 돼요.</td></tr>
+  <tr><td><code>+ self.B</code></td><td>결과의 모든 줄에 B를 똑같이 더해요. 작은 것을 알아서 늘려 맞추는 것을 브로드캐스팅(broadcasting)이라고 해요.</td></tr>
+  <tr><td><code>y = model(x)</code></td><td>x를 모델에 넣어 예측 y를 얻어요. 크기는 (4, 2)예요.</td></tr>
+</table>
+<p>첫 번째 학생 <code>[1, 2, 3]</code>을 손으로 계산해 볼게요.</p>
+<ul>
+  <li>첫 번째 출력 = 1×1 + 0×2 + 2×3 + 0.5 = <b>7.5</b></li>
+  <li>두 번째 출력 = 0×1 + 1×2 + 1×3 − 1 = <b>4.0</b></li>
+</ul>
+<p>W의 첫 줄 <code>[1, 0, 2]</code>가 첫 번째 출력을 만드는 비율표이고, 둘째 줄 <code>[0, 1, 1]</code>이 두 번째 출력의 비율표예요. 나머지 3명도 같은 방식이에요.</p>
+<table>
+  <tr><th style="width:30%">이름</th><th style="width:20%">크기</th><th>설명</th></tr>
+  <tr><td>입력 x</td><td><b>(4, 3)</b></td><td>데이터 4개, 각각 특성 3개</td></tr>
+  <tr><td>가중치 W</td><td><b>(2, 3)</b></td><td>(출력 개수, 입력 개수)</td></tr>
+  <tr><td>뒤집은 W.T</td><td><b>(3, 2)</b></td><td>곱셈을 맞추려고 뒤집어요</td></tr>
+  <tr><td>편향 B</td><td><b>(2,)</b></td><td>출력 개수만큼</td></tr>
+  <tr><td>출력 y</td><td><b>(4, 2)</b></td><td>데이터 4개, 각각 출력 2개</td></tr>
+</table>
+<svg viewBox="0 0 400 110" width="100mm"><rect x="0" y="0" width="400" height="110" rx="10" fill="#f8fafc"/>
+  <rect x="6" y="30" width="70" height="40" rx="6" fill="#dbe6ff"/><text x="41" y="55" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b2333">x (4, 3)</text>
+  <text x="92" y="56" text-anchor="middle" font-size="18" fill="#1b2333">@</text>
+  <rect x="108" y="30" width="76" height="40" rx="6" fill="#e3f6ec"/><text x="146" y="55" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b2333">W.T (3, 2)</text>
+  <text x="200" y="56" text-anchor="middle" font-size="18" fill="#1b2333">+</text>
+  <rect x="214" y="30" width="62" height="40" rx="6" fill="#fff1d6"/><text x="245" y="55" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b2333">B (2,)</text>
+  <text x="292" y="56" text-anchor="middle" font-size="18" fill="#1b2333">=</text>
+  <rect x="308" y="30" width="80" height="40" rx="6" fill="#fde2e2"/><text x="348" y="55" text-anchor="middle" font-size="14" font-weight="bold" fill="#1b2333">y (4, 2)</text>
+  <text x="200" y="98" text-anchor="middle" font-size="11" fill="#1b2333">안쪽 숫자(3)가 같아야 곱하고, 바깥 숫자(4, 2)가 결과 크기예요</text>
+</svg>
+<div class="box def"><span class="t">크기 계산 규칙</span>
+<p><b>(m, k) @ (k, n) = (m, n)</b>. 안쪽 숫자(k)가 같아야 곱할 수 있고, 바깥 숫자 둘이 결과의 크기가 돼요. W를 (출력, 입력)으로 만들고 <code>.T</code>로 뒤집는 이유가 바로 이 규칙 때문이에요.</p>
+</div>
+<figure class="slide"><img src="slides/b_w3_linear.jpg" alt="Y = X W^T + b 크기 정리"><figcaption>교수님 슬라이드 — Y = XWᵀ + b 에서 각 항의 크기</figcaption></figure>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"입력 특성 3개를 출력 특성 2개로 바꾼다"는 문장이 있으면 <b>W는 (2, 3), B는 (2,)</b>, 출력은 <b>(배치 크기, 2)</b>예요. 숫자를 외우지 말고 "W는 (출력, 입력)"만 기억하세요. 입력의 마지막 숫자(특성 개수)가 W의 두 번째 숫자와 같지 않으면 곱셈이 안 돼서 오류가 나요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 입력 x가 (5, 4)이고 입력 특성 4개를 출력 3개로 바꾸는 모델이면 W와 y의 크기는?</summary>
+<p>W는 (3, 4), B는 (3,), 출력 y는 (5, 3)이에요. (5, 4) @ (4, 3) = (5, 3)이 되고 B가 5줄에 똑같이 더해져요.</p></details>
+
+<h3>5-3. nn.Linear(입력, 출력) — 같은 계산을 한 줄로 <span class="st">★★★</span></h3>
+<p>W와 B를 매번 직접 만들고 <code>x @ W.T + B</code>를 쓰는 건 번거로워요. 그래서 PyTorch가 이 일을 해 주는 부품을 미리 만들어 뒀어요. 그게 <b><code>nn.Linear</code></b>예요. Linear는 "선형(일차식) 계산"이라는 뜻이에요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><code>nn.Linear(in_features, out_features)</code> = <b>입력 특성 개수, 출력 특성 개수</b>를 넣으면 W와 B를 자동으로 만들고, 호출하면 <code>x @ W.T + B</code>를 계산해 주는 층이에요.</p>
+</div>
+<div class="code">fc = nn.Linear(3, 2)       # 입력 특성 3개 → 출력 특성 2개
+print(fc.weight.shape)
+print(fc.bias.shape)
+x = torch.ones(4, 3)       # 데이터 4개, 특성 3개
+print(fc(x).shape)</div>
+<div class="code">torch.Size([2, 3])
+torch.Size([2])
+torch.Size([4, 2])</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>nn.Linear(3, 2)</code></td><td><b>앞 숫자가 입력</b>, 뒤 숫자가 출력이에요. 입력 3개를 출력 2개로 바꿔요.</td></tr>
+  <tr><td><code>fc.weight.shape</code></td><td>자동으로 만들어진 가중치. 크기는 (출력, 입력) = (2, 3)이에요. 괄호 안 순서와 반대라서 헷갈리기 쉬워요.</td></tr>
+  <tr><td><code>fc.bias.shape</code></td><td>편향. 크기는 (출력,) = (2,)예요.</td></tr>
+  <tr><td><code>fc(x)</code></td><td>층도 함수처럼 부를 수 있어요. 결과 크기는 (4, 2)예요.</td></tr>
+</table>
+<svg viewBox="0 0 380 190" width="96mm"><rect x="0" y="0" width="380" height="190" rx="10" fill="#f8fafc"/>
+  <g stroke="#9aa7bd" stroke-width="1.4">
+    <line x1="72" y1="40" x2="298" y2="65"/><line x1="72" y1="40" x2="298" y2="125"/>
+    <line x1="72" y1="95" x2="298" y2="65"/><line x1="72" y1="95" x2="298" y2="125"/>
+    <line x1="72" y1="150" x2="298" y2="65"/><line x1="72" y1="150" x2="298" y2="125"/>
+  </g>
+  <g fill="#dbe6ff" stroke="#1d4ed8" stroke-width="2">
+    <circle cx="60" cy="40" r="14"/><circle cx="60" cy="95" r="14"/><circle cx="60" cy="150" r="14"/>
+  </g>
+  <g fill="#fff1d6" stroke="#c2410c" stroke-width="2">
+    <circle cx="310" cy="65" r="14"/><circle cx="310" cy="125" r="14"/>
+  </g>
+  <text x="60" y="18" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b2333">입력 3개</text>
+  <text x="310" y="40" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b2333">출력 2개</text>
+  <text x="185" y="178" text-anchor="middle" font-size="12" fill="#1b2333">선 6개 = 가중치 3×2 = 6개, 출력마다 편향 1개 = 2개</text>
+</svg>
+<p>입력 3개가 출력 2개와 모두 선으로 이어져요. 이 선 하나하나가 가중치이고, 출력 칸마다 편향이 하나씩 붙어요. 그래서 <b>학습할 숫자(파라미터) 개수 = 입력 × 출력 + 출력</b>이에요.</p>
+<table>
+  <tr><th style="width:28%">층</th><th style="width:36%">계산</th><th>파라미터 개수</th></tr>
+  <tr><td><code>nn.Linear(3, 2)</code></td><td>3×2 + 2</td><td><b>8개</b></td></tr>
+  <tr><td><code>nn.Linear(8, 4)</code></td><td>8×4 + 4</td><td><b>36개</b></td></tr>
+  <tr><td><code>nn.Linear(4, 6)</code></td><td>4×6 + 6</td><td><b>30개</b></td></tr>
+  <tr><td><code>nn.Linear(6, 2)</code></td><td>6×2 + 2</td><td><b>14개</b></td></tr>
+</table>
+<p>이제 <code>nn.Linear</code>를 모델 클래스 안에 넣어 볼게요. 교수님이 수업에서 쓴 형태이고, 샘플 시험 3번도 이 모양이에요.</p>
+<div class="code">class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = nn.Linear(in_features=3, out_features=2)
+
+    def forward(self, x):
+        return self.fc(x)
+
+model = MyModel()
+x = torch.ones(4, 3)
+y = model(x)
+print(tuple(y.shape))
+for name, p in model.named_parameters():
+    print(name, tuple(p.shape))</div>
+<div class="code">(4, 2)
+fc.weight (2, 3)
+fc.bias (2,)</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>self.fc = nn.Linear(3, 2)</code></td><td>층 하나를 만들어 <code>self.fc</code>라는 이름으로 모델에 붙여요. 이렇게 붙이면 모델이 자동으로 기억해요.</td></tr>
+  <tr><td><code>return self.fc(x)</code></td><td>x를 층에 넣은 결과를 돌려줘요. <b>괄호와 x를 꼭 써야</b> 계산이 실행돼요.</td></tr>
+  <tr><td><code>model.named_parameters()</code></td><td>학습할 숫자들을 이름과 함께 보여줘요. 이름은 <code>fc.weight</code>, <code>fc.bias</code>예요.</td></tr>
+</table>
+<p>3주차의 직접 만든 방식과 4주차의 <code>nn.Linear</code> 방식을 비교하면 이래요.</p>
+<table>
+  <tr><th style="width:22%">구분</th><th style="width:39%">직접 만들기</th><th>nn.Linear 쓰기</th></tr>
+  <tr><td>만들기</td><td><code>self.W</code>, <code>self.B</code></td><td><code>self.fc = nn.Linear(3, 2)</code></td></tr>
+  <tr><td>계산</td><td><code>x @ self.W.T + self.B</code></td><td><code>self.fc(x)</code></td></tr>
+  <tr><td>값 접근</td><td><code>model.W</code>, <code>model.B</code></td><td><code>model.fc.weight</code>, <code>model.fc.bias</code></td></tr>
+  <tr><td>등록된 이름</td><td><code>W</code>, <code>B</code></td><td><code>fc.weight</code>, <code>fc.bias</code></td></tr>
+</table>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p><code>nn.Linear(입력, 출력)</code>은 <b>말하는 순서 그대로</b> 써요("3개를 2개로"). 하지만 안에 든 <code>weight</code>는 <b>(출력, 입력)</b>이라 반대로 저장돼요. 문제에서 <code>nn.Linear(2, 3)</code>처럼 순서가 뒤집힌 보기는 오답이에요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>① 문제 설명에서 "입력 특성 몇 개 → 출력 특성 몇 개"를 찾아요. ② 그 순서대로 <code>nn.Linear(입력, 출력)</code>을 골라요. ③ 입력의 첫 숫자(<code>torch.ones(4, 3)</code>의 4)는 <b>배치 크기</b>라서 Linear 숫자와 상관없어요. 4와 3을 헷갈려 <code>nn.Linear(4, 2)</code>를 고르면 틀려요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — nn.Linear(10, 5)의 weight 크기와 파라미터 개수는?</summary>
+<p>weight는 (5, 10)이고 bias는 (5,)예요. 파라미터는 10×5 + 5 = 55개예요.</p></details>
+
+<h3>5-4. model(x)는 어떻게 forward를 실행할까 — __call__ <span class="st">★★★</span></h3>
+<p>코드를 보면 <code>forward</code>를 만들었는데 실제로는 <code>model.forward(x)</code>가 아니라 <code>model(x)</code>라고 불러요. 이상하죠. 교수님이 여러 번 강조한 부분이라서 순서대로 따라가 볼게요.</p>
+<div class="box eg"><span class="t">비유 — 식당 접수대</span>
+<p>손님(x)이 바로 주방(<code>forward</code>)으로 들어가지 않고 <b>접수대(<code>__call__</code>)</b>를 먼저 거쳐요. 접수대는 번호표를 주고 기록을 남기는 등 부가 업무를 한 다음 주방에 주문을 넘겨요. 접수대는 식당 본사(부모 <code>nn.Module</code>)가 이미 만들어 뒀고, 주방(<code>forward</code>)만 우리 가게(자식 클래스)가 직접 꾸려요.</p>
+</div>
+<p>먼저 앞 장에서 배운 <code>__call__</code>을 복습할게요. 클래스에 <code>__call__</code>을 만들어 두면 그 인스턴스를 함수처럼 <code>f(3)</code>로 부를 수 있어요. 교수님은 <code>__call__</code> 안에서 <code>forward</code>를 부르는 예를 보여 줬어요.</p>
+<div class="code">class AffineFunction:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __call__(self, x):
+        return self.forward(x)
+
+    def forward(self, x):
+        print("forward() 호출됨")
+        return self.a * x + self.b
+
+m1 = AffineFunction(a=2, b=1)
+print("f(3):", m1(3))
+print("f(10):", m1(10))</div>
+<div class="code">forward() 호출됨
+f(3): 7
+forward() 호출됨
+f(10): 21</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>m1 = AffineFunction(a=2, b=1)</code></td><td>a=2, b=1인 객체를 만들어요. 이때 <code>__init__</code>이 <b>한 번</b> 실행돼요.</td></tr>
+  <tr><td><code>m1(3)</code></td><td>괄호로 부르면 파이썬이 <code>m1.__call__(3)</code>을 실행해요.</td></tr>
+  <tr><td><code>return self.forward(x)</code></td><td><code>__call__</code>이 다시 <code>forward</code>를 불러요. 그래서 "forward() 호출됨"이 찍혀요.</td></tr>
+  <tr><td><code>2 * 3 + 1</code></td><td>forward의 계산이에요. 결과 7. <code>m1(10)</code>은 2×10+1 = 21이에요.</td></tr>
+</table>
+<p><code>nn.Module</code>이 하는 일이 바로 이거예요. 우리가 만든 <code>MyModel</code>에는 <code>__call__</code>이 없어요. 그래서 파이썬은 <b>부모 <code>nn.Module</code>에서 물려받은 <code>__call__</code></b>을 찾아 실행하고, 그 안에서 우리가 만든 <code>forward</code>가 실행돼요.</p>
+<ol>
+  <li><code>y = model(x)</code>를 써요.</li>
+  <li>부모 <code>nn.Module</code>의 <code>__call__(x)</code>가 실행돼요.</li>
+  <li>그 안에서 ① hook(따로 만든 경우에만) ② 그밖의 상태 관리 처리 ③ <b><code>forward(x)</code> 실행</b>이 차례로 일어나요.</li>
+  <li>결과 y(출력 Tensor)가 나와요.</li>
+</ol>
+<figure class="slide"><img src="slides/b_w3_call.jpg" alt="model(x)의 내부 동작"><figcaption>교수님 슬라이드 — model(x)가 __call__을 거쳐 forward를 실행하는 순서</figcaption></figure>
+<table>
+  <tr><th style="width:36%">방법</th><th style="width:14%">판정</th><th>이유</th></tr>
+  <tr><td><code>y = model(x)</code></td><td><b>정답</b></td><td><code>__call__</code>의 부가 처리를 모두 거쳐요.</td></tr>
+  <tr><td><code>y = model.forward(x)</code></td><td>하지 말 것</td><td>계산은 되지만 hook 같은 부가 처리를 건너뛰어요.</td></tr>
+  <tr><td><code>__call__</code>을 내가 다시 정의</td><td>하지 말 것</td><td>부모가 하던 중요한 처리를 못 해서 호출 기능이 제대로 안 될 수 있어요.</td></tr>
+</table>
+<p>한 가지 더. 모델을 만들 때(<code>model = MyModel()</code>) <code>__init__</code>이 <b>한 번</b> 실행되고, <code>model(x)</code>를 부를 때마다 <code>forward</code>가 실행돼요. <code>model(x)</code>가 <code>__init__</code>을 다시 실행하는 일은 없어요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"model(x)의 호출 과정" 보기에서 <b>"상속받은 <code>__call__()</code>의 호출 처리를 거쳐 <code>forward()</code> 실행"</b>이 맞아요. "<code>__init__()</code>을 다시 실행하여 출력 계산"이 들어 있으면 바로 오답이에요. <code>__init__</code>은 모델을 만들 때 한 번뿐이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — forward 함수를 만들지 않고 model(x)를 부르면 어떻게 될까요?</summary>
+<p>NotImplementedError가 나요. <code>__call__</code>이 실행할 <code>forward</code>가 없기 때문이에요.</p></details>
+
+<h3>5-5. nn.Parameter — 학습할 값은 "등록"해야 해요</h3>
+<p>모델이 학습한다는 것은 W와 B 같은 숫자를 조금씩 고친다는 뜻이에요. 그러려면 모델이 "내가 고쳐야 할 숫자는 이것들이야"라고 알고 있어야 해요. 이 목록에 올리는 일을 <b>등록</b>이라고 해요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><code>nn.Parameter</code>로 감싼 Tensor를 모델의 속성(<code>self.이름</code>)에 붙이면 <b>학습할 파라미터로 자동 등록</b>돼요. 등록된 것은 <code>requires_grad=True</code>가 기본이고 <code>model.parameters()</code>에 나와요.</p>
+</div>
+<div class="box eg"><span class="t">비유</span>
+<p>출석부와 같아요. 출석부(<code>parameters()</code>)에 이름이 올라야 선생님(옵티마이저)이 불러 주고 점검해요. 일반 Tensor는 출석부에 이름이 없어서, 아무리 열심히 계산에 참여해도 업데이트 명단에서 빠져요.</p>
+</div>
+<div class="code">class RegistrationModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.tensor_w = torch.tensor(2.0, requires_grad=True)
+        self.parameter_w = nn.Parameter(torch.tensor(2.0))
+
+    def forward(self, x):
+        return self.tensor_w * x + self.parameter_w * x
+
+model = RegistrationModel()
+print("등록된 이름:", [name for name, _ in model.named_parameters()])</div>
+<div class="code">등록된 이름: ['parameter_w']</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.tensor(2.0, requires_grad=True)</code></td><td>일반 Tensor예요. 기울기는 계산되지만 모델 파라미터로는 등록되지 않아요.</td></tr>
+  <tr><td><code>nn.Parameter(torch.tensor(2.0))</code></td><td>"학습할 값"이라고 표시한 Tensor예요. self에 붙이면 자동 등록돼요.</td></tr>
+  <tr><td><code>model.named_parameters()</code></td><td>(이름, 값) 쌍을 차례로 보여줘요. <code>parameters()</code>는 값만 보여줘요.</td></tr>
+</table>
+<p>결과에 <code>parameter_w</code>만 나와요. 교수님은 "사람들이 흔히 빠지는 함정"이라고 했어요. 나중에 <code>model.parameters()</code>로 한꺼번에 업데이트할 때 <code>tensor_w</code>는 빠져서 <b>학습이 안 되기</b> 때문이에요.</p>
+<p><code>nn.Linear</code> 안에 있는 <code>weight</code>와 <code>bias</code>는 이미 <code>nn.Parameter</code>로 되어 있어요. 그래서 <code>nn.Linear</code>를 쓰면 등록 걱정을 안 해도 돼요. 층이 많아지면 어느 층의 어떤 값인지 이름과 함께 봐야 하니까 <code>named_parameters()</code>를 더 많이 써요. 보통은 값보다 <b>크기(shape)</b>를 찍어서 확인해요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"기울기(grad)가 계산되는 것"과 "<code>model.parameters()</code>에 포함되는 것"은 다른 이야기예요. <code>requires_grad=True</code>인 일반 Tensor는 기울기는 계산되지만 파라미터에 포함되지 않아요. <code>nn.Parameter</code>를 모델 속성에 할당해야 등록돼요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — self.fc = nn.Linear(3, 2)를 쓴 모델에서 named_parameters()에 나오는 이름 2개는?</summary>
+<p><code>fc.weight</code>와 <code>fc.bias</code>예요. 속성 이름(<code>fc</code>) 뒤에 층 안의 이름이 점으로 이어져요.</p></details>
+
+<h3>5-6. 층 쌓기 — ReLU, nn.Sequential, 다층 모델</h3>
+<p>실제 모델은 층을 여러 개 이어 붙여요. 첫 층의 출력이 다음 층의 입력이 되는 구조예요. 층 사이에는 보통 <b>ReLU</b>를 끼워 넣어요.</p>
+<div class="box def"><span class="t">ReLU</span>
+<p>숫자별로 <b>0보다 작으면 0으로, 0 이상이면 그대로</b> 바꾸는 계산이에요. 크기(shape)는 변하지 않아요. 예를 들어 <code>[-2, 0, 3]</code>은 <code>[0, 0, 3]</code>이 돼요. 학습할 숫자가 없어서 파라미터도 없어요.</p>
+</div>
+<p>참고로, 층 사이에 ReLU 같은 계산이 없으면 선형 계산을 여러 번 해도 결국 선형 계산 한 번과 같아져요. 그래서 층을 쌓을 때 ReLU를 끼워 넣어요.</p>
+<p>층을 순서대로 이어 붙이기만 하면 되는 모델은 <code>nn.Sequential</code>(차례대로 쌓기)로 간단히 만들 수 있어요. 클래스를 따로 만들 필요가 없어요.</p>
+<div class="code">seq = nn.Sequential(
+    nn.Linear(4, 5),
+    nn.ReLU(),
+    nn.Linear(5, 2),
+)
+x = torch.randn(4, 4)
+y = seq(x)
+print(tuple(y.shape))
+for name, p in seq.named_parameters():
+    print(name, tuple(p.shape))</div>
+<div class="code">(4, 2)
+0.weight (5, 4)
+0.bias (5,)
+2.weight (2, 5)
+2.bias (2,)</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>nn.Linear(4, 5)</code></td><td>첫 번째 층. 특성 4개를 5개로 바꿔요. (4, 4) → (4, 5)</td></tr>
+  <tr><td><code>nn.ReLU()</code></td><td>음수를 0으로. 크기는 그대로 (4, 5)</td></tr>
+  <tr><td><code>nn.Linear(5, 2)</code></td><td>두 번째 층. 앞 층 출력 5개를 받아 2개로 바꿔요. (4, 5) → (4, 2)</td></tr>
+  <tr><td><code>0.weight</code>, <code>2.weight</code></td><td>이름은 층 번호예요. 1번인 ReLU는 파라미터가 없어서 이름에 안 나와요.</td></tr>
+</table>
+<p>파라미터 개수는 (4×5+5) + (5×2+2) = 25 + 12 = <b>37개</b>예요. 층을 이을 때는 <b>앞 층의 출력 개수 = 다음 층의 입력 개수</b>여야 해요. 5와 5가 맞았죠.</p>
+<p>그렇다면 직접 클래스를 만드는 모델은 언제 필요할까요? 교수님 자료에 정리돼 있어요. 계산 흐름이 갈라지거나 합쳐질 때예요.</p>
+<table>
+  <tr><th style="width:42%">상황</th><th>예시</th></tr>
+  <tr><td>여러 경로 결과를 합칠 때</td><td><code>fc1(x) + fc2(x)</code></td></tr>
+  <tr><td>입력을 중간 결과에 더할 때(잔차 연결)</td><td><code>x + layer(x)</code></td></tr>
+  <tr><td>입력이 여러 개일 때</td><td>이미지와 숫자 데이터를 함께 입력</td></tr>
+  <tr><td>결과를 여러 개 돌려줄 때</td><td>예측값과 중간 특징을 함께 반환</td></tr>
+  <tr><td>조건문이나 반복문이 필요할 때</td><td>조건에 따라 다른 층 실행</td></tr>
+</table>
+<div class="code">class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc2 = nn.Linear(3, 2)
+        self.fc1 = nn.Linear(3, 2)
+
+    def forward(self, x):
+        y1 = self.fc1(x)
+        y2 = self.fc2(x)
+        return y1 + y2        # Sequential로는 만들 수 없다</div>
+<p>같은 입력 x가 두 길로 갈라져 갔다가 결과를 더해요. 한 줄로만 이어지는 Sequential로는 표현할 수 없어요. 파라미터는 층 2개라서 (3×2+2) × 2 = 16개예요.</p>
+<p>교수님이 낸 <b>과제 1</b>은 이 생각을 늘린 것이에요. 입력 (10, 8)이 8 → 4 → 6 → 2 순서로 지나가요. 각 층 사이에 ReLU를 쓰되 <b>마지막 출력에는 ReLU를 쓰지 않아요.</b> 파라미터는 36 + 30 + 14 = 80개예요. <code>forward</code>에서는 <code>x = ...</code>처럼 같은 변수 x를 계속 덮어쓰는 것이 관례예요.</p>
+<figure class="slide"><img src="slides/b_w3_module.jpg" alt="MyModel 골격"><figcaption>교수님 슬라이드 — nn.Module 모델의 기본 골격 (중요 표시)</figcaption></figure>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>다층 모델 문제는 <b>출력 크기를 층마다 손으로 따라가면</b> 풀려요. 예를 들어 입력 (4, 3)에 <code>nn.Linear(3, 5)</code> → ReLU → <code>nn.Linear(5, 2)</code>이면 (4, 3) → (4, 5) → (4, 5) → (4, 2)예요. 앞 층 출력 개수와 다음 층 입력 개수가 다르면 오류예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — nn.Sequential(nn.Linear(4, 5), nn.ReLU(), nn.Linear(5, 2))에서 ReLU의 이름 번호가 왜 안 나올까요?</summary>
+<p>ReLU에는 학습할 파라미터가 없기 때문이에요. 0.weight, 0.bias, 2.weight, 2.bias만 나오고 번호 1은 건너뛰어요.</p></details>
+
+<h3>5-7. 샘플 시험 3번 손으로 풀기와 자주 나오는 오류 <span class="st">★★★</span></h3>
+<p>이제 시험 문제를 풀 준비가 됐어요. 문제 내용은 이래요. 모델이 입력 특성 3개를 출력 특성 2개로 바꾸고, 빈칸 (A)에는 층을 만드는 코드, (B)에는 forward가 돌려줄 값을 써야 해요. 입력은 <code>torch.ones(4, 3)</code>이고 출력 크기가 <code>(4, 2)</code>가 되어야 해요.</p>
+<div class="code">class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = __________  # (A)
+
+    def forward(self, x):
+        return __________     # (B)</div>
+<ol>
+  <li><b>(A) 찾기</b> — 입력 3개, 출력 2개이니 <code>nn.Linear(3, 2)</code>예요. 보기 ①의 <code>(2, 3)</code>은 순서가 뒤집혔어요. 보기 ④의 <code>(4, 2)</code>는 배치 크기 4를 입력 특성으로 착각한 거예요.</li>
+  <li><b>(B) 찾기</b> — 층에 x를 넣어야 계산돼요. <code>self.fc(x)</code>가 맞아요. <code>self.fc</code>만 쓰면 층 상자 자체를 돌려줄 뿐 계산하지 않아서 보기 ③은 오답이에요.</li>
+  <li><b><code>model(x)</code>의 호출 과정</b> — "상속받은 <code>__call__()</code>의 호출 처리를 거쳐 <code>forward()</code> 실행"이 맞아요. "<code>__init__()</code>을 다시 실행"은 보기 ②, ④에 있는데 둘 다 틀려요.</li>
+</ol>
+<p>세 조건을 모두 만족하는 것은 (A) <code>nn.Linear(3, 2)</code>, (B) <code>self.fc(x)</code>, 호출 과정은 <code>__call__</code> 경유인 <b>⑤번</b>이에요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>표로 된 보기는 <b>열마다 지우는 방식</b>으로 풀어요. (A) 열에서 입력→출력 순서가 틀린 보기를 지우고, (B) 열에서 괄호나 x가 빠진 보기를 지우고, 마지막 열에서 "<code>__init__</code> 다시 실행"을 지우면 하나만 남아요.</p>
+</div>
+<p>마지막으로 교수님 자료에 나온 <b>자주 발생하는 오류</b> 3가지를 정리해요. 실제로 실행해서 나온 메시지예요.</p>
+<table>
+  <tr><th style="width:34%">실수</th><th style="width:30%">나오는 오류</th><th>이유</th></tr>
+  <tr><td><code>super().__init__()</code>을 빼먹음</td><td>AttributeError ("cannot assign module before Module.__init__() call")</td><td>부모의 준비가 안 돼서 층을 등록할 수 없어요.</td></tr>
+  <tr><td><code>forward</code>를 정의하지 않음</td><td>NotImplementedError ("missing the required forward function")</td><td><code>model(x)</code>가 실행할 계산 흐름이 없어요.</td></tr>
+  <tr><td>Linear 입력 크기와 데이터가 안 맞음</td><td>RuntimeError ("mat1 and mat2 shapes cannot be multiplied")</td><td><code>nn.Linear(4, 3)</code>에는 마지막 차원이 4인 데이터를 넣어야 해요.</td></tr>
+</table>
+<details class="check"><summary>잠깐 확인 — nn.Linear(4, 3)에 (2, 5) 크기의 데이터를 넣으면?</summary>
+<p>오류가 나요. 마지막 차원이 5인데 Linear는 4를 기대해서 곱셈이 안 되기 때문이에요. 이때 오류 메시지에 "2x5 and 4x3"처럼 두 크기가 찍혀요.</p></details>
+
+<div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>모델은 <code>nn.Module</code>을 물려받은 클래스예요. <code>__init__</code>에서 <code>super().__init__()</code>을 맨 먼저 쓰고 층을 만들며, <code>forward</code>에서 계산 흐름을 써요.</li>
+  <li><code>nn.Linear(입력, 출력)</code>은 <code>x @ W.T + B</code>를 해 주는 층이에요. weight는 (출력, 입력), bias는 (출력,), 파라미터 개수는 입력×출력+출력이고, 출력은 (배치, 출력)이에요.</li>
+  <li><code>model(x)</code>를 쓰면 부모의 <code>__call__</code>을 거쳐 <code>forward</code>가 실행돼요. <code>__init__</code>은 모델을 만들 때 한 번뿐이고, 일반 Tensor가 아니라 <code>nn.Parameter</code>(또는 <code>nn.Linear</code>)여야 파라미터로 등록돼요.</li>
+</ul>
+</div>

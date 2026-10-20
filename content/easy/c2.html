@@ -1,0 +1,556 @@
+<!-- 2장: Tensor. 만들기, shape와 차원, dtype, 인덱싱과 슬라이싱(x[:,1] vs x[:,1:2]), reshape, squeeze, 연산, 브로드캐스팅, NumPy 변환을 코드 결과 손으로 따라가기로 설명해요 -->
+<h2>Tensor — 숫자를 담는 다차원 표</h2>
+<p class="lead">딥러닝의 모든 데이터와 weight는 Tensor라는 "숫자 표"에 담겨요. 시험 1번이 바로 Tensor의 shape을 묻는 문제였어요. 이 장에서는 shape을 읽는 법, 잘라 내는 법(슬라이싱), 모양을 바꾸는 법을 손으로 따라가며 익혀요.</p>
+
+<h3>2-1. Tensor가 뭐예요 — 차원별 숫자 상자</h3>
+<p><b>Tensor(텐서)</b>는 숫자를 저장하는 <b>다차원 배열</b>이에요. "배열"은 숫자를 줄 세운 것이고, "다차원"은 줄이 한 줄이거나, 표(행과 열)이거나, 표가 여러 장 쌓인 것까지 모두 포함한다는 뜻이에요. 교수님은 NumPy의 ndarray, 판다스의 DataFrame, PyTorch의 Tensor가 같은 층위의 개념이라고 했어요. Tensor는 NumPy 배열과 아주 비슷해요.</p>
+<div class="box eg"><span class="t">비유 — 실험 데이터 엑셀</span>
+<p>숫자 하나(시료 무게 한 값)는 <b>0차원</b>이에요. 한 줄(시료 한 개의 측정값 세 항목)은 <b>1차원</b>이에요. 엑셀 시트 한 장(시료 여러 개 × 항목 여러 개)은 <b>2차원</b>이에요. 시트를 여러 장 묶은 통합 문서는 <b>3차원</b>이에요.</p>
+</div>
+<table>
+  <tr><th style="width:18%">차원</th><th style="width:20%">이름</th><th style="width:22%">shape 예시</th><th>모양</th></tr>
+  <tr><td>0차원</td><td>scalar</td><td><code>()</code></td><td>숫자 하나</td></tr>
+  <tr><td>1차원</td><td>vector</td><td><code>(3,)</code></td><td>한 줄에 숫자 3개</td></tr>
+  <tr><td>2차원</td><td>matrix</td><td><code>(2, 3)</code></td><td>2행 3열 표</td></tr>
+  <tr><td>3차원 이상</td><td>tensor</td><td><code>(2, 3, 4)</code></td><td>3행 4열 표가 2장 쌓인 입체 (2 × 3 × 4)</td></tr>
+</table>
+<div class="code">import torch
+
+scalar = torch.tensor(7)
+vector = torch.tensor([1, 2, 3])
+matrix = torch.tensor([[1, 2, 3],
+                       [4, 5, 6]])
+tensor_3d = torch.tensor([[[1, 2], [3, 4]],
+                          [[5, 6], [7, 8]]])
+
+print(scalar.shape)
+print(vector.shape)
+print(matrix.shape)
+print(tensor_3d.shape)</div>
+<div class="code">torch.Size([])
+torch.Size([3])
+torch.Size([2, 3])
+torch.Size([2, 2, 2])</div>
+<table>
+  <tr><th style="width:38%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.tensor(7)</code></td><td>숫자 7 하나를 Tensor로 만들어요. 괄호가 없으니 0차원이고 shape은 비어 있어요</td></tr>
+  <tr><td><code>torch.tensor([1, 2, 3])</code></td><td>대괄호 한 겹 → 1차원, 원소 3개 → <code>[3]</code></td></tr>
+  <tr><td><code>torch.tensor([[...], [...]])</code></td><td>대괄호 두 겹 → 2차원. 바깥 칸 2개, 안쪽 3개 → <code>[2, 3]</code></td></tr>
+  <tr><td>대괄호 세 겹</td><td>3차원. 바깥부터 2개, 2개, 2개 → <code>[2, 2, 2]</code></td></tr>
+</table>
+<p>이미지도 Tensor예요. 이미지 한 장은 <b>(channel, height, width)</b> 순서(색 채널 수, 세로, 가로)이고, 여러 장을 한꺼번에 처리하면 맨 앞에 <b>batch</b> 차원이 붙어서 <b>(batch, channel, height, width)</b>, 줄여서 <b>(N, C, H, W)</b>예요. 흑백 28×28이면 (28, 28), 색 채널 3개이면 (3, 28, 28), 이런 이미지 64장이면 (64, 3, 28, 28)이에요.</p>
+<figure class="slide"><img src="slides/w24.jpg" alt="이미지와 batch 차원 표현"><figcaption>교수님 슬라이드 — 이미지 한 장 (C, H, W), 여러 장 (B, C, H, W)</figcaption></figure>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>Tensor는 숫자를 저장하는 다차원 배열이며 0차원은 scalar, 1차원은 vector, 2차원은 matrix, 3차원 이상은 tensor라고 부른다. 이미지 batch의 shape은 (N, C, H, W) 순서이다. shape을 볼 때는 "대괄호가 몇 겹인지"가 차원 수예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 흑백 28×28 이미지 32장을 묶은 batch의 shape은?</summary>
+<p>(32, 1, 28, 28)이에요. 순서는 (장 수, 채널, 세로, 가로)이고 흑백이라 채널은 1이에요.</p></details>
+
+<h3>2-2. shape 읽기와 확인 3종 — shape, dtype, device <span class="st">★★★</span></h3>
+<p>Tensor를 다룰 때 <b>항상 같이 확인해야 하는 세 가지</b>가 있어요. 교수님이 "에러가 나면 shape, dtype, device부터 보라"고 반복해서 말했어요.</p>
+<table>
+  <tr><th style="width:22%">이름</th><th style="width:30%">무엇</th><th>예</th></tr>
+  <tr><td><b>shape</b></td><td>모양 (각 차원의 크기)</td><td><code>torch.Size([2, 3])</code></td></tr>
+  <tr><td><b>dtype</b></td><td>숫자 종류 (자료형)</td><td><code>torch.int64</code></td></tr>
+  <tr><td><b>device</b></td><td>어느 장치에 있나 (CPU/GPU)</td><td><code>cpu</code></td></tr>
+</table>
+<div class="code">x = torch.tensor([[10, 20, 30],
+                  [40, 50, 60]])
+
+print(x.shape)
+print(x.ndim)
+print(x.numel())
+print(x.dtype)
+print(x.device)</div>
+<div class="code">torch.Size([2, 3])
+2
+6
+torch.int64
+cpu</div>
+<table>
+  <tr><th style="width:30%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>x.shape</code></td><td>모양. 2행 3열 → <code>[2, 3]</code></td></tr>
+  <tr><td><code>x.ndim</code></td><td>차원의 수. shape에 적힌 숫자가 2개이니 <b>2</b></td></tr>
+  <tr><td><code>x.numel()</code></td><td>전체 원소 개수. shape 숫자를 곱해요. 2×3 = <b>6</b></td></tr>
+  <tr><td><code>x.dtype</code></td><td>정수만 적었으니 <code>int64</code></td></tr>
+  <tr><td><code>x.device</code></td><td>기본은 CPU에 만들어져요(3장)</td></tr>
+</table>
+<p><b>shape 읽는 요령</b>은 두 가지예요. ① shape 안 숫자가 <b>몇 개인지</b>가 차원 수예요. ② 숫자를 <b>모두 곱하면</b> 전체 원소 수예요.</p>
+<div class="box def"><span class="t">헷갈리는 점</span>
+<p><b><code>(3,)</code>의 3은 "3차원"이 아니라 "원소가 3개"라는 뜻이에요.</b> 숫자가 하나뿐이니 1차원이에요. 쉼표가 붙는 건 0장에서 본 대로 원소가 하나인 튜플은 쉼표를 써야 하기 때문이에요.</p>
+</div>
+<p>아래는 수업 실습 1의 정답이에요. 손으로 먼저 맞혀 보고 확인해 보세요.</p>
+<table>
+  <tr><th style="width:44%">Tensor</th><th>shape</th><th>ndim</th><th>numel</th><th>dtype</th></tr>
+  <tr><td><code>torch.tensor(10)</code></td><td><code>()</code></td><td>0</td><td>1</td><td>int64</td></tr>
+  <tr><td><code>torch.tensor([10, 20, 30, 40])</code></td><td><code>(4,)</code></td><td>1</td><td>4</td><td>int64</td></tr>
+  <tr><td><code>torch.tensor([[1, 2], [3, 4], [5, 6]])</code></td><td><code>(3, 2)</code></td><td>2</td><td>6</td><td>int64</td></tr>
+  <tr><td><code>torch.zeros(2, 3, 4)</code></td><td><code>(2, 3, 4)</code></td><td>3</td><td>24</td><td>float32</td></tr>
+</table>
+<p>마지막 줄의 dtype이 float32인 이유는 <code>zeros</code>가 기본으로 소수 숫자(실수)를 만들기 때문이에요(2-3).</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>shape은 각 차원의 크기이며 ndim은 차원 수, numel()은 전체 원소 수이다. 시험 코드에서는 <code>print(tuple(a.shape))</code>처럼 shape을 튜플로 찍는 경우가 많아요. 결과는 <code>(3,)</code>, <code>(3, 1)</code> 같은 모양으로 나와요. 원소 수는 shape 숫자를 곱해서 확인하세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — shape이 (4, 5, 2)인 Tensor의 ndim과 numel은?</summary>
+<p>ndim은 3, numel은 4×5×2 = 40이에요.</p></details>
+
+<h3>2-3. Tensor 만들기와 dtype</h3>
+<p>자주 쓰는 생성 함수를 표로 모았어요. 괄호 안 숫자는 shape이에요.</p>
+<table>
+  <tr><th style="width:36%">함수</th><th>만드는 것</th></tr>
+  <tr><td><code>torch.tensor(데이터)</code></td><td>주어진 숫자(리스트)로 만들어요. dtype을 숫자 모양으로 알아서 정해요</td></tr>
+  <tr><td><code>torch.zeros(2, 3)</code></td><td>0으로 가득 찬 2×3</td></tr>
+  <tr><td><code>torch.ones(2, 3)</code></td><td>1로 가득 찬 2×3</td></tr>
+  <tr><td><code>torch.arange(시작, 끝, 간격)</code></td><td>일정한 간격의 숫자 줄. <b>끝 값은 포함하지 않아요</b>(range와 같은 규칙)</td></tr>
+  <tr><td><code>torch.rand(2, 3)</code></td><td>0 이상 1 미만의 난수(균등분포)</td></tr>
+  <tr><td><code>torch.randn(2, 3)</code></td><td>평균 0, 표준편차 1인 정규분포 난수. weight 초기화에 자주 써요</td></tr>
+  <tr><td><code>torch.manual_seed(42)</code></td><td>난수를 고정해요. 같은 seed면 같은 난수가 나와요</td></tr>
+  <tr><td><code>t.item()</code></td><td>원소가 <b>하나뿐인</b> Tensor를 파이썬 숫자로 꺼내요</td></tr>
+</table>
+<div class="code">print(torch.arange(0, 10, 2))
+print(torch.arange(5))
+print(torch.arange(0, 2, 0.5))
+print(torch.zeros(2, 3))
+print(torch.tensor(95.5).item())</div>
+<div class="code">tensor([0, 2, 4, 6, 8])
+tensor([0, 1, 2, 3, 4])
+tensor([0.0000, 0.5000, 1.0000, 1.5000])
+tensor([[0., 0., 0.],
+        [0., 0., 0.]])
+95.5</div>
+<table>
+  <tr><th style="width:38%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.arange(0, 10, 2)</code></td><td>0에서 시작해 2씩. 10은 포함 안 해서 0, 2, 4, 6, 8</td></tr>
+  <tr><td><code>torch.arange(5)</code></td><td>시작과 간격을 생략하면 0부터 1씩 → 0, 1, 2, 3, 4 (5개)</td></tr>
+  <tr><td><code>torch.arange(0, 2, 0.5)</code></td><td>간격이 0.5이니 0, 0.5, 1.0, 1.5. 실수라서 소수점으로 찍혀요</td></tr>
+  <tr><td><code>.item()</code></td><td>Tensor 모양 <code>tensor(95.5000)</code>이 아니라 그냥 숫자 95.5로 바뀌어요</td></tr>
+</table>
+<p><b>seed를 왜 고정하나요?</b> 모델의 weight를 난수로 시작하는데 시작점이 매번 다르면 결과를 비교할 수 없기 때문이에요. 교수님은 실습에서 계속 seed 42를 썼어요.</p>
+<p><b>dtype</b>은 숫자의 종류예요. 시험에서 자주 나오는 것은 아래 네 가지예요.</p>
+<table>
+  <tr><th style="width:24%">dtype</th><th style="width:26%">어떤 값</th><th>이렇게 만들어져요</th></tr>
+  <tr><td><code>torch.int64</code></td><td>정수</td><td><code>torch.tensor([1, 2, 3])</code></td></tr>
+  <tr><td><code>torch.float32</code></td><td>실수(소수)</td><td><code>torch.tensor([1.0, 2.0, 3.0])</code>, zeros, ones, rand, randn</td></tr>
+  <tr><td><code>torch.float64</code></td><td>더 정밀한 실수</td><td>dtype을 지정했을 때</td></tr>
+  <tr><td><code>torch.bool</code></td><td>참/거짓</td><td><code>torch.tensor([True, False])</code></td></tr>
+</table>
+<ul>
+  <li>리스트 안에 <b>소수가 하나라도</b> 있으면 전부 실수(float32)가 돼요. <code>torch.tensor([1.0, 2.0, 3])</code>은 float32예요.</li>
+  <li><code>torch.tensor([1, 2, 3], dtype=torch.float32)</code>처럼 <code>dtype=</code>으로 종류를 지정할 수 있어요.</li>
+  <li><code>torch.tensor([1.2, 2.7, 3.5], dtype=torch.int64)</code>는 소수점을 <b>버려서</b> <code>tensor([1, 2, 3])</code>이 돼요.</li>
+  <li>글자(문자열)는 Tensor에 담을 수 없어서 에러(ValueError)가 나요.</li>
+  <li>딥러닝의 입력과 weight는 보통 <b>float32</b>를 써요.</li>
+</ul>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>arange의 끝 값은 포함하지 않고, 원소가 하나인 Tensor는 .item()으로 파이썬 숫자로 바꾼다. 정수만 적으면 int64, 소수가 하나라도 있으면 float32이다. 난수를 재현하려면 manual_seed로 seed를 고정한다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — torch.arange(1, 10, 3)의 결과는?</summary>
+<p><code>tensor([1, 4, 7])</code>이에요. 1에서 시작해 3씩 더하고, 10 이상은 포함하지 않아요.</p></details>
+
+<h3>2-4. 인덱싱과 슬라이싱 — x[:, 1]과 x[:, 1:2]는 어떻게 다를까 <span class="st">★★★ 시험 단골</span></h3>
+<p>Tensor에서 일부를 꺼내는 방법이에요. 규칙은 0장에서 배운 리스트와 똑같고, 2차원이면 <b><code>x[행, 열]</code></b>처럼 쉼표로 자리를 나눠요. 번호는 0부터이고, 콜론 <code>:</code>은 "그 자리 전부"예요.</p>
+<table>
+  <tr><th style="width:20%">x (3행 4열)</th><th>열 0</th><th>열 1</th><th>열 2</th><th>열 3</th></tr>
+  <tr><th>행 0</th><td>10</td><td>20</td><td>30</td><td>40</td></tr>
+  <tr><th>행 1</th><td>50</td><td>60</td><td>70</td><td>80</td></tr>
+  <tr><th>행 2</th><td>90</td><td>100</td><td>110</td><td>120</td></tr>
+</table>
+<div class="code">print(x[0, 0])
+print(x[1, 2])
+print(x[0, :])
+print(x[:, 1])
+print(x[:2, :])
+print(x[1:, 1:3])
+print(x[::2, ::2])</div>
+<div class="code">tensor(10)
+tensor(70)
+tensor([10, 20, 30, 40])
+tensor([ 20,  60, 100])
+tensor([[10, 20, 30, 40],
+        [50, 60, 70, 80]])
+tensor([[ 60,  70],
+        [100, 110]])
+tensor([[ 10,  30],
+        [ 90, 110]])</div>
+<table>
+  <tr><th style="width:26%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>x[0, 0]</code></td><td>0행 0열 한 칸 → 10</td></tr>
+  <tr><td><code>x[1, 2]</code></td><td>1행 2열 한 칸 → 70</td></tr>
+  <tr><td><code>x[0, :]</code></td><td>0행, 열은 전부 → 첫 번째 행 전체</td></tr>
+  <tr><td><code>x[:, 1]</code></td><td>행은 전부, 열은 1번 → 두 번째 열 전체 [20, 60, 100]</td></tr>
+  <tr><td><code>x[:2, :]</code></td><td>행은 0, 1번(처음~2 앞), 열은 전부 → 앞의 두 행</td></tr>
+  <tr><td><code>x[1:, 1:3]</code></td><td>행은 1번부터 끝까지, 열은 1, 2번 → 오른쪽 일부 영역</td></tr>
+  <tr><td><code>x[::2, ::2]</code></td><td>행도 열도 2칸씩 건너뛰기 → 0, 2행과 0, 2열의 교차점</td></tr>
+</table>
+<p>이제 가장 중요한 부분이에요. <b>정수로 고르면 그 차원이 사라지고, 슬라이스(a:b)로 고르면 길이가 1이어도 차원이 남아요.</b></p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><b>자리에 "숫자 하나"를 쓰면 그 방향이 사라지고(shape에서 빠짐), 자리에 "a:b"를 쓰면 그 방향이 남아요(shape에 길이가 남음).</b> 그래서 <code>x[:, 1]</code>은 한 줄(1차원)이고 <code>x[:, 1:2]</code>는 열 하나짜리 표(2차원)예요.</p>
+</div>
+<div class="box eg"><span class="t">비유 — 엑셀에서 열 복사하기</span>
+<p>엑셀에서 B열을 복사했는데 "한 줄로 쭉 풀어서 가져온 것"(1차원)과 "표 모양 그대로 열 하나만 가져온 것"(2차원)은 달라요. <code>x[:, 1]</code>은 풀어서 가져온 것이고, <code>x[:, 1:2]</code>는 표 모양을 유지한 것이에요.</p>
+</div>
+<div class="box eg"><span class="t">시험 샘플 1번 — 직접 따라가 봐요</span>
+<div class="code">x = torch.arange(12).reshape(3, 4)
+a = x[:, 1]
+b = x[:, 1:2]
+
+print(tuple(a.shape))
+print(tuple(b.shape))</div>
+<p><b>1단계 — x를 만들어요.</b> <code>arange(12)</code>는 0~11이고, <code>reshape(3, 4)</code>로 3행 4열로 나눠요.</p>
+<table>
+  <tr><th style="width:20%">x</th><th>열 0</th><th>열 1</th><th>열 2</th><th>열 3</th></tr>
+  <tr><th>행 0</th><td>0</td><td style="background:#fff1d6"><b>1</b></td><td>2</td><td>3</td></tr>
+  <tr><th>행 1</th><td>4</td><td style="background:#fff1d6"><b>5</b></td><td>6</td><td>7</td></tr>
+  <tr><th>행 2</th><td>8</td><td style="background:#fff1d6"><b>9</b></td><td>10</td><td>11</td></tr>
+</table>
+<p><b>2단계 — a = x[:, 1].</b> 열 자리에 정수 1 → 열 방향이 사라져요. 남는 건 행 방향 3개 한 줄이에요. 값은 [1, 5, 9], shape은 <b>(3,)</b>.</p>
+<p><b>3단계 — b = x[:, 1:2].</b> 열 자리에 1:2 → "1번 열부터 2 앞까지"라서 같은 열이지만 열 방향이 길이 1로 남아요. 값은 [[1], [5], [9]], shape은 <b>(3, 1)</b>.</p>
+<svg viewBox="0 0 380 150" width="96mm">
+  <text x="10" y="18" font-size="13" font-weight="bold" fill="#1b2333">a = x[:, 1]</text>
+  <rect x="20" y="36" width="34" height="30" fill="#fff1d6" stroke="#1b2333"/><text x="37" y="56" text-anchor="middle" font-size="14" fill="#1b2333">1</text>
+  <rect x="54" y="36" width="34" height="30" fill="#fff1d6" stroke="#1b2333"/><text x="71" y="56" text-anchor="middle" font-size="14" fill="#1b2333">5</text>
+  <rect x="88" y="36" width="34" height="30" fill="#fff1d6" stroke="#1b2333"/><text x="105" y="56" text-anchor="middle" font-size="14" fill="#1b2333">9</text>
+  <text x="20" y="92" font-size="13" font-weight="bold" fill="#1d4ed8">shape (3,)</text>
+  <text x="20" y="110" font-size="12" fill="#1b2333">한 줄, 1차원</text>
+  <text x="210" y="18" font-size="13" font-weight="bold" fill="#1b2333">b = x[:, 1:2]</text>
+  <rect x="220" y="30" width="34" height="30" fill="#dbe6ff" stroke="#1b2333"/><text x="237" y="50" text-anchor="middle" font-size="14" fill="#1b2333">1</text>
+  <rect x="220" y="60" width="34" height="30" fill="#dbe6ff" stroke="#1b2333"/><text x="237" y="80" text-anchor="middle" font-size="14" fill="#1b2333">5</text>
+  <rect x="220" y="90" width="34" height="30" fill="#dbe6ff" stroke="#1b2333"/><text x="237" y="110" text-anchor="middle" font-size="14" fill="#1b2333">9</text>
+  <text x="268" y="70" font-size="13" font-weight="bold" fill="#1d4ed8">shape (3, 1)</text>
+  <text x="268" y="88" font-size="12" fill="#1b2333">3행 1열, 2차원</text>
+</svg>
+<p>그래서 출력은 <code>(3,)</code>, <code>(3, 1)</code>이고 정답은 <b>② (3,) → (3, 1)</b>이에요. 나머지 선택지는 이렇게 걸러져요.</p>
+<table>
+  <tr><th style="width:36%">선택지</th><th>왜 오답인가</th></tr>
+  <tr><td>① (3,) → (3,)</td><td>둘이 같다고 했지만 슬라이스 1:2는 차원을 남겨요</td></tr>
+  <tr><td>③ (1, 3) → (3, 1)</td><td>a는 "한 행"이 아니라 길이 3짜리 한 줄이에요. (1, 3)이면 행이 1개 있는 표예요</td></tr>
+  <tr><td>④ (4,) → (4, 1)</td><td>열을 골랐는데 길이가 4이면 행 방향이 4여야 해요. x는 3행이라 3이에요</td></tr>
+  <tr><td>⑤ (3, 1) → (3, 1)</td><td>정수 1로 고른 a는 차원이 사라져서 (3, 1)이 될 수 없어요</td></tr>
+</table>
+</div>
+<p>같은 규칙으로 아래 결과를 표로 외워 두면 편해요. (x는 위 3×4 표예요.)</p>
+<table>
+  <tr><th style="width:36%">코드</th><th style="width:26%">shape</th><th>이유</th></tr>
+  <tr><td><code>x[:, 1]</code></td><td><b>(3,)</b></td><td>열 자리가 정수 → 열 방향 사라짐</td></tr>
+  <tr><td><code>x[:, 1:2]</code></td><td><b>(3, 1)</b></td><td>열 자리가 슬라이스 → 열 방향 길이 1로 남음</td></tr>
+  <tr><td><code>x[1]</code></td><td><b>(4,)</b></td><td>행 자리가 정수 → 행 방향 사라짐. 열은 전부</td></tr>
+  <tr><td><code>x[1:2]</code></td><td><b>(1, 4)</b></td><td>행 자리가 슬라이스 → 행 방향 길이 1로 남음</td></tr>
+  <tr><td><code>x[0, 0]</code></td><td><b>()</b></td><td>둘 다 정수 → 둘 다 사라져 숫자 하나(0차원)</td></tr>
+  <tr><td><code>x[0:1, 0:1]</code></td><td><b>(1, 1)</b></td><td>둘 다 슬라이스 → 둘 다 남음</td></tr>
+</table>
+<p>음수 번호도 써요. <code>x[:, -1]</code>은 맨 마지막 열, <code>x[-1, :]</code>은 맨 마지막 행, <code>x[-2:, -2:]</code>는 "오른쪽 아래 2×2 영역"이에요(수업 실습 4).</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>숫자는 지우고, 콜론은 남긴다</b>". <code>x[:, 1]</code>은 숫자가 열을 지워 한 줄, <code>x[:, 1:2]</code>는 콜론(범위)이 열을 남겨 표예요. 답을 낼 때는 자리마다 "정수인가, 범위인가"만 표시하세요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>① 원래 shape을 확인한다. ② 자리마다 정수(차원 삭제)인지 슬라이스(차원 유지)인지 구분한다. ③ 슬라이스 길이는 <code>끝 − 시작</code>이다(<code>1:2</code>는 1개, <code>:2</code>는 2개). ④ 남은 차원들의 크기를 순서대로 적으면 shape이다. 값을 직접 쓸 때는 0부터 번호를 붙인 표를 그려요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x가 (3, 4)일 때 x[1:3, 2]의 shape은?</summary>
+<p><code>(2,)</code>예요. 행은 1~2번(2개)으로 남고, 열은 정수 2라서 사라져요.</p></details>
+
+<h3>2-5. 조건으로 고르기 — Boolean indexing</h3>
+<p>숫자 대신 "조건"으로 골라낼 수도 있어요. <code>x &gt;= 6</code>처럼 비교하면 같은 모양의 <b>참/거짓 Tensor</b>가 나오고, 이것을 번호 자리에 넣으면 <b>True인 자리의 값만</b> 꺼내져요.</p>
+<div class="code">x = torch.tensor([3, 8, 1, 10, 6])
+condition = x &gt;= 6
+print(condition)
+print(x[condition])
+print(x[x &gt;= 6])</div>
+<div class="code">tensor([False,  True, False,  True,  True])
+tensor([ 8, 10,  6])
+tensor([ 8, 10,  6])</div>
+<table>
+  <tr><th style="width:36%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>condition = x &gt;= 6</code></td><td>원소마다 6 이상인지 검사해 True/False 한 줄을 만들어요 (3 → False, 8 → True, 1 → False, 10 → True, 6 → True)</td></tr>
+  <tr><td><code>x[condition]</code></td><td>True인 자리의 값만 모아요 → 8, 10, 6 (원래 순서 그대로)</td></tr>
+  <tr><td><code>x[x &gt;= 6]</code></td><td>위 두 줄을 한 줄로 쓴 것</td></tr>
+</table>
+<p>2차원에서 써도 결과는 <b>1차원으로 펴져서</b> 나와요. 예를 들어 1~12가 든 3×4 표에서 <code>x[x &gt; 5]</code>는 6, 7, 8, 9, 10, 11, 12(7개)가 순서대로 나와요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>Boolean indexing은 조건식이 만든 True/False Tensor로 True인 위치의 값만 선택하는 방법이다. 조건을 원소마다 적용해서 "통과한 값만 순서대로 나열"하면 결과가 돼요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x = tensor([5, 2, 9, 4])에서 x[x &gt; 4]는?</summary>
+<p><code>tensor([5, 9])</code>예요. 4보다 큰 5와 9만 남아요(4는 4보다 크지 않아서 빠져요).</p></details>
+
+<h3>2-6. 모양 바꾸기 — reshape와 view <span class="st">★★</span></h3>
+<p><b>reshape</b>는 값(원소 수)은 그대로 두고 <b>모양만</b> 바꿔요. 원소가 12개면 (12,), (3, 4), (2, 6), (2, 2, 3) 모두 가능해요. 하지만 원소 수가 달라지는 모양은 안 돼요. 곱이 12가 안 되면 에러예요.</p>
+<div class="code">x = torch.arange(12)
+print(x.reshape(3, 4))
+print(x.reshape(-1, 4).shape)
+print(x.reshape(2, 2, 3).shape)
+
+y = torch.arange(24)
+print(y.reshape(4, -1).shape)
+print(y.reshape(2, 3, -1).shape)</div>
+<div class="code">tensor([[ 0,  1,  2,  3],
+        [ 4,  5,  6,  7],
+        [ 8,  9, 10, 11]])
+torch.Size([3, 4])
+torch.Size([2, 2, 3])
+torch.Size([4, 6])
+torch.Size([2, 3, 4])</div>
+<table>
+  <tr><th style="width:36%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>x.reshape(3, 4)</code></td><td>0~11을 순서대로 3행 4열 표에 채워요</td></tr>
+  <tr><td><code>x.reshape(-1, 4)</code></td><td><b>-1</b>은 "이 자리는 알아서 계산해 줘"예요. 12 ÷ 4 = 3이라 (3, 4)</td></tr>
+  <tr><td><code>y.reshape(4, -1)</code></td><td>24 ÷ 4 = 6이라 (4, 6)</td></tr>
+  <tr><td><code>y.reshape(2, 3, -1)</code></td><td>24 ÷ (2×3) = 4이라 (2, 3, 4)</td></tr>
+</table>
+<p>-1은 <b>한 자리에만</b> 쓸 수 있어요. 나머지 숫자를 곱해서 전체 원소 수를 나누면 그 값이에요. <code>reshape(5, 3)</code>처럼 원소 수가 안 맞으면 "shape이 입력 크기 12에 맞지 않다"는 RuntimeError가 나요.</p>
+<p><b>view</b>도 모양을 바꾸는 함수인데, 차이는 아래 표와 같아요.</p>
+<table>
+  <tr><th style="width:20%">함수</th><th style="width:28%">메모리 공유 보장</th><th>메모리가 연속(contiguous)이 아닐 때</th></tr>
+  <tr><td><code>reshape()</code></td><td>보장 안 함 (필요하면 복사본을 만들어요)</td><td>사용 가능 (더 유연해서 안전해요)</td></tr>
+  <tr><td><code>view()</code></td><td>공유함</td><td><b>사용 불가</b> (에러)</td></tr>
+</table>
+<p>"연속"은 값이 메모리에 순서대로 붙어 있다는 뜻이에요. <code>transpose</code>(행과 열 바꾸기)를 하면 읽는 순서만 바뀌고 메모리 배치는 그대로라서 연속이 아니게 돼요. 이때 <code>view(-1)</code>은 에러, <code>reshape(-1)</code>은 성공이에요.</p>
+<div class="code">x = torch.arange(12).reshape(3, 4)
+y = x.transpose(0, 1)
+print(y.is_contiguous())
+print(y.reshape(-1))</div>
+<div class="code">False
+tensor([ 0,  4,  8,  1,  5,  9,  2,  6, 10,  3,  7, 11])</div>
+<table>
+  <tr><th style="width:36%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>x.transpose(0, 1)</code></td><td>0번 차원과 1번 차원을 맞바꿔요. (3, 4)가 (4, 3)이 돼요</td></tr>
+  <tr><td><code>y.is_contiguous()</code></td><td>연속인지 묻는 질문. 바꾼 뒤라서 False</td></tr>
+  <tr><td><code>y.reshape(-1)</code></td><td>-1 하나이니 전부 한 줄로 펴요. y를 위에서 아래로(열 순서로) 읽은 0, 4, 8, 1, 5, 9, …가 나와요</td></tr>
+</table>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>reshape()와 view()는 원소 수를 유지하면서 shape을 바꾸며, -1을 쓰면 해당 차원의 크기가 자동 계산된다. view()는 메모리가 연속이어야만 동작하고 reshape()는 필요하면 복사하므로 더 유연하다. 계산 문제는 "나머지 숫자를 곱해서 전체 개수를 나눈 값"이 -1 자리예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 원소 30개짜리 Tensor를 reshape(5, -1)하면 shape은?</summary>
+<p>(5, 6)이에요. 30 ÷ 5 = 6이에요.</p></details>
+
+<h3>2-7. 크기 1인 차원 다루기 — squeeze, unsqueeze, cat, stack <span class="st">★★</span></h3>
+<p>딥러닝 코드에서는 크기가 1인 차원(채널, batch)을 붙였다 뗐다 할 일이 많아요.</p>
+<ul>
+  <li><b>unsqueeze(dim)</b> — dim 자리에 <b>크기 1인 새 차원을 끼워 넣어요.</b></li>
+  <li><b>squeeze(dim)</b> — <b>크기가 1인 차원만</b> 없애요. 크기가 2, 3, 4인 차원은 그대로 남아요.</li>
+</ul>
+<figure class="slide"><img src="slides/w210.jpg" alt="squeeze와 unsqueeze"><figcaption>교수님 슬라이드 — unsqueeze(0)은 (3,)을 (1, 3)으로, unsqueeze(1)은 (3, 1)로. squeeze는 크기 1인 차원만 제거</figcaption></figure>
+<div class="code">u = torch.tensor([10, 20, 30])
+print(u.unsqueeze(0).shape)
+print(u.unsqueeze(1).shape)
+
+q = torch.randn(1, 3, 1, 4)
+print(q.squeeze().shape)
+print(q.squeeze(0).shape)
+print(q.squeeze(2).shape)
+print(q.squeeze(1).shape)</div>
+<div class="code">torch.Size([1, 3])
+torch.Size([3, 1])
+torch.Size([3, 4])
+torch.Size([3, 1, 4])
+torch.Size([1, 3, 4])
+torch.Size([1, 3, 1, 4])</div>
+<table>
+  <tr><th style="width:34%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>u.unsqueeze(0)</code></td><td>맨 앞(0번 자리)에 1을 끼워요. (3,) → <b>(1, 3)</b></td></tr>
+  <tr><td><code>u.unsqueeze(1)</code></td><td>1번 자리에 1을 끼워요. (3,) → <b>(3, 1)</b></td></tr>
+  <tr><td><code>q.squeeze()</code></td><td>크기 1인 차원을 모두 제거. (1,3,1,4) → <b>(3, 4)</b></td></tr>
+  <tr><td><code>q.squeeze(0)</code></td><td>0번 차원(크기 1)만 제거 → <b>(3, 1, 4)</b></td></tr>
+  <tr><td><code>q.squeeze(2)</code></td><td>2번 차원(크기 1)만 제거 → <b>(1, 3, 4)</b></td></tr>
+  <tr><td><code>q.squeeze(1)</code></td><td>1번 차원의 크기는 3이라서 제거 못 해요. <b>아무 일도 안 일어나고</b> 에러도 없어요</td></tr>
+</table>
+<p><b>왜 크기 3인 차원은 못 지울까요?</b> 지우면 원소 수가 줄어서 정보가 사라지기 때문이에요. 크기 1인 차원은 지워도 원소 수가 그대로예요. (1, 3, 4)와 (3, 4)는 원소가 12개로 같지만, 앞의 것은 "3×4 표 1장", 뒤의 것은 "3×4 표 그 자체"예요.</p>
+<p>이미지에 쓰면 이렇게 돼요. 흑백 이미지 (28, 28)에 <code>unsqueeze(0)</code>을 하면 채널 차원이 붙어 (1, 28, 28), 한 번 더 하면 batch 차원이 붙어 (1, 1, 28, 28)이에요. 가운데에 넣어 (28, 1, 28)로 만들면 이미지가 깨지니까 채널은 항상 맨 앞(batch를 빼면)이에요.</p>
+<p>여러 Tensor를 하나로 합치는 함수도 둘 있어요.</p>
+<table>
+  <tr><th style="width:18%">함수</th><th>하는 일</th><th style="width:34%">[1,2,3]과 [4,5,6]에 쓰면</th></tr>
+  <tr><td><b>cat</b></td><td>기존 차원을 따라 <b>이어 붙여요</b>. 차원 수가 그대로예요</td><td>[1, 2, 3, 4, 5, 6] (6,)</td></tr>
+  <tr><td><b>stack</b></td><td><b>새 차원을 만들어</b> 쌓아요. 차원 수가 하나 늘어요</td><td>[[1,2,3],[4,5,6]] (2, 3)</td></tr>
+</table>
+<div class="code">c1 = torch.tensor([1, 2, 3])
+c2 = torch.tensor([4, 5, 6])
+print(torch.cat([c1, c2]).shape)
+print(torch.stack([c1, c2]).shape)
+print(torch.stack([c1, c2], dim=1))
+
+images = [torch.randn(28, 28).unsqueeze(0) for _ in range(8)]
+batch = torch.stack(images)
+print(batch.shape)
+print(batch[0].squeeze(0).shape)</div>
+<div class="code">torch.Size([6])
+torch.Size([2, 3])
+tensor([[1, 4],
+        [2, 5],
+        [3, 6]])
+torch.Size([8, 1, 28, 28])
+torch.Size([28, 28])</div>
+<table>
+  <tr><th style="width:44%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.cat([c1, c2])</code></td><td>이어 붙여서 길이 6의 한 줄</td></tr>
+  <tr><td><code>torch.stack([c1, c2])</code></td><td>줄 2개를 위아래로 쌓아 2행 3열</td></tr>
+  <tr><td><code>stack(..., dim=1)</code></td><td>새 차원을 1번 자리에 만들어요. 각 줄이 열이 돼서 3행 2열</td></tr>
+  <tr><td><code>[... for _ in range(8)]</code></td><td>28×28 이미지를 8장 만들면서 각각 채널 차원(1, 28, 28)을 붙여 리스트에 모아요</td></tr>
+  <tr><td><code>torch.stack(images)</code></td><td>(1, 28, 28) 8장을 새 batch 차원으로 쌓아 (8, 1, 28, 28)</td></tr>
+  <tr><td><code>batch[0].squeeze(0)</code></td><td>첫 이미지 (1, 28, 28)에서 채널 차원만 제거 → (28, 28)</td></tr>
+</table>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>cat은 이어 붙이기, stack은 쌓기</b>". 쌓으면 차원이 늘어요. 그리고 squeeze는 "1만 지운다"예요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>unsqueeze(dim)은 크기 1인 차원을 추가하고 squeeze(dim)은 크기 1인 차원만 제거한다. cat은 기존 차원을 따라 연결하고 stack은 새 차원을 만들며 쌓는다. 결과 shape을 구할 때는 "1이 어디에 생기는지(unsqueeze)", "크기가 1인 자리인지(squeeze)"를 하나씩 확인하세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — shape (2, 1, 5)에 squeeze()를 하면? 그리고 (5,)에 unsqueeze(1)을 하면?</summary>
+<p>앞의 것은 크기 1인 가운데 차원이 사라져 (2, 5)예요. 뒤의 것은 1번 자리에 1이 생겨 (5, 1)이에요.</p></details>
+
+<h3>2-8. 연산 — 원소별 곱(*)과 행렬곱(@), 그리고 dim 집계 <span class="st">★★</span></h3>
+<p>Tensor끼리 <code>+ - * /</code>를 하면 <b>같은 자리끼리</b> 계산돼요. 이것을 원소별(element-wise) 연산이라고 해요. 곱셈은 모양이 비슷해 보여도 두 종류가 달라요.</p>
+<table>
+  <tr><th style="width:14%">기호</th><th style="width:34%">이름</th><th>어떻게 계산하나</th></tr>
+  <tr><td><code>*</code></td><td>원소별 곱</td><td><b>같은 자리끼리</b> 곱해요. 두 Tensor의 shape이 같아야 해요(또는 브로드캐스팅 가능)</td></tr>
+  <tr><td><code>@</code></td><td>행렬곱</td><td>행렬 곱셈 규칙. <code>torch.matmul(A, B)</code>와 같아요. <b>앞의 마지막 크기 = 뒤의 첫 크기</b>여야 해요</td></tr>
+</table>
+<div class="code">A = torch.tensor([[1., 2.], [3., 4.]])
+B = torch.tensor([[5., 6.], [7., 8.]])
+print(A * B)
+print(A @ B)</div>
+<div class="code">tensor([[ 5., 12.],
+        [21., 32.]])
+tensor([[19., 22.],
+        [43., 50.]])</div>
+<table>
+  <tr><th style="width:30%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>A * B</code></td><td>같은 자리끼리. 1×5=5, 2×6=12, 3×7=21, 4×8=32</td></tr>
+  <tr><td><code>A @ B</code></td><td>첫 행 [1, 2]와 첫 열 [5, 7]을 곱해 더함 → 1×5 + 2×7 = 19. 같은 방식으로 [1,2]·[6,8] = 22, [3,4]·[5,7] = 43, [3,4]·[6,8] = 50</td></tr>
+</table>
+<p>행렬곱의 <b>shape 규칙</b>은 외워 둘 만해요. <b>(a, b) @ (b, c) → (a, c)</b>예요. 가운데 b끼리 같아야 하고 b는 사라져요. 그래서 (2, 3) @ (3, 4)는 (2, 4)이고, (4, 3) @ (3, 2)는 (4, 2)예요. 이 규칙이 모델의 한 층(<code>Y = XWᵀ + b</code>)에서 그대로 쓰여요(4장).</p>
+<p>반면 shape이 다른 두 Tensor에 <code>*</code>를 쓰면 에러가 날 수 있어요. 예를 들어 (3, 2) * (2, 3)은 "크기가 맞지 않다(2와 3)"는 에러예요. 같은 두 Tensor에 <code>@</code>를 쓰면 (3, 2) @ (2, 3) → (3, 3)으로 잘 계산돼요.</p>
+<p><b>집계 연산</b>은 합, 평균, 최댓값을 구하는 함수예요. <code>dim</code>으로 "어느 방향으로 모을지"를 정해요. <b>모은 방향의 차원은 결과 shape에서 사라져요.</b></p>
+<div class="code">z = torch.tensor([[1., 2., 3.],
+                  [4., 5., 6.]])
+print(z.sum())
+print(z.mean())
+print(z.sum(dim=0))
+print(z.sum(dim=1))</div>
+<div class="code">tensor(21.)
+tensor(3.5000)
+tensor([5., 7., 9.])
+tensor([ 6., 15.])</div>
+<table>
+  <tr><th style="width:30%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>z.sum()</code></td><td>전부 더함 1+2+…+6 = 21</td></tr>
+  <tr><td><code>z.mean()</code></td><td>전체 평균 21 ÷ 6 = 3.5</td></tr>
+  <tr><td><code>z.sum(dim=0)</code></td><td>0번(행) 방향으로 모아요. 같은 열끼리 더해요 → [1+4, 2+5, 3+6]. 행 차원이 사라져 (3,)</td></tr>
+  <tr><td><code>z.sum(dim=1)</code></td><td>1번(열) 방향으로 모아요. 같은 행끼리 더해요 → [1+2+3, 4+5+6]. 열 차원이 사라져 (2,)</td></tr>
+</table>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>결과 shape은 "원래 shape에서 dim번째 숫자를 지운 것"이에요. (2, 3)에서 dim=0이면 2를 지워 (3,), dim=1이면 3을 지워 (2,)예요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p><code>*</code>는 같은 위치 원소끼리 곱하는 원소별 곱이고 <code>@</code>는 행렬곱이다. 행렬곱은 (a, b) @ (b, c) → (a, c)로 앞의 마지막 차원과 뒤의 첫 차원이 같아야 한다. sum(dim=k)는 k번 차원을 따라 합하며 그 차원은 결과에서 사라진다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — shape (4, 3)과 (3, 2)를 @로 곱하면 결과 shape은?</summary>
+<p>(4, 2)예요. 가운데 3이 같고, 3은 사라져요.</p></details>
+
+<h3>2-9. 브로드캐스팅 — shape이 달라도 계산되는 규칙 <span class="st">★★★</span></h3>
+<p>shape이 다른 Tensor끼리 계산할 때 PyTorch가 <b>작은 쪽을 자동으로 늘려서</b> 맞춰 주는 기능이 <b>브로드캐스팅(broadcasting)</b>이에요. 늘릴 수 있을 때만 되고, 못 늘리면 에러예요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><b>두 shape을 오른쪽 끝에 맞춰 놓고 마지막 차원부터 왼쪽으로 하나씩 비교해요.</b> 각 자리가 ① 크기가 같다, ② 둘 중 하나가 1이다, ③ 한쪽에 그 자리가 없다 중 하나를 만족하면 돼요. 모든 자리가 만족해야 해요.</p>
+</div>
+<figure class="slide"><img src="slides/w26.jpg" alt="브로드캐스팅 규칙"><figcaption>교수님 슬라이드 — Broadcasting. (2,3)+(3,) → (2,3), (4,1)+(1,5) → (4,5), (2,3)+(2,) → 호환되지 않음</figcaption></figure>
+<div class="box eg"><span class="t">비유 — 컵 크기 맞추기</span>
+<p>학생 2명에게 각각 간식 3개씩 나눠 주는 표(2×3)가 있어요. 거기에 "1번 간식 +10, 2번 간식 +20, 3번 간식 +30"이라는 한 줄짜리 메모(3,)를 모든 학생에게 똑같이 적용해요. 메모를 학생 수만큼 복사해 붙인 것이 브로드캐스팅이에요.</p>
+</div>
+<p>각 예를 오른쪽 끝에 맞춰 비교해 볼게요.</p>
+<table>
+  <tr><th style="width:26%">연산</th><th>오른쪽부터 비교</th><th style="width:20%">결과</th></tr>
+  <tr><td><code>(2, 3) + (3,)</code></td><td>3과 3은 같다. 왼쪽 2는 상대에게 없다(OK)</td><td><b>(2, 3)</b></td></tr>
+  <tr><td><code>(4, 1) + (1, 5)</code></td><td>1과 5는 한쪽이 1(OK). 4와 1도 한쪽이 1(OK)</td><td><b>(4, 5)</b></td></tr>
+  <tr><td><code>(2, 3) + (2,)</code></td><td>3과 2는 같지도 않고 1도 아니다(불가)</td><td><b>에러</b></td></tr>
+  <tr><td><code>(2, 4, 1) + (1, 5)</code></td><td>1과 5(OK), 4와 1(OK), 2는 상대에게 없다(OK)</td><td><b>(2, 4, 5)</b></td></tr>
+</table>
+<div class="code">x = torch.tensor([[1., 2., 3.],
+                  [4., 5., 6.]])
+bias = torch.tensor([10., 20., 30.])
+print(x + bias)
+print((x + bias).shape)
+
+print((torch.ones(4, 1) + torch.ones(1, 5)).shape)</div>
+<div class="code">tensor([[11., 22., 33.],
+        [14., 25., 36.]])
+torch.Size([2, 3])
+torch.Size([4, 5])</div>
+<table>
+  <tr><th style="width:36%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>x + bias</code></td><td>(2, 3)과 (3,). bias [10, 20, 30]이 <b>각 행마다</b> 똑같이 더해져요. 1행 [1,2,3]+[10,20,30] = [11,22,33], 2행 [4,5,6]+[10,20,30] = [14,25,36]</td></tr>
+  <tr><td><code>(x + bias).shape</code></td><td>(2, 3) 그대로</td></tr>
+  <tr><td><code>ones(4, 1) + ones(1, 5)</code></td><td>(4, 1)은 옆으로 5번, (1, 5)는 아래로 4번 늘려서 (4, 5). 모든 값이 1+1 = 2</td></tr>
+</table>
+<p>"각 행에 서로 다른 값을 더하고 싶다"면 더할 값을 <b>(4, 1)</b> 모양으로 세워야 해요(수업 실습 3). 그냥 길이 4짜리 한 줄 (4,)을 (4, 3) 표에 더하면, 오른쪽 끝 3과 4를 비교해서 <b>에러</b>예요.</p>
+<div class="box def"><span class="t">조심할 함정</span>
+<p><b>(3, 1)에서 (3,)을 빼면 에러가 아니라 (3, 3)이 나와요.</b> 예측값이 (3, 1)이고 정답이 (3,)이면 loss를 계산할 때 9개 값끼리 비교돼서 엉뚱한 결과가 나와요. 그래서 prediction과 target의 shape을 꼭 같게 맞춰요. 교수님이 7주차에 이 점을 짚었어요.</p>
+</div>
+<p>숫자 하나와의 계산도 브로드캐스팅이에요. 숫자(scalar)는 어디든 맞아서 모든 원소에 똑같이 적용돼요. 시험 샘플 4번의 한 줄이 이 예예요. <code>x</code>는 (10, 2)이고 각 행이 (0,1), (2,3), …, (18,19)예요.</p>
+<div class="code">x = torch.arange(20, dtype=torch.float32).reshape(10, 2)
+y = x[:, 0:1] + 2 * x[:, 1:2] + 3
+print(y.shape)
+print(y.flatten().tolist())</div>
+<div class="code">torch.Size([10, 1])
+[5.0, 11.0, 17.0, 23.0, 29.0, 35.0, 41.0, 47.0, 53.0, 59.0]</div>
+<table>
+  <tr><th style="width:40%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>x[:, 0:1]</code></td><td>첫 번째 열을 표 모양 그대로(10, 1). 값은 0, 2, 4, …, 18</td></tr>
+  <tr><td><code>x[:, 1:2]</code></td><td>두 번째 열을 (10, 1)로. 값은 1, 3, 5, …, 19</td></tr>
+  <tr><td><code>2 * x[:, 1:2]</code></td><td>숫자 2를 모든 칸에 곱해요. (10, 1) 그대로</td></tr>
+  <tr><td><code>... + 3</code></td><td>숫자 3을 모든 칸에 더해요</td></tr>
+  <tr><td>결과 y</td><td>행마다 (첫 열) + 2×(둘째 열) + 3. 첫 행은 0 + 2×1 + 3 = 5, 마지막 행은 18 + 2×19 + 3 = 59</td></tr>
+  <tr><td><code>y.flatten().tolist()</code></td><td>(10, 1) 표를 한 줄로 펴서 파이썬 리스트로. 값은 5, 11, 17, …, 59로 6씩 커져요</td></tr>
+</table>
+<p>y의 값이 6씩 커지는 이유는 행이 한 칸 내려갈 때마다 첫 열이 2, 둘째 열이 2씩 늘어나서 2 + 2×2 = 6이 커지기 때문이에요. 이 y는 뒤 장 DataLoader 문제(시험 샘플 4번)의 정답을 구할 때 그대로 쓰여요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>브로드캐스팅은 두 shape을 오른쪽 끝부터 비교하여 각 차원이 같거나 하나가 1이거나 한쪽에 없으면 자동으로 확장하여 원소별 연산하는 기능이다. (2, 3) + (3,)은 가능해서 (2, 3)이 되고, (2, 3) + (2,)는 불가능하다. 문제에서는 두 shape을 오른쪽 끝에 맞춰 적어 보세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — (5, 1) + (3,)의 결과 shape은?</summary>
+<p>(5, 3)이에요. 오른쪽 끝 1과 3은 한쪽이 1이라 OK이고, 5는 상대에게 없어서 OK예요. 5×3 표가 돼요.</p></details>
+
+<h3>2-10. NumPy와 Tensor — 메모리를 같이 쓸 때와 아닐 때</h3>
+<p>NumPy 배열과 Tensor는 서로 바꿀 수 있어요. 그런데 <b>바꾸는 방법에 따라 같은 데이터를 공유할 수도, 복사본일 수도</b> 있어요. 공유하면 한쪽을 고칠 때 다른 쪽도 바뀌어요.</p>
+<table>
+  <tr><th style="width:40%">변환 방법</th><th style="width:22%">메모리</th><th>원본을 바꾸면</th></tr>
+  <tr><td><code>torch.from_numpy(arr)</code></td><td><b>공유</b></td><td>같이 바뀜</td></tr>
+  <tr><td><code>torch.from_numpy(arr).clone()</code></td><td>복사 (독립)</td><td>안 바뀜</td></tr>
+  <tr><td><code>torch.tensor(arr)</code></td><td>복사 (독립)</td><td>안 바뀜</td></tr>
+  <tr><td><code>t.numpy()</code></td><td><b>공유</b></td><td>같이 바뀜</td></tr>
+  <tr><td><code>t.numpy().copy()</code></td><td>복사 (독립)</td><td>안 바뀜</td></tr>
+</table>
+<div class="code">import numpy as np
+
+np_array = np.array([1, 2, 3], dtype=np.float32)
+t1 = torch.from_numpy(np_array)
+t2 = torch.tensor(np_array)
+t3 = torch.from_numpy(np_array).clone()
+
+np_array[2] = 100
+print(np_array)
+print(t1)
+print(t2)
+print(t3)</div>
+<div class="code">[  1.   2. 100.]
+tensor([  1.,   2., 100.])
+tensor([1., 2., 3.])
+tensor([1., 2., 3.])</div>
+<table>
+  <tr><th style="width:44%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>t1 = torch.from_numpy(np_array)</code></td><td>NumPy 배열과 <b>같은 메모리</b>를 쓰는 Tensor</td></tr>
+  <tr><td><code>t2 = torch.tensor(np_array)</code></td><td>값을 <b>복사해서</b> 새로 만든 Tensor</td></tr>
+  <tr><td><code>t3 = ....clone()</code></td><td>공유 Tensor를 복제해서 독립시킨 것</td></tr>
+  <tr><td><code>np_array[2] = 100</code></td><td>원본 NumPy의 2번 칸을 100으로 바꿔요</td></tr>
+  <tr><td>출력</td><td>공유한 t1만 100으로 따라 바뀌고, 복사본 t2, t3는 그대로 [1, 2, 3]</td></tr>
+</table>
+<figure class="slide"><img src="slides/w211.jpg" alt="Tensor와 NumPy 변환과 메모리 공유"><figcaption>교수님 슬라이드 — from_numpy는 메모리 공유(함께 변경), 독립 복사본이 필요하면 tensor() 또는 clone() 사용</figcaption></figure>
+<p>반대 방향도 같아요. <code>t.numpy()</code>는 Tensor와 NumPy가 메모리를 같이 써서, Tensor를 고치면 NumPy도 바뀌어요. <code>.numpy().copy()</code>를 쓰면 독립이에요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>torch.from_numpy()와 tensor.numpy()는 메모리를 공유하므로 한쪽을 바꾸면 다른 쪽도 바뀐다. 독립적인 복사본이 필요하면 torch.tensor(arr), clone(), .numpy().copy()를 쓴다. 결과 예측 문제는 "공유 = 같이 바뀜, 복사 = 안 바뀜"만 구분하면 돼요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — a = np.array([1., 2.]); t = torch.from_numpy(a); t[0] = 9 를 실행하면 a는?</summary>
+<p><code>[9., 2.]</code>예요. from_numpy는 메모리를 공유해서 Tensor를 바꾸면 a도 바뀌어요.</p></details>
+
+<div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>Tensor는 숫자의 다차원 배열이고 항상 shape(모양), dtype(종류), device(장치)를 확인해요. shape의 숫자 개수가 차원 수, 곱이 원소 수예요(<code>(3,)</code>은 원소 3개).</li>
+  <li>슬라이싱은 0부터 번호이고 끝 번호를 빼요. 정수로 고르면 그 차원이 사라지고 범위(a:b)로 고르면 남아요(<code>x[:, 1]</code>은 (3,), <code>x[:, 1:2]</code>는 (3, 1)). reshape의 -1은 자동 계산이고 squeeze는 크기 1인 차원만 지워요.</li>
+  <li><code>*</code>는 원소별 곱, <code>@</code>는 행렬곱((a,b)@(b,c)→(a,c))이에요. 브로드캐스팅은 오른쪽 끝부터 "같거나, 1이거나, 없으면" 통과예요. from_numpy와 numpy()는 메모리를 공유해요.</li>
+</ul>
+</div>

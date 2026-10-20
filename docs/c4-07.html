@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>오버라이딩 — 같은 이름 메서드를 자식이 새로 쓰기 ★★★ 시험 2번 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k4"><a href="index.html#c4">← 보드</a><span>클래스와 상속 · 7/12</span></div><h1>오버라이딩 — 같은 이름 메서드를 자식이 새로 쓰기 ★★★ 시험 2번</h1>
+<p><a class="w" href="words.html#w25" data-w="25">자식</a> <a class="w" href="words.html#w17" data-w="17">class</a>가 <a class="w" href="words.html#w24" data-w="24">부모</a>와 <b>같은 이름</b>의 <a class="w" href="words.html#w20" data-w="20">메서드</a>를 새로 정의하면 호출할 때 <b>자식 것이 먼저</b> 쓰여요. 이것이 <b><a class="w" href="words.html#w26" data-w="26">오버라이딩</a>(overriding)</b>(재정의)이에요. 앞에서 본 <code>__init__</code>을 자식이 다시 쓴 것도 오버라이딩이에요.</p>
+<figure class="slide"><img src="slides/w35.jpg" alt="super와 오버라이딩"><figcaption>교수님 슬라이드 — super().__init__(...)은 부모 초기화를 호출. 같은 이름의 speak를 자식이 새로 정의하는 것이 method overriding</figcaption></figure>
+<p>시험 <a class="w" href="words.html#w113" data-w="113">샘플</a> 2번 코드예요. 직접 따라가 봐요.</p>
+<div class="code">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        print("동물이 소리를 냅니다.")
+
+
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)
+        self.breed = breed
+
+    def speak(self):
+        print(f"{self.name}가 멍멍 짖습니다.")
+
+
+dog = Dog("Bori", "Poodle")
+dog.speak()</div>
+<div class="code">Bori가 멍멍 짖습니다.</div>
+<div class="tw"><table>
+  <tr><th style="width:36%">실행하는 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>dog = Dog("Bori", "Poodle")</code></td><td>Dog의 <a class="w" href="words.html#w22" data-w="22">__init__</a> 실행. <code>super().__init__(name)</code>으로 부모가 name = "Bori" 저장, 이어서 breed = "Poodle" 저장</td></tr>
+  <tr><td><code>dog.speak()</code></td><td>Dog에 speak가 있으니 <b>자식 것</b>이 실행돼요. 부모의 speak는 실행되지 않아요</td></tr>
+  <tr><td>출력</td><td><code>Bori가 멍멍 짖습니다.</code> 한 줄뿐이에요. "동물이 소리를 냅니다."는 찍히지 않아요</td></tr>
+</table></div>
+<p>이제 선택지를 하나씩 판정해 볼게요.</p>
+<div class="tw"><table>
+  <tr><th style="width:50%">선택지</th><th>판정과 이유</th></tr>
+  <tr><td>① dog.speak()은 부모와 자식의 speak()을 차례로 실행한다</td><td>틀림. 자식 것 <b>하나만</b> 실행돼요(부모 것은 호출하지 않아요)</td></tr>
+  <tr><td>② 자식이 __init__()을 정의해도 부모의 __init__()은 항상 자동으로 실행된다</td><td>틀림. 자식이 정의하면 <b>자동 실행되지 않아서</b> <a class="w" href="words.html#w27" data-w="27">super()</a>로 불러야 해요</td></tr>
+  <tr><td>③ Dog가 speak()를 재정의했으므로 부모의 speak()은 더 이상 호출할 수 없다</td><td>틀림. Animal <a class="w" href="words.html#w18" data-w="18">객체</a>로는 부모 speak를 쓸 수 있고, 자식 안에서 <code>super().speak()</code>로도 부를 수 있어요</td></tr>
+  <tr><td><b>④ super().__init__(name)은 부모의 <a class="w" href="words.html#w137" data-w="137">초기화</a> 메서드를 실행하며, dog.speak()은 자식이 재정의한 메서드를 실행한다</b></td><td><b>맞음 (<a class="w" href="words.html#w101" data-w="101">정답</a>)</b></td></tr>
+  <tr><td>⑤ <a class="w" href="words.html#w23" data-w="23">상속</a>받은 메서드를 쓰려면 먼저 Animal 인스턴스를 별도로 만들어야 한다</td><td>틀림. Dog 객체가 상속받은 메서드를 이미 가지고 있어서 따로 만들 필요 없어요</td></tr>
+</table></div>
+<p>③번의 <code>super().speak()</code>를 확인해 볼게요. 자식이 부모 기능을 먼저 쓰고 자기 일을 덧붙이는 <a class="w" href="words.html#w35" data-w="35">모양</a>이에요.</p>
+<div class="code">class Dog(Animal):
+    def speak(self):
+        super().speak()
+        print("멍멍")
+
+
+Dog("Bori").speak()</div>
+<div class="code">동물이 소리를 냅니다.
+멍멍</div>
+<p>여기서는 자식이 직접 <code>super().speak()</code>를 호출했기 때문에 부모 것이 실행됐어요. 호출하지 않으면 실행되지 않는다는 점이 ①번의 오답 이유예요. 그리고 이름을 <code>speak2</code>처럼 바꾸면 다른 메서드가 새로 생길 뿐 오버라이딩이 아니에요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>자식 class에 부모와 같은 이름의 메서드를 정의하면 자식의 메서드가 우선 사용되며 이를 오버라이딩이라고 한다. 이때 부모의 메서드는 호출되지 않는다(자식이 super()로 부를 때만 <a class="w" href="words.html#w14" data-w="14">예외</a>). 설명형 선택지는 "자동으로", "항상", "더 이상 ~할 수 없다" 같은 단정적인 표현이 있으면 반례를 먼저 떠올려 보세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 자식 class에 부모와 같은 이름의 speak()를 만들고 dog.speak()을 호출하면 어느 것이 실행되나요?</summary>
+<p>자식의 speak()이에요. 같은 이름이면 자식 것이 우선이에요.</p></details>
+
+<div class="done"><a class="go" href="c4-08.html">다음 카드 → __call__ — 객체를 함수처럼 부르기 ★★</a><div class="pn"><a href="c4-06.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c4"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3~4주차 · Week03_Class_for_PyTorch(pdf, ipynb 업데이트본) · 빅데이터03(3주차)·빅데이터04(4주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

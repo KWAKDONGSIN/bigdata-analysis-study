@@ -1,0 +1,219 @@
+<!-- 3장: GPU와 Colab. CPU와 GPU의 차이, cuda와 device, .to(device)와 다시 저장하기, 같은 device 규칙, GPU 텐서와 NumPy, Colab에서 T4 GPU 켜는 5단계를 설명해요 -->
+<h2>GPU와 Colab — 계산을 빠르게 해 주는 장치</h2>
+<p class="lead">딥러닝은 계산이 아주 많아서 GPU라는 장치를 쓰면 훨씬 빨라져요. 이 장에서는 GPU가 왜 빠른지, 코드에서 어떻게 GPU를 고르고 데이터를 옮기는지, 내 컴퓨터에 GPU가 없을 때 Colab으로 빌려 쓰는 방법을 배워요. 시험에서는 "device가 다르면 계산이 안 된다"와 ".to(device)는 다시 저장해야 한다"가 핵심이에요.</p>
+
+<h3>3-1. GPU는 왜 빠를까 — CPU와 GPU의 차이 <span class="st">★★</span></h3>
+<p>컴퓨터의 계산 장치는 두 종류예요. <b>CPU</b>는 컴퓨터의 두뇌이고, <b>GPU</b>는 원래 그래픽(화면) 처리를 하던 장치예요. 둘 다 계산을 하지만 잘하는 일이 달라요.</p>
+<table>
+  <tr><th style="width:16%">장치</th><th>강점</th></tr>
+  <tr><td><b>CPU</b></td><td><b>복잡하고 다양한 작업을 순차적으로</b> 처리하는 데 강해요</td></tr>
+  <tr><td><b>GPU</b></td><td><b>많은 단순 연산을 병렬로(동시에)</b> 처리하는 데 강해요. 대량의 행렬 연산에 유리해요</td></tr>
+</table>
+<div class="box eg"><span class="t">비유 — 주방장 한 명 vs 알바생 수천 명</span>
+<p>CPU는 복잡한 코스 요리를 차례차례 완성하는 <b>숙련된 주방장 한 명</b>이에요. GPU는 감자 깎기, 곱셈 같은 단순한 일을 <b>알바생 수천 명이 동시에</b> 하는 것과 같아요. 감자 1만 개를 깎아야 한다면 주방장 한 명보다 알바생 수천 명이 훨씬 빨라요.</p>
+</div>
+<p><b>왜 딥러닝에 GPU를 쓸까요?</b> 딥러닝은 숫자를 곱하고 더하는 단순한 계산을 어마어마하게 반복하기 때문이에요(예측과 기울기 계산이 모두 그래요). 단순 계산이 많을수록 GPU가 유리해요. 교수님도 "순전파와 역전파가 단순 연산의 반복이라 GPU가 유리하다"고 설명했어요.</p>
+<figure class="slide"><img src="slides/w212.jpg" alt="CPU와 GPU와 device 설정 코드"><figcaption>교수님 슬라이드 — CPU는 복잡한 일을 순차적으로, GPU는 단순 연산을 병렬로. 딥러닝은 행렬 연산이 많아 GPU를 쓰면 학습이 빨라진다</figcaption></figure>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>CPU는 복잡하고 다양한 작업을 순차적으로 처리하는 데 강하고, GPU는 많은 단순 연산을 병렬로 처리하는 데 강하다. 딥러닝은 대량의 행렬 연산이 많아 GPU를 사용하면 학습 속도가 크게 향상된다. 선택지에서 두 장치의 특징이 서로 바뀌어 있으면 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 단순한 곱셈을 엄청나게 많이 반복해야 할 때 CPU와 GPU 중 어느 쪽이 유리한가요?</summary>
+<p>GPU예요. 단순한 연산을 동시에 많이 처리하는 것이 GPU의 장점이에요.</p></details>
+
+<h3>3-2. 내 컴퓨터에 GPU가 있나 — cuda와 is_available <span class="st">★★</span></h3>
+<p>GPU는 컴퓨터에 따라 있기도 하고 없기도 해요. 특히 노트북에는 없는 경우가 많아요. PyTorch에서 GPU를 쓰려면 NVIDIA 그래픽 카드와 <b>CUDA(쿠다)</b>가 필요해요. 교수님 설명으로 CUDA는 "GPU를 사용할 수 있게 해 주는 프로그램"이에요. 컴퓨터에 GPU가 있는지는 터미널에서 <code>nvidia-smi</code>를 입력해 확인해요. 결과가 나오면 GPU가 있는 거예요.</p>
+<p>이 수업은 1주차에 <b>GPU 유무와 관계없이 CPU 버전 PyTorch로 통일</b>하기로 했어요. GPU판은 용량이 3~4GB로 커서 설치가 오래 걸리고 충돌도 생기기 때문이에요. 교수님은 GPU가 필요하면 학과 서버를 쓸 계획이라고 했어요.</p>
+<p>코드에서는 이렇게 GPU 사용 가능 여부를 물어봐요.</p>
+<div class="code">print("CUDA 사용 가능 여부:", torch.cuda.is_available())
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print("선택된 device:", device)</div>
+<div class="code">CUDA 사용 가능 여부: False
+선택된 device: cpu</div>
+<table>
+  <tr><th style="width:44%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.cuda.is_available()</code></td><td>"지금 GPU를 쓸 수 있나요?"라는 질문. 가능하면 True, 아니면 False</td></tr>
+  <tr><td><code>'cuda' if ... else 'cpu'</code></td><td>0장에서 본 한 줄 조건식이에요. 쓸 수 있으면 <b>'cuda'</b>(GPU), 아니면 <b>'cpu'</b>를 device 이름으로 골라요</td></tr>
+  <tr><td>위 결과</td><td>위 출력은 GPU가 없는 컴퓨터에서 나온 결과예요. GPU가 있는 곳(예: Colab GPU)에서는 <code>True</code>와 <code>cuda</code>가 나와요</td></tr>
+</table>
+<div class="box def"><span class="t">왜 'cuda'라고 고정하지 않고 이렇게 쓸까요</span>
+<p>코드가 돌아갈 컴퓨터에 GPU가 있는지 미리 알 수 없기 때문이에요. <code>'cuda'</code>로 못 박으면 GPU가 없는 PC에서 에러가 나요. 위 한 줄로 "있으면 GPU, 없으면 CPU"를 고르면 <b>같은 코드를 어디서든 그대로 돌릴 수 있어요.</b> 교수님도 "디바이스를 명시하는 건 좋지 않다"고 했어요.</p>
+</div>
+<p>한 가지 더 알아 둘 것이 있어요. CUDA를 설치했다고 <code>is_available()</code>이 저절로 True가 되는 것은 아니에요. 실제로 사용할 수 있는 GPU가 있는 환경이어야 True가 나와요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>GPU 사용 가능 여부는 torch.cuda.is_available()로 확인하고, device = 'cuda' if torch.cuda.is_available() else 'cpu'로 선택하면 GPU 유무와 관계없이 같은 코드를 실행할 수 있다. 결과 예측 문제는 GPU가 없는 환경이면 False와 cpu가 나온다고 보세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 노트북에 GPU가 없을 때 위 코드의 device는 무엇이 되나요?</summary>
+<p>'cpu'예요. is_available()이 False라서 else 쪽 값을 골라요.</p></details>
+
+<h3>3-3. Tensor와 모델을 device로 옮기기 — .to(device) <span class="st">★★★</span></h3>
+<p>Tensor는 처음 만들면 <b>CPU에 생겨요.</b> 어느 장치에 있는지는 <code>x.device</code>로 봐요. GPU로 보내려면 두 가지 방법이 있어요.</p>
+<ul>
+  <li>만들 때부터 지정 — <code>torch.zeros(2, 3, device=device)</code></li>
+  <li>만든 뒤에 옮기기 — <code>x = x.to(device)</code></li>
+</ul>
+<div class="code">device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+x = torch.zeros(2, 3, device=device)
+
+y = torch.randn(3, 4)
+print(y.device)
+y = y.to(device)
+print(y.device)</div>
+<table>
+  <tr><th style="width:36%">코드 줄</th><th style="width:30%">GPU 없는 컴퓨터</th><th>GPU 있는 환경 (예 Colab)</th></tr>
+  <tr><td><code>print(y.device)</code> (처음)</td><td><code>cpu</code></td><td><code>cpu</code> (처음은 항상 CPU)</td></tr>
+  <tr><td><code>y = y.to(device)</code> 뒤 <code>print(y.device)</code></td><td><code>cpu</code> (옮길 곳이 CPU)</td><td><code>cuda:0</code> (0번 GPU로 이동)</td></tr>
+</table>
+<p>"cuda:0"의 0은 0번 GPU라는 뜻이에요. GPU가 한 장이면 그냥 0번이에요.</p>
+<div class="box def"><span class="t">제일 중요한 규칙</span>
+<p><b><code>.to(device)</code>는 원본을 바꾸지 않고 "옮겨진 새 Tensor"를 돌려줘요.</b> 그래서 반드시 <code>x = x.to(device)</code>처럼 <b>변수에 다시 저장</b>해야 해요. <code>x.to(device)</code>만 쓰고 저장하지 않으면 x는 그대로 CPU에 있어요.</p>
+</div>
+<div class="box eg"><span class="t">비유 — 택배</span>
+<p>택배(.to)를 보내면 상품이 "새로 도착한 택배 상자"로 와요. 그 상자를 받아서 선반(변수 x)에 올려놓아야 써먹을 수 있어요. 받지 않고 흘려보내면 선반에는 원래 물건만 있어요.</p>
+</div>
+<p>모델(layer)도 같은 방법으로 옮겨요.</p>
+<div class="code">from torch import nn
+
+model = nn.Linear(4, 2)
+model = model.to(device)
+
+x = torch.randn(3, 4).to(device)
+y = model(x)
+
+print(y.device)
+print(model.weight.device)</div>
+<div class="code">cpu
+cpu</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>model = nn.Linear(4, 2)</code></td><td>입력 4개, 출력 2개인 한 층짜리 모델</td></tr>
+  <tr><td><code>model = model.to(device)</code></td><td>모델의 weight, bias를 device로 옮겨요(수업 슬라이드의 방식 그대로)</td></tr>
+  <tr><td><code>torch.randn(3, 4).to(device)</code></td><td>(3, 4) 입력을 만들자마자 같은 device로 옮겨요. 한 줄에 붙여 쓴 모양이에요</td></tr>
+  <tr><td><code>y = model(x)</code></td><td>모델과 입력이 같은 곳에 있으니 계산돼요. 결과도 같은 device에 생겨요</td></tr>
+  <tr><td>출력 <code>cpu</code>, <code>cpu</code></td><td>GPU 없는 컴퓨터의 결과예요. GPU 환경이면 <code>cuda:0</code>, <code>cuda:0</code>이 나와요</td></tr>
+</table>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>.to(device)는 새 Tensor를 반환하므로 x = x.to(device)처럼 반환값을 변수에 다시 저장해야 한다. 모델도 model = model.to(device)로 옮긴다. 선택지에 "x.to(device)만 실행해도 x가 GPU로 이동한다"가 있으면 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — GPU가 있는 환경에서 x = torch.randn(3, 4)를 만든 뒤 x.to('cuda')를 저장 없이 한 줄만 실행했습니다. 이어서 print(x.device)를 하면?</summary>
+<p><code>cpu</code>예요. 옮겨진 새 Tensor를 변수에 저장하지 않아서 x는 그대로 CPU에 있어요.</p></details>
+
+<h3>3-4. 같은 device에 있어야 계산돼요 <span class="st">★★★</span></h3>
+<p>연산에 참여하는 <b>모든 Tensor와 모델은 같은 device</b>에 있어야 해요. CPU의 Tensor와 GPU의 Tensor를 더하거나 곱하면 "device가 다르다"는 RuntimeError가 나요.</p>
+<div class="box eg"><span class="t">비유 — 집 냉장고와 식당 주방</span>
+<p>한 재료는 집 냉장고에, 다른 재료는 식당 주방에 있다면 한 요리로 합칠 수 없어요. 한쪽으로 옮겨 와야 해요. CPU 메모리와 GPU 메모리는 따로 분리되어 있어서(교수님 설명) 서로 다른 곳에 있는 Tensor끼리는 바로 계산할 수 없어요.</p>
+</div>
+<table>
+  <tr><th style="width:40%">상황</th><th>결과</th><th>고치는 법</th></tr>
+  <tr><td>CPU Tensor + GPU Tensor</td><td>device가 달라서 에러</td><td>한쪽을 <code>x = x.to(device)</code>로 같은 곳에 옮기기</td></tr>
+  <tr><td>GPU의 모델에 CPU 입력을 넣기</td><td>에러</td><td>입력도 <code>.to(device)</code></td></tr>
+  <tr><td>CPU의 모델에 GPU 입력을 넣기</td><td>에러</td><td>모델도 <code>.to(device)</code></td></tr>
+</table>
+<p>그래서 실제 학습 코드는 보통 아래 순서를 따라요. 모델을 device에 올리고, 데이터를 꺼낼 때마다 batch도 같은 device로 보내요.</p>
+<div class="code">device = 'cuda' if torch.cuda.is_available() else 'cpu'
+model = model.to(device)
+
+for batch_x, batch_y in loader:
+    batch_x = batch_x.to(device)
+    batch_y = batch_y.to(device)
+    prediction = model(batch_x)</div>
+<table>
+  <tr><th style="width:44%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>model = model.to(device)</code></td><td>학습 시작 전에 모델을 한 번만 옮겨요</td></tr>
+  <tr><td><code>for batch_x, batch_y in loader:</code></td><td>데이터를 batch 단위로 꺼내요(0장에서 본 짝 받기)</td></tr>
+  <tr><td><code>batch_x = batch_x.to(device)</code></td><td>꺼낸 입력을 모델과 같은 device로. 다시 저장해야 해요</td></tr>
+  <tr><td><code>batch_y = batch_y.to(device)</code></td><td>정답도 같은 곳으로. 나중에 loss를 계산할 때 필요해요</td></tr>
+</table>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>연산에 참여하는 모든 Tensor는 같은 device에 있어야 하며 모델과 입력도 마찬가지이다. device가 다르면 연산할 수 없다. 오류가 나면 "shape, dtype, device" 순서로 확인하라는 교수님의 말씀을 떠올리세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 모델은 GPU로 보냈는데 입력 x는 CPU 그대로 넣었습니다. 어떻게 되나요?</summary>
+<p>device가 달라서 에러가 나요. x = x.to(device)로 입력도 GPU로 보내야 해요.</p></details>
+
+<h3>3-5. GPU Tensor를 NumPy로 바꾸기</h3>
+<p>NumPy 배열은 <b>CPU 메모리에만</b> 있어요. GPU에 있는 Tensor를 바로 NumPy로 바꿀 수 없고, <b>먼저 CPU로 옮긴 뒤</b> 바꿔요. 기울기를 추적 중인 Tensor(<code>requires_grad=True</code>)는 <code>detach()</code>로 추적을 끊고 바꿔요(Autograd 장에서 배워요).</p>
+<table>
+  <tr><th style="width:34%">목적</th><th>방법</th></tr>
+  <tr><td>CPU → GPU</td><td><code>x = x.to('cuda')</code></td></tr>
+  <tr><td>GPU → CPU</td><td><code>x = x.to('cpu')</code></td></tr>
+  <tr><td>GPU Tensor → NumPy</td><td><code>x.to('cpu').numpy()</code> (CPU로 먼저)</td></tr>
+  <tr><td>기울기 추적 중인 Tensor → NumPy</td><td><code>x.detach().to('cpu').numpy()</code></td></tr>
+</table>
+<div class="code">t = torch.randn(3, requires_grad=True)
+print(t.detach().to('cpu').numpy().shape)</div>
+<div class="code">(3,)</div>
+<p>기울기를 추적하는 Tensor에 <code>detach()</code> 없이 <code>.numpy()</code>를 하면 "requires grad인 Tensor에는 numpy()를 쓸 수 없고 detach().numpy()를 쓰라"는 에러가 나요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>NumPy 배열은 CPU 메모리에만 저장되므로 GPU Tensor는 .to('cpu').numpy()로 CPU로 옮긴 뒤 변환한다. requires_grad=True인 Tensor는 detach()로 계산 그래프에서 분리한 뒤 변환한다. 순서는 "(필요하면 detach) → CPU → numpy"예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — GPU에 있는 Tensor g를 NumPy로 바꾸는 올바른 한 줄은?</summary>
+<p><code>g.to('cpu').numpy()</code>예요. CPU로 먼저 옮겨야 해요.</p></details>
+
+<h3>3-6. 내 컴퓨터에 GPU가 없다면 — Google Colab에서 GPU 켜기 <span class="st">★</span></h3>
+<p><b>Colab(코랩)</b>은 구글이 인터넷으로 빌려주는 컴퓨터예요. 웹 브라우저로 접속해서 코드를 실행하고, 무료로 GPU도 써 볼 수 있어요. 내 컴퓨터에 GPU가 없어도 돼요. 교수님은 1주차에 "GPU가 없는 학생은 Colab 계정을 만들어 보라"고 했어요.</p>
+<div class="box eg"><span class="t">비유 — 고성능 PC방</span>
+<p>내 노트북은 집에 있는 평범한 컴퓨터예요. Colab은 인터넷으로 접속하는 고성능 PC방 컴퓨터를 한 대 빌리는 것과 같아요. 그 컴퓨터에서 내 코드(ipynb 파일)를 실행해요.</p>
+</div>
+<p>설정은 5단계예요.</p>
+<table>
+  <tr><th style="width:12%">단계</th><th style="width:30%">할 일</th><th>자세히</th></tr>
+  <tr><td>1</td><td>Colab 로그인</td><td>Google 계정으로 로그인해요. <b>별도 회원가입이 없어요.</b> 브라우저에서 colab.research.google.com에 접속해요</td></tr>
+  <tr><td>2</td><td>노트북 업로드</td><td>Colab 첫 화면에서 "+ 새 노트" 옆의 <b>노트북 업로드</b>를 눌러요</td></tr>
+  <tr><td>3</td><td>ipynb 파일 선택</td><td><b>둘러보기</b>를 눌러 내 컴퓨터의 .ipynb 파일을 고르거나 창 위로 끌어다 놓아요. 파일이 없으면 "+ 새 노트"로 새로 시작해요</td></tr>
+  <tr><td>4</td><td>런타임 메뉴 열기</td><td>노트북 위쪽 메뉴에서 <b>런타임</b> → 맨 아래 <b>런타임 유형 변경</b>을 눌러요</td></tr>
+  <tr><td>5</td><td>GPU 선택</td><td>"하드웨어 가속기"에서 <b>T4 GPU</b>를 고르고 오른쪽 아래 <b>저장</b>을 눌러요. 런타임이 GPU로 다시 연결되면 끝이에요</td></tr>
+</table>
+<figure class="slide"><img src="slides/colab2.jpg" alt="Colab GPU 설정 전체 흐름 5단계"><figcaption>교수님 슬라이드 — Colab 회원가입 → 노트북 업로드 → ipynb 선택 → 런타임 메뉴 → T4 GPU 선택</figcaption></figure>
+<figure class="slide"><img src="slides/colab7.jpg" alt="하드웨어 가속기에서 T4 GPU 선택"><figcaption>교수님 슬라이드 — STEP 5. 하드웨어 가속기에서 T4 GPU를 선택하고 저장. 무료 계정은 T4까지, A100과 H100은 Colab Pro+에서 사용 가능</figcaption></figure>
+<p>잘 켜졌는지는 코드로 확인해요. 새 코드 셀에 <code>torch.cuda.is_available()</code>을 실행했을 때 <b>True</b>가 나오면 GPU가 켜진 거예요. 런타임이 다시 연결되므로 그 전에 실행한 셀이 있다면 처음부터 다시 실행하는 것이 안전해요.</p>
+<table>
+  <tr><th style="width:44%">코드 줄</th><th>Colab에서 T4 GPU를 켠 뒤 결과</th></tr>
+  <tr><td><code>torch.cuda.is_available()</code></td><td><code>True</code></td></tr>
+  <tr><td><code>device = 'cuda' if ... else 'cpu'</code></td><td><code>'cuda'</code></td></tr>
+  <tr><td><code>x = torch.randn(3, 4).to(device)</code> 뒤 <code>x.device</code></td><td><code>cuda:0</code></td></tr>
+</table>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>Colab에서는 Google 계정 로그인 후 런타임 → 런타임 유형 변경에서 하드웨어 가속기를 T4 GPU로 선택하고 저장하면 GPU를 사용할 수 있다. 무료 계정은 T4 GPU까지 제공되고 A100과 H100은 Colab Pro+에서 이용 가능하다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — Colab에서 GPU를 고르는 메뉴 경로는?</summary>
+<p>상단 메뉴 "런타임" → "런타임 유형 변경" → 하드웨어 가속기에서 "T4 GPU" 선택 → "저장"이에요.</p></details>
+
+<h3>3-7. 종합 — 코드 읽기 연습 <span class="st">★★</span></h3>
+<p>배운 것을 한꺼번에 써서 아래 코드의 결과를 따라가 보세요. GPU가 <b>없는</b> 컴퓨터에서 실행했다고 가정해요.</p>
+<div class="code">device = 'cuda' if torch.cuda.is_available() else 'cpu'
+a = torch.ones(2, 3)
+b = torch.ones(2, 3, device=device)
+a.to(device)
+c = a + b
+print(a.device)
+print(c.shape)</div>
+<div class="code">cpu
+torch.Size([2, 3])</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>device = ...</code></td><td>GPU가 없으니 <code>'cpu'</code></td></tr>
+  <tr><td><code>a = torch.ones(2, 3)</code></td><td>(2, 3) 크기의 1로 찬 Tensor. 기본 위치는 CPU</td></tr>
+  <tr><td><code>b = torch.ones(2, 3, device=device)</code></td><td>device가 cpu라서 b도 CPU에 생겨요</td></tr>
+  <tr><td><code>a.to(device)</code></td><td>다시 저장하지 않아서 a에는 변화가 없어요(어차피 옮길 곳도 CPU)</td></tr>
+  <tr><td><code>c = a + b</code></td><td>둘 다 CPU에 있고 shape이 같아서 계산돼요. 모든 값이 2</td></tr>
+  <tr><td><code>print(a.device)</code></td><td><code>cpu</code></td></tr>
+  <tr><td><code>print(c.shape)</code></td><td><code>torch.Size([2, 3])</code></td></tr>
+</table>
+<p>같은 코드를 GPU 있는 환경(Colab)에서 실행하면 달라져요. device가 <code>'cuda'</code>가 되어 b는 GPU에 생기고, <code>a.to(device)</code>는 저장하지 않아 a는 CPU에 남아요. 그러면 <code>a + b</code>에서 device가 달라 <b>에러</b>가 나요. 같은 코드인데 환경에 따라 결과가 갈리는 대표적인 예예요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>옮기면 다시 저장, 계산하려면 같은 곳</b>". 두 문장이면 device 문제는 거의 다 풀려요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>코드에 <code>.to(device)</code>가 보이면 먼저 "다시 저장했는가?"를 확인하세요. 저장하지 않았으면 Tensor는 원래 자리에 그대로예요. 그다음 "계산에 참여하는 Tensor가 전부 같은 device인가?"를 확인하면 돼요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x = x.to(device) 대신 x.to(device)만 썼을 때 생기는 문제를 한 문장으로 말해 보세요.</summary>
+<p>.to()는 이동한 새 Tensor를 돌려줄 뿐 원본을 바꾸지 않아서, 저장하지 않으면 x는 계속 원래 device에 남아요.</p></details>
+
+<div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>CPU는 복잡한 일을 순차적으로, GPU는 단순한 일을 병렬로 잘해서 행렬 계산이 많은 딥러닝에는 GPU가 유리해요.</li>
+  <li><code>device = 'cuda' if torch.cuda.is_available() else 'cpu'</code>로 장치를 고르고, <code>x = x.to(device)</code>처럼 반드시 다시 저장해요. 모델과 입력은 같은 device에 있어야 해요.</li>
+  <li>GPU Tensor는 <code>.to('cpu').numpy()</code>로 NumPy로 바꾸고, GPU가 없으면 Colab에서 런타임 → 런타임 유형 변경 → T4 GPU → 저장으로 켜요.</li>
+</ul>
+</div>

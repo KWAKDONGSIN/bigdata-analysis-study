@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>내 컴퓨터에 GPU가 없다면 — Google Colab에서 GPU 켜기 ★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k3"><a href="index.html#c3">← 보드</a><span>GPU와 Colab · 6/8</span></div><h1>내 컴퓨터에 GPU가 없다면 — Google Colab에서 GPU 켜기 ★</h1>
+<p><b><a class="w" href="words.html#w64" data-w="64">Colab</a>(코랩)</b>은 구글이 인터넷으로 빌려주는 컴퓨터예요. 웹 브라우저로 접속해서 코드를 실행하고, 무료로 <a class="w" href="words.html#w60" data-w="60">GPU</a>도 써 볼 수 있어요. 내 컴퓨터에 GPU가 없어도 돼요. 교수님은 1주차에 "GPU가 없는 학생은 Colab 계정을 만들어 보라"고 했어요.</p>
+<div class="box eg"><span class="t">비유 — 고성능 PC방</span>
+<p>내 <a class="w" href="words.html#w16" data-w="16">노트북</a>은 집에 있는 평범한 컴퓨터예요. Colab은 인터넷으로 접속하는 고성능 PC방 컴퓨터를 한 대 빌리는 것과 같아요. 그 컴퓨터에서 내 코드(ipynb 파일)를 실행해요.</p>
+</div>
+<p>설정은 5단계예요.</p>
+<div class="tw"><table>
+  <tr><th style="width:12%">단계</th><th style="width:30%">할 일</th><th>자세히</th></tr>
+  <tr><td>1</td><td>Colab 로그인</td><td>Google 계정으로 로그인해요. <b>별도 회원가입이 없어요.</b> 브라우저에서 colab.research.google.com에 접속해요</td></tr>
+  <tr><td>2</td><td>노트북 업로드</td><td>Colab 첫 화면에서 "+ 새 노트" 옆의 <b>노트북 업로드</b>를 눌러요</td></tr>
+  <tr><td>3</td><td>ipynb 파일 선택</td><td><b>둘러보기</b>를 눌러 내 컴퓨터의 .ipynb 파일을 고르거나 창 위로 끌어다 놓아요. 파일이 없으면 "+ 새 노트"로 새로 시작해요</td></tr>
+  <tr><td>4</td><td><a class="w" href="words.html#w65" data-w="65">런타임</a> 메뉴 열기</td><td>노트북 위쪽 메뉴에서 <b>런타임</b> → 맨 아래 <b>런타임 유형 변경</b>을 눌러요</td></tr>
+  <tr><td>5</td><td>GPU 선택</td><td>"하드웨어 가속기"에서 <b>T4 GPU</b>를 고르고 오른쪽 아래 <b>저장</b>을 눌러요. 런타임이 GPU로 다시 연결되면 끝이에요</td></tr>
+</table></div>
+<figure class="slide"><img src="slides/colab2.jpg" alt="Colab GPU 설정 전체 흐름 5단계"><figcaption>교수님 슬라이드 — Colab 회원가입 → 노트북 업로드 → ipynb 선택 → 런타임 메뉴 → T4 GPU 선택</figcaption></figure>
+<figure class="slide"><img src="slides/colab7.jpg" alt="하드웨어 가속기에서 T4 GPU 선택"><figcaption>교수님 슬라이드 — STEP 5. 하드웨어 가속기에서 T4 GPU를 선택하고 저장. 무료 계정은 T4까지, A100과 H100은 Colab Pro+에서 사용 가능</figcaption></figure>
+<p>잘 켜졌는지는 코드로 확인해요. 새 코드 셀에 <code>torch.cuda.is_available()</code>을 실행했을 때 <b>True</b>가 나오면 GPU가 켜진 거예요. 런타임이 다시 연결되므로 그 전에 실행한 셀이 있다면 처음부터 다시 실행하는 것이 안전해요.</p>
+<div class="tw"><table>
+  <tr><th style="width:44%">코드 줄</th><th>Colab에서 T4 GPU를 켠 뒤 결과</th></tr>
+  <tr><td><code>torch.cuda.is_available()</code></td><td><code>True</code></td></tr>
+  <tr><td><code>device = 'cuda' if ... else 'cpu'</code></td><td><code>'cuda'</code></td></tr>
+  <tr><td><code>x = torch.randn(3, 4).to(device)</code> 뒤 <code>x.device</code></td><td><code>cuda:0</code></td></tr>
+</table></div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>Colab에서는 Google 계정 로그인 후 런타임 → 런타임 유형 변경에서 하드웨어 가속기를 T4 GPU로 선택하고 저장하면 GPU를 사용할 수 있다. 무료 계정은 T4 GPU까지 제공되고 A100과 H100은 Colab Pro+에서 이용 가능하다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — Colab에서 GPU를 고르는 메뉴 경로는?</summary>
+<p>상단 메뉴 "런타임" → "런타임 유형 변경" → 하드웨어 가속기에서 "T4 GPU" 선택 → "저장"이에요.</p></details>
+
+<div class="done"><a class="go" href="c3-07.html">다음 카드 → 종합 — 코드 읽기 연습 ★★</a><div class="pn"><a href="c3-05.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c3"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2주차(+1·3주차) · Week02_Tensor_and_GPU, 구글 Colab GPU 환경 사용법.pdf · 빅분01(1주차)·빅분02(2주차)·빅데이터03(3주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

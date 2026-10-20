@@ -1,0 +1,281 @@
+<!-- 1장: 딥러닝이 뭐예요 + 학습 과정 큰 그림. 데이터, 모델, 예측, 손실, 기울기, 갱신, 반복(batch, iteration, epoch)과 용어를 쉬운 말로 설명해요 -->
+<h2>딥러닝이 뭐예요 — 틀린 만큼 숫자를 조금씩 고치는 기계</h2>
+<p class="lead">이 과목은 이름이 "빅데이터분석"이지만 실제로는 PyTorch로 딥러닝 코드를 읽고 쓰는 과목이에요. 이 장에서는 코드를 보기 전에 "딥러닝이 도대체 무슨 일을 하는지"를 큰 그림으로 잡아요. 나머지 장의 코드가 모두 이 그림의 한 부분이에요.</p>
+
+<h3>1-1. 딥러닝이 뭐예요 — 다이얼이 잔뜩 달린 기계</h3>
+<p>딥러닝(deep learning)은 컴퓨터에게 규칙을 하나하나 가르치지 않고, <b>입력과 정답의 짝을 많이 보여 줘서 규칙을 스스로 찾게 하는 방법</b>이에요. 이때 규칙을 담는 계산 기계를 <b>모델(model)</b>이라고 해요.</p>
+<p>모델 안에는 값을 바꿀 수 있는 <b>숫자(파라미터, parameter)</b>가 아주 많이 들어 있어요. 이 숫자들을 <b>다이얼</b>이라고 생각하세요. 처음엔 다이얼이 아무렇게나 맞춰져 있어서 예측이 엉망이에요. 틀린 정도를 보고 다이얼을 조금씩 돌려서 정답에 가까워지게 만드는 과정이 <b>학습(training)</b>이에요.</p>
+<div class="box eg"><span class="t">비유 — 찌개 간 맞추기</span>
+<p>된장찌개가 너무 싱거워요(예측이 정답과 달라요). 간을 보고 "목표 맛과 얼마나 다른지"를 느껴요(loss). 소금을 조금 넣어 보면 나아질지, 오히려 짜질지 방향을 따져요(gradient). 그 방향으로 소금을 아주 조금 넣어요(update). 이걸 맛이 맞을 때까지 반복해요. 딥러닝은 소금 같은 재료(다이얼)가 수천, 수만 가지인 찌개를 컴퓨터가 대신 맞추는 일이에요.</p>
+</div>
+<p>교수님도 같은 방식으로 설명했어요. 3주차에 칠판으로 "weight 하나를 조금 올려 보고 loss가 줄면 그 방향이 맞다, 늘면 반대 방향"이라고 했어요. 이것이 곧 이 장의 핵심이에요.</p>
+<p>여러 층(layer)을 겹겹이 쌓은 모델을 쓰기 때문에 "깊다(deep)"는 말이 붙어요. 이 과목은 이 모델을 PyTorch로 만들고 학습시키는 코드를 다뤄요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>시험은 코드를 직접 짜는 문제가 아니라 <b>코드를 주고 결과를 고르는 객관식</b>이에요(1주차·7주차 교수님 안내). 교수님이 말한 문제 유형은 개념 설명, 결과 예측, 빈칸 채우기예요. 이 장은 개념 문제의 바탕이에요. "학습이란 loss를 줄이는 방향으로 파라미터를 조금씩 고치는 일"이라는 한 문장을 기억하세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 모델 안의 "다이얼"에 해당하는 것은 무엇인가요?</summary>
+<p>파라미터(weight와 bias)예요. 학습은 이 숫자들을 조금씩 고치는 일이에요.</p></details>
+
+<h3>1-2. 학습 5단계 한눈에 보기 <span class="st">★★★</span></h3>
+<p>학습은 아래 다섯 단계를 한 바퀴로 하고, 이 바퀴를 계속 돌려요. 강의자료(딥러닝 모델 Training 과정)의 첫 그림이에요.</p>
+<figure class="slide"><img src="slides/tr2.jpg" alt="학습 파이프라인 Data, Forward, Loss, Gradient, Update"><figcaption>교수님 슬라이드 — Data → Forward → Loss → Gradient → Update, 그리고 다른 batch로 반복</figcaption></figure>
+<table>
+  <tr><th style="width:18%">단계</th><th style="width:34%">하는 일</th><th>찌개 비유</th></tr>
+  <tr><td><b>1. Data</b></td><td>입력 x와 정답 T를 준비</td><td>재료와 "목표 맛"</td></tr>
+  <tr><td><b>2. Forward</b></td><td>x를 모델에 넣어 예측값 ŷ을 얻음</td><td>끓여서 간을 봄</td></tr>
+  <tr><td><b>3. Loss</b></td><td>ŷ과 T의 차이를 숫자 하나로</td><td>목표 맛과 얼마나 다른가</td></tr>
+  <tr><td><b>4. Gradient</b></td><td>각 weight를 바꾸면 loss가 어느 쪽으로 변하는지 계산</td><td>소금을 늘릴까 줄일까 방향 확인</td></tr>
+  <tr><td><b>5. Update</b></td><td>loss가 줄어드는 방향으로 weight를 조금 조정</td><td>소금을 조금 넣거나 뺌</td></tr>
+  <tr><td><b>반복</b></td><td>다른 batch로 2~5를 계속</td><td>맛이 맞을 때까지</td></tr>
+</table>
+<p>ŷ은 "와이 햇"이라고 읽고 <b>예측값</b>이라는 뜻이에요. 정답 T(target)와 구분하려고 모자를 씌워요. Forward는 "앞으로 나아간다"는 뜻으로, 입력이 모델의 층을 앞쪽에서 뒤쪽으로 차례로 통과해서 예측값이 나오기 때문이에요. 이 과정을 <b>순전파(forward propagation)</b>라고도 해요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>데이터 → 예측 → 오차 → 방향 → 수정</b>"이에요. 영어로는 Data → Forward → Loss → Gradient → Update예요. 강의자료 마지막 장 요약도 "데이터 → 예측 → 오차 → 개선, 이 루프가 곧 학습"이에요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>학습은 Forward(예측) → Loss(오차 계산) → Gradient(기울기 계산) → Update(weight 조정) 순서를 다른 batch로 반복하는 과정이다. 순서가 선택지에서 섞여 있으면 "예측이 먼저, 고치는 건 마지막"이라는 상식으로 고르세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — Loss를 계산하려면 무엇과 무엇이 필요한가요?</summary>
+<p>모델이 낸 예측값 ŷ과 진짜 정답 T예요. 둘의 차이가 loss예요.</p></details>
+
+<h3>1-3. 데이터는 어떻게 생겼나 — feature와 target</h3>
+<p>모델에 넣는 입력 x는 여러 개의 특징(<b>feature</b>)으로 이루어져 있고, 맞히고 싶은 정답은 <b>target</b> T 하나예요. 교수님 예시는 학생 정보로 기말고사 점수를 맞히는 문제예요.</p>
+<table>
+  <tr><th style="width:12%">기호</th><th style="width:28%">의미</th><th>설명</th></tr>
+  <tr><td>f1</td><td>성별</td><td>남 / 여</td></tr>
+  <tr><td>f2</td><td>안경 착용 여부</td><td>착용 / 미착용</td></tr>
+  <tr><td>f3</td><td>중간고사 점수</td><td>0 ~ 100점</td></tr>
+  <tr><td>f4</td><td>학년</td><td>1 ~ 3학년</td></tr>
+  <tr><td>f5</td><td>공부 시간</td><td>하루 평균 공부 시간(시간)</td></tr>
+  <tr><td><b>T</b></td><td><b>기말고사 점수</b></td><td>우리가 예측하고 싶은 값</td></tr>
+</table>
+<p>feature가 5개이니 입력 한 명은 숫자 5개의 묶음이에요. 학생이 N명이면 표(행이 학생, 열이 feature)가 되어 모양이 <b>(N, 5)</b>예요. 이 모양 표기는 2장 Tensor의 shape과 같아요.</p>
+<p><b>글자는 숫자로 바꿔야 해요.</b> 모델은 곱하기와 더하기만 할 수 있어서 "남/여" 같은 글자(범주형, categorical 값)를 그대로 넣을 수 없어요. 그래서 학습 전에 숫자로 바꿔요. 이 단계를 <b>전처리</b>라고 해요.</p>
+<ul>
+  <li>순서가 없는 범주는 <b>단순 매핑</b> — 남자 = 0, 여자 = 1, 안경 미착용 = 0, 착용 = 1</li>
+  <li>또는 <b>one-hot 인코딩</b> — 범주마다 칸을 따로 만들어 해당 칸만 1로 표시해요. 예를 들어 빨강, 파랑, 초록 중 파랑이면 (0, 1, 0)이에요.</li>
+</ul>
+<p>정답의 종류에 따라 문제도 둘로 나뉘어요.</p>
+<table>
+  <tr><th style="width:24%">종류</th><th>맞히는 것</th><th style="width:34%">예</th></tr>
+  <tr><td><b>회귀(regression)</b></td><td>연속된 숫자 값</td><td>기말 점수 72점</td></tr>
+  <tr><td><b>분류(classification)</b></td><td>어느 범주인지</td><td>합격/불합격, 옷 종류</td></tr>
+</table>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>입력 x는 n개의 feature로, 정답 T는 하나의 target으로 이루어진다. 모델은 숫자만 계산할 수 있으므로 성별 같은 범주형 값은 0, 1로 매핑하거나 one-hot 인코딩으로 숫자로 바꾸어 넣는다. 점수 같은 연속값을 맞히면 회귀 문제이다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 왜 "남/여"를 그대로 모델에 넣지 못하나요?</summary>
+<p>모델은 숫자끼리 곱하고 더하는 계산만 하기 때문이에요. 그래서 0과 1 같은 숫자로 바꿔요.</p></details>
+
+<h3>1-4. 모델과 weight 개수 세기 <span class="st">★★</span></h3>
+<p>교수님 예시 모델은 층(layer)이 3개예요. 입력 5개가 층을 지나며 6개 → 3개 → 1개로 줄어들어서 마지막에 예측값 ŷ 하나가 나와요. 각 층에는 곱해지는 숫자 모음, 즉 <b>weight(가중치)</b>가 있어요.</p>
+<figure class="slide"><img src="slides/tr6.jpg" alt="3개 layer와 51개 weight"><figcaption>교수님 슬라이드 — W1(6×5)=30, W2(3×6)=18, W3(1×3)=3, 합계 51개 weight</figcaption></figure>
+<table>
+  <tr><th style="width:14%">층</th><th style="width:26%">weight 모양 (출력×입력)</th><th>개수 계산</th></tr>
+  <tr><td>1층 W1</td><td>6 × 5</td><td>5개를 받아 6개를 냄 → 30개</td></tr>
+  <tr><td>2층 W2</td><td>3 × 6</td><td>6개를 받아 3개를 냄 → 18개</td></tr>
+  <tr><td>3층 W3</td><td>1 × 3</td><td>3개를 받아 1개를 냄 → 3개</td></tr>
+  <tr><td><b>합계</b></td><td></td><td><b>30 + 18 + 3 = 51개</b></td></tr>
+</table>
+<p>weight 모양은 "(나가는 개수) × (들어오는 개수)"로 쓰고, 개수는 두 수를 곱하면 돼요. 교수님은 "바이어스를 제외한 숫자"라고 했어요. <b>bias(편향)</b>는 곱한 값에 더해지는 숫자로, 층마다 출력 개수만큼 있어요. 참고로 bias까지 세면 (30+6) + (18+3) + (3+1) = 61개예요.</p>
+<p>weight와 bias처럼 학습으로 값이 바뀌는 숫자 전체를 <b>파라미터(parameter)</b>라고 불러요. 층 하나를 만드는 <code>nn.Linear(입력 개수, 출력 개수)</code>의 파라미터 수는 <b>출력×입력(weight) + 출력(bias)</b>예요. 예를 들어 <code>nn.Linear(3, 2)</code>는 6 + 2 = 8개예요(교수님 설명).</p>
+<p><b>처음 값은 어떻게 정할까요?</b> 정답을 아직 모르니까 51개를 <b>랜덤(무작위)으로 채워서</b> 시작해요(<code>torch.randn(...)</code>). 그래서 처음 예측이 틀리는 건 당연해요. 학습이 이 숫자들을 고쳐 나가요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>weight 개수는 층마다 (출력 × 입력)을 계산해 더한다. 학습 시작 시 weight는 랜덤하게 초기화되므로 첫 예측은 대부분 틀린다. <code>nn.Linear(in, out)</code>의 파라미터 수 = out×in + out. 선택지에 개수가 나오면 층별로 곱해서 더해 보세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — nn.Linear(4, 3)의 파라미터는 모두 몇 개인가요?</summary>
+<p>weight 3×4 = 12개, bias 3개라서 15개예요.</p></details>
+
+<h3>1-5. Forward와 Loss — 예측하고 틀린 정도를 재요</h3>
+<p><b>Forward</b>는 x를 모델에 넣어 예측값 ŷ을 얻는 단계예요. 이때 모델에는 <b>feature만</b> 넣어요. 정답 T는 넣지 않아요. 정답을 같이 넣으면 컨닝이니까요.</p>
+<p><b>Loss(손실)</b>는 예측값 ŷ과 정답 T가 얼마나 다른지를 <b>숫자 하나</b>로 나타낸 거예요. Loss가 클수록 많이 틀렸다는 뜻이에요. 교수님 예시에서 첫 학생의 실제 기말 점수가 70점인데 모델이 45점으로 예측했다면 차이는 25점이에요. 이 차이가 loss의 출발점이에요.</p>
+<p>회귀 문제에서 자주 쓰는 loss가 <b>MSE(평균제곱오차)</b>예요. 차이를 제곱해서 평균을 내요. 제곱하면 +와 −가 서로 지워지지 않고, 큰 오차에는 더 큰 벌점이 붙어요.</p>
+<div class="code">import torch
+from torch import nn
+
+prediction = torch.tensor([3.0, 4.0])
+target = torch.tensor([1.0, 5.0])
+
+squared_error = (prediction - target) ** 2
+print(squared_error)
+print(squared_error.mean())
+print(nn.MSELoss()(prediction, target))</div>
+<div class="code">tensor([4., 1.])
+tensor(2.5000)
+tensor(2.5000)</div>
+<table>
+  <tr><th style="width:46%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>prediction - target</code></td><td>같은 자리끼리 뺀다 → [3−1, 4−5] = [2, −1]</td></tr>
+  <tr><td><code>(...) ** 2</code></td><td>각각 제곱 → [4, 1]</td></tr>
+  <tr><td><code>.mean()</code></td><td>평균 → (4+1)/2 = 2.5</td></tr>
+  <tr><td><code>nn.MSELoss()(prediction, target)</code></td><td>PyTorch가 같은 계산을 대신 해 줘요. 결과가 같아요</td></tr>
+</table>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>Loss는 모델의 예측값과 정답의 차이를 하나의 숫자로 나타낸 것이며 클수록 예측이 많이 틀렸다는 뜻이다. 예측(forward)에는 feature만 사용하고 정답은 loss 계산에만 사용한다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 예측이 [2, 6], 정답이 [2, 4]일 때 MSE는?</summary>
+<p>차이는 [0, 2]이고 제곱하면 [0, 4]예요. 평균은 (0+4)/2 = 2예요.</p></details>
+
+<h3>1-6. Gradient — loss가 줄어드는 방향 찾기 <span class="st">★★</span></h3>
+<p>이제 weight를 어느 쪽으로 고칠지 정해야 해요. 방법은 이래요. weight 하나(예 w)를 조금 키워 봤더니 loss가 커지면 그 방향은 나쁜 방향이에요. 조금 줄여 봤더니 loss가 작아지면 그 방향이 좋은 방향이에요.</p>
+<figure class="slide"><img src="slides/tr10.jpg" alt="gradient 설명 슬라이드"><figcaption>교수님 슬라이드 — w를 조금 늘리면 loss가 커지고, 줄이면 작아지므로 줄이는 방향을 택함</figcaption></figure>
+<p>이 확인을 <b>51개 weight 하나하나에 대해</b> 해야 해요. weight 하나만 바뀌어도 예측값 ŷ이 바뀌고, 그러면 loss도 바뀌기 때문이에요.</p>
+<p>그런데 실제로는 일일이 바꿔 보지 않아요. 수학으로 "w를 아주 조금 바꿀 때 loss가 얼마나 변하는가"(변화율)를 바로 계산해요. 이 값이 <b>gradient(기울기)</b>이고 <code>dLoss/dw</code>라고 써요. PyTorch의 autograd 기능이 이 계산을 대신해 줘요(다음 장들에서 배워요).</p>
+<svg viewBox="0 0 380 200" width="96mm">
+  <defs><marker id="c1ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker></defs>
+  <text x="8" y="16" font-size="12" font-weight="bold" fill="#1b2333">Loss (틀린 정도)</text>
+  <path d="M40,26 Q190,226 340,26" fill="none" stroke="#1d4ed8" stroke-width="3"/>
+  <line x1="20" y1="150" x2="360" y2="150" stroke="#5d6b80" stroke-width="1.5"/>
+  <text x="358" y="144" font-size="11" fill="#5d6b80" text-anchor="end">w (조절하는 숫자)</text>
+  <circle cx="190" cy="126" r="5" fill="#0f7a4f"/>
+  <text x="190" y="170" font-size="11" fill="#0f7a4f" text-anchor="middle" font-weight="bold">가장 좋은 자리</text>
+  <circle cx="280" cy="88" r="6" fill="#d9480f"/>
+  <text x="292" y="82" font-size="12" font-weight="bold" fill="#d9480f">A</text>
+  <circle cx="100" cy="88" r="6" fill="#d9480f"/>
+  <text x="80" y="82" font-size="12" font-weight="bold" fill="#d9480f">B</text>
+  <line x1="280" y1="96" x2="240" y2="96" stroke="#1d4ed8" stroke-width="3" marker-end="url(#c1ar)"/>
+  <line x1="100" y1="96" x2="140" y2="96" stroke="#1d4ed8" stroke-width="3" marker-end="url(#c1ar)"/>
+  <text x="280" y="190" font-size="11" fill="#1b2333" text-anchor="middle">A: 기울기 +</text>
+  <text x="100" y="190" font-size="11" fill="#1b2333" text-anchor="middle">B: 기울기 −</text>
+</svg>
+<p>그림에서 loss는 밥그릇 모양이에요. 그릇 바닥이 loss가 가장 작은 자리예요. 점 A처럼 오른쪽 비탈에 있으면 기울기가 <b>양수(+)</b>이고, 바닥으로 가려면 w를 <b>줄여야</b> 해요. 점 B처럼 왼쪽 비탈에 있으면 기울기가 <b>음수(−)</b>이고 w를 <b>늘려야</b> 해요. 즉 기울기의 <b>부호는 방향</b>, 크기는 얼마나 가파른지(민감도)를 알려줘요.</p>
+<div class="box eg"><span class="t">비유 — 눈 가리고 산 내려오기</span>
+<p>안개 낀 산에서 가장 낮은 곳을 찾아간다고 해 봐요. 발밑이 어느 쪽으로 기울어 있는지 느끼고(gradient), 내리막 쪽으로 한 걸음 내딛어요(update). 이걸 반복하면 골짜기 바닥에 도착해요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>gradient(dLoss/dw)는 weight를 바꿀 때 loss가 변하는 정도로, loss가 줄어드는 방향을 알려준다. gradient가 양수면 weight를 줄이고 음수면 weight를 늘린다. 선택지에서 부호와 방향이 거꾸로 된 것은 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 어떤 weight의 gradient가 −3입니다. weight를 늘려야 하나요, 줄여야 하나요?</summary>
+<p>늘려야 해요. gradient가 음수라는 것은 weight를 키우면 loss가 줄어든다는 뜻이에요.</p></details>
+
+<h3>1-7. Update — weight를 아주 조금만 고쳐요 <span class="st">★★★</span></h3>
+<p>gradient를 구했으면 그 <b>반대 방향</b>으로 weight를 움직여요. 이 방법을 <b>경사 하강법(gradient descent)</b>이라고 해요. 식은 한 줄이에요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><b>새 w = 지금 w − (학습률 lr) × (gradient)</b>. 코드로 쓰면 <code>w ← w − lr × dLoss/dw</code>예요. 학습률(learning rate, lr)은 "한 번에 얼마나 크게 움직일지"를 정하는 작은 숫자예요.</p>
+</div>
+<p>왜 마이너스일까요? gradient가 음수이면 weight를 <b>늘려야</b> loss가 줄어요. "음수에 마이너스를 곱하면 양수"라서 식이 자동으로 늘리는 쪽으로 움직여요. gradient가 양수이면 반대로 줄어요.</p>
+<table>
+  <tr><th style="width:26%">경우</th><th style="width:30%">계산</th><th>결과</th></tr>
+  <tr><td>교수님 예시<br>w=0.7, gradient=−2, lr=1</td><td>0.7 − 1×(−2) = 0.7 + 2</td><td><b>2.7</b> (너무 많이 움직여요)</td></tr>
+  <tr><td>lr을 작게<br>w=0.7, gradient=−2, lr=0.1</td><td>0.7 − 0.1×(−2) = 0.7 + 0.2</td><td><b>0.9</b> (조금만 이동)</td></tr>
+  <tr><td>gradient가 양수<br>w=0.7, gradient=+2, lr=0.1</td><td>0.7 − 0.1×2 = 0.7 − 0.2</td><td><b>0.5</b> (줄어요)</td></tr>
+</table>
+<p>교수님은 "학습률도 중요한 포인트"라고 했어요. lr이 너무 크면 한 번에 바닥을 훌쩍 지나쳐 버리기 때문이에요. 그래서 보통 <b>아주 작은 값</b>을 써서 조금씩, 대신 많이 반복해요. 자료 기준으로 51개 weight는 <b>한꺼번에 동시에</b> 업데이트돼요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>gradient가 <b>+</b>면 w는 <b>↓</b>, gradient가 <b>−</b>면 w는 <b>↑</b>이에요. "기울기와 반대로 간다"라고 외우세요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>weight는 w ← w − lr × gradient로 갱신하며, 학습률 lr은 한 번에 움직이는 크기를 조절한다. gradient 반대 방향으로 움직이므로 gradient가 음수인 weight는 증가한다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — w=1.0, gradient=4, lr=0.1이면 새 w는?</summary>
+<p>1.0 − 0.1×4 = 1.0 − 0.4 = 0.6이에요.</p></details>
+
+<h3>1-8. 반복 — batch, iteration, epoch <span class="st">★★★</span></h3>
+<p>한 번만 고쳐서는 부족해요. 학생이 한 명뿐이면 학습이 안 되고, 수천 명의 데이터로 계속 반복해야 해요. 그런데 데이터를 전부 한 번에 넣으면 계산이 너무 많아서, 보통은 <b>조금씩 잘라서(batch)</b> 넣어요.</p>
+<figure class="slide"><img src="slides/tr12.jpg" alt="batch를 바꿔 가며 반복"><figcaption>교수님 슬라이드 — 다른 batch로 Forward ~ Update 반복. weight 한 번 업데이트 = 1 iteration, 전체 데이터 한 바퀴 = 1 epoch</figcaption></figure>
+<table>
+  <tr><th style="width:22%">용어</th><th>뜻</th><th style="width:34%">예</th></tr>
+  <tr><td><b>sample</b></td><td>입력 하나와 정답 하나의 짝</td><td>학생 한 명의 (feature, 기말 점수)</td></tr>
+  <tr><td><b>batch</b></td><td>한 번에 처리하는 sample 묶음</td><td>학생 20명씩</td></tr>
+  <tr><td><b>iteration</b></td><td>batch 하나로 weight를 한 번 업데이트하는 것 (step이라고도 해요)</td><td>20명으로 한 번 고침</td></tr>
+  <tr><td><b>epoch</b></td><td>학습 데이터 <b>전체를 한 바퀴</b> 다 쓰는 것</td><td>학생 전원을 한 번씩 사용</td></tr>
+</table>
+<p>계산 연습을 해 볼게요. 학생이 1만 명이고 batch가 20명이면 한 epoch에 <b>10000 ÷ 20 = 500번</b>(iteration) 업데이트해요(교수님 예시). 데이터가 10개이고 batch가 4이면 4개, 4개, 2개로 나뉘어서 한 epoch에 <b>3번</b>이에요. 마지막 묶음은 남는 만큼만 들어가요. 이 "10개, batch 4" 예는 이 과목 시험 샘플 4번에도 그대로 나와요.</p>
+<p>보통은 여러 epoch를 반복하고, epoch마다 데이터를 <b>랜덤한 순서</b>로 꺼내요. 이 일을 해 주는 도구가 나중에 배울 DataLoader예요. 데이터를 전부 한 번에 넣으면 1 epoch에 step이 1번이고, batch로 나누면(mini-batch) 1 epoch에 step이 여러 번이에요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>epoch은 학습 데이터 전체를 한 번 사용하는 것이고, weight를 한 번 업데이트하는 것이 1 iteration이다. 한 epoch의 iteration 수는 <b>올림(데이터 수 ÷ batch 크기)</b>이다(마지막 batch가 작아도 한 번으로 센다). 계산할 때는 "나머지가 남으면 한 번 더"로 기억하세요. 단, DataLoader에서 drop_last=True로 하면 모자란 마지막 묶음을 버려서 내림이 돼요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 데이터 100개, batch 30이면 한 epoch에 iteration은 몇 번인가요?</summary>
+<p>4번이에요. 30, 30, 30, 10개로 나뉘어서 마지막 10개짜리도 한 번으로 세요.</p></details>
+
+<h3>1-9. 코드로 한 번 보기 — 학습 5줄 <span class="st">★★★</span></h3>
+<p>위 개념을 PyTorch 코드로 쓰면 이렇게 5줄이에요. 아직 외우지 않아도 돼요. "각 줄이 어느 단계인지"만 연결해 보세요. 데이터는 <code>y = 2x + 1</code>을 따르는 점 5개이고, 모델이 기울기 2와 절편 1을 찾아내는 학습이에요.</p>
+<div class="code">import torch
+from torch import nn
+import torch.optim as optim
+
+x_train = torch.arange(-2.0, 3.0).reshape(-1, 1)
+y_train = 2 * x_train + 1
+
+model = nn.Linear(1, 1)
+criterion = nn.MSELoss()
+optimizer = optim.SGD(model.parameters(), lr=0.02)
+
+for epoch in range(201):
+    optimizer.zero_grad()
+    prediction = model(x_train)
+    loss = criterion(prediction, y_train)
+    loss.backward()
+    optimizer.step()
+
+    if epoch % 20 == 0:
+        print(f"epoch={epoch:3d} loss={loss.item():.6f} "
+              f"w={model.weight.item():.4f} b={model.bias.item():.4f}")</div>
+<div class="code">epoch=  0 loss=20.231350 w=-0.7189 b=-0.5958
+epoch= 20 loss=1.161789 w=1.4870 b=0.2947
+epoch= 40 loss=0.127610 w=1.9032 b=0.6882
+epoch= 60 loss=0.021393 w=1.9817 b=0.8622
+epoch= 80 loss=0.004053 w=1.9966 b=0.9391
+epoch=100 loss=0.000787 w=1.9993 b=0.9731
+epoch=120 loss=0.000154 w=1.9999 b=0.9881
+epoch=140 loss=0.000030 w=2.0000 b=0.9947
+epoch=160 loss=0.000006 w=2.0000 b=0.9977
+epoch=180 loss=0.000001 w=2.0000 b=0.9995
+epoch=200 loss=0.000000 w=2.0000 b=0.9995</div>
+<p>위 출력은 수업 노트북의 실행 결과예요. 시작 weight가 랜덤이라 실행할 때마다 처음 숫자는 조금씩 달라요. 하지만 loss가 0에 가까워지고 w는 2, b는 1에 가까워지는 모양은 늘 같아요.</p>
+<table>
+  <tr><th style="width:44%">코드 줄</th><th>어느 단계 / 무슨 뜻</th></tr>
+  <tr><td><code>model = nn.Linear(1, 1)</code></td><td>모델 만들기. 입력 1개 → 출력 1개, weight 1개와 bias 1개가 랜덤으로 시작</td></tr>
+  <tr><td><code>optimizer.zero_grad()</code></td><td>이전 바퀴에서 저장해 둔 gradient를 지워요(0으로). 안 지우면 계속 쌓여요</td></tr>
+  <tr><td><code>prediction = model(x_train)</code></td><td><b>Forward</b> — 예측값 계산</td></tr>
+  <tr><td><code>loss = criterion(prediction, y_train)</code></td><td><b>Loss</b> — 예측과 정답의 차이를 숫자 하나로</td></tr>
+  <tr><td><code>loss.backward()</code></td><td><b>Gradient</b> — 각 weight의 기울기를 계산해서 저장 (weight 값은 아직 그대로)</td></tr>
+  <tr><td><code>optimizer.step()</code></td><td><b>Update</b> — 저장된 기울기로 weight 값을 실제로 고침</td></tr>
+  <tr><td><code>for epoch in range(201):</code></td><td>이 5줄을 201번 반복. 데이터 5개를 한 번에 다 넣으니 epoch 하나에 step 하나</td></tr>
+  <tr><td><code>if epoch % 20 == 0:</code></td><td>epoch를 20으로 나눈 나머지가 0일 때만(0, 20, 40, …) 찍어요</td></tr>
+</table>
+<p>이 순서 <b>zero_grad → forward → loss → backward → step</b>이 학습의 기본 틀이에요. 이 시험 샘플 5번이 이 순서를 그대로 보여 주고 각 줄의 역할을 물어요.</p>
+<div class="box eg"><span class="t">시험 샘플 5번 — 각 함수의 역할</span>
+<p>이 코드의 각 줄 설명 중 맞는 것을 고르는 문제예요. 선택지는 아래처럼 판단하면 돼요.</p>
+<table>
+  <tr><th style="width:56%">선택지 내용</th><th>판정</th></tr>
+  <tr><td>optimizer.step()은 저장된 기울기로 optimizer에 전달된 파라미터를 갱신한다</td><td><b>맞음 (정답)</b></td></tr>
+  <tr><td>loss.backward()는 기울기를 계산한 뒤 파라미터 값까지 갱신한다</td><td>틀림. backward는 기울기를 계산해 저장만 해요. 값 갱신은 step</td></tr>
+  <tr><td>optimizer.zero_grad()는 파라미터 값을 0으로 만든다</td><td>틀림. 0으로 만드는 것은 저장된 <b>기울기</b>예요. 파라미터 값은 그대로</td></tr>
+  <tr><td>criterion(...)은 손실을 계산하고 이전 기울기를 초기화한다</td><td>틀림. 손실 계산만 해요. 기울기 초기화는 zero_grad</td></tr>
+  <tr><td>optimizer.step()은 기울기를 새로 계산하고 기존 기울기를 지운다</td><td>틀림. 계산은 backward, 지우기는 zero_grad. step은 갱신만</td></tr>
+</table>
+</div>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>지우고(zero_grad) → 예측하고(model) → 재고(criterion) → 방향 구하고(backward) → 고친다(step)</b>". 각자 한 가지 일만 해요. 기울기를 구하는 건 backward, 값을 바꾸는 건 step, 기울기를 지우는 건 zero_grad예요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>loss.backward()는 각 파라미터의 기울기를 계산해 저장하고, optimizer.step()은 저장된 기울기로 파라미터 값을 갱신하며, optimizer.zero_grad()는 이전 기울기를 초기화한다. "한 줄이 두 가지 일을 한다"는 선택지는 대개 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 파라미터 값을 실제로 바꾸는 줄은 backward와 step 중 어느 것인가요?</summary>
+<p>step이에요. backward는 기울기를 계산해서 저장하기만 해요.</p></details>
+
+<h3>1-10. 학습과 추론, 그리고 앞으로 배울 지도</h3>
+<p><b>학습(training)</b>은 파라미터를 고치는 일이에요. <b>추론(inference)</b>은 학습이 끝난 모델의 파라미터를 그대로 두고 <b>예측만</b> 하는 일이에요. 휴대폰 카메라가 개와 고양이를 구분하는 것은 학습이 아니라 추론이에요. 학습에는 수 개월이 걸리기도 해서, 실제 서비스는 학습된 파라미터를 저장해 불러와서 써요(1주차 교수님 설명).</p>
+<p>이제 이 학기에 배우는 도구들이 5단계 중 어디에 쓰이는지 연결해 볼게요. 교수님이 1주차에 말한 대로 "이미지가 중요한 것이 아니라 프레임워크(틀)를 연습하는 것"이에요.</p>
+<table>
+  <tr><th style="width:26%">도구</th><th style="width:30%">학습 5단계에서의 위치</th><th>시험 샘플 문제</th></tr>
+  <tr><td><b>Tensor</b> (2장)</td><td>데이터와 weight를 담는 그릇</td><td>1번 슬라이싱과 shape</td></tr>
+  <tr><td><b>GPU</b> (3장)</td><td>계산을 빠르게 해 주는 장치</td><td>(개념으로 나올 수 있어요)</td></tr>
+  <tr><td><b>클래스, nn.Module</b> (4장)</td><td>모델을 코드로 만드는 틀</td><td>2번 상속, 3번 모델 정의와 호출</td></tr>
+  <tr><td><b>Autograd, Loss, Optimizer</b></td><td>Loss, Gradient, Update</td><td>5번 학습 함수의 역할</td></tr>
+  <tr><td><b>Dataset, DataLoader</b></td><td>Data 단계와 batch</td><td>4번 batch 결과 예측</td></tr>
+</table>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>학습은 파라미터를 갱신하는 과정이고 추론은 학습된 파라미터로 예측만 하는 과정이다. 시험 샘플 5문제는 위 표처럼 이 장의 큰 그림 어딘가에 하나씩 들어가요. 문제를 읽을 때 "지금 5단계 중 어디 이야기지?"를 먼저 떠올리면 선택지가 훨씬 잘 보여요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 학습이 끝난 모델로 새 사진이 개인지 고양이인지 맞히는 일은 학습인가요, 추론인가요?</summary>
+<p>추론이에요. 파라미터를 더 고치지 않고 예측만 해요.</p></details>
+
+<div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>딥러닝은 Data → Forward(예측) → Loss(오차) → Gradient(방향) → Update(수정)를 다른 batch로 반복해서 weight를 조금씩 좋게 만드는 일이에요.</li>
+  <li>weight 개수는 층마다 (출력×입력)을 더해요(예 30+18+3=51). 갱신식은 w ← w − lr × gradient이고, gradient가 +면 줄이고 −면 늘려요.</li>
+  <li>weight 한 번 갱신이 1 iteration, 데이터 전체 한 바퀴가 1 epoch이에요. 코드에서는 zero_grad → forward → loss → backward → step이 한 바퀴예요.</li>
+</ul>
+</div>

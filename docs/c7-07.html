@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>이 장 3줄 요약 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k7"><a href="index.html#c7">← 보드</a><span>손실 함수와 옵티마이저 · 7/7</span></div><h1>이 장 3줄 요약</h1><div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li><a class="w" href="words.html#w99" data-w="99">손실 함수</a>는 예측과 <a class="w" href="words.html#w101" data-w="101">정답</a>의 차이를 숫자 하나로 만들어요. <a class="w" href="words.html#w102" data-w="102">MSE</a>는 (예측 − 정답)²의 평균이고(예 [3, 4]와 [1, 5]이면 2.5), <code>criterion(예측, 정답)</code>의 두 크기(<a class="w" href="words.html#w35" data-w="35">shape</a>)는 같아야 해요(안 맞추면 <a class="w" href="words.html#w50" data-w="50">브로드캐스팅</a>으로 틀린 값이 나와요).</li>
+  <li><a class="w" href="words.html#w105" data-w="105">옵티마이저</a> <code>optim.SGD(model.parameters(), lr=...)</code>는 <a class="w" href="words.html#w7" data-w="7">파라미터</a>의 <code>.grad</code>로 값을 갱신해요. <code>backward()</code>는 <a class="w" href="words.html#w83" data-w="83">기울기</a> 계산, <code>step()</code>은 갱신만 해요(w=1, 입력 2, 정답 4, <a class="w" href="words.html#w97" data-w="97">lr</a>=0.1이면 기울기 −8, 새 <a class="w" href="words.html#w68" data-w="68">weight</a> 1.8, loss 4 → 0.16).</li>
+  <li>학습률은 한 걸음의 크기예요. 너무 크면 발산(NaN, Inf)하고 너무 작으면 느려요. <a class="w" href="words.html#w106" data-w="106">SGD</a> 외에 <a class="w" href="words.html#w107" data-w="107">Adam</a>, AdamW, RMSprop도 있고 갱신 규칙만 달라요.</li>
+</ul>
+</div>
+<div class="done"><a class="go" href="c8-01.html">다음 카드 → Dataset과 DataLoader 시작</a><div class="pn"><a href="c7-06.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c7"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 6·7주차 · Week04_Autograd_Loss_Optimizer · 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

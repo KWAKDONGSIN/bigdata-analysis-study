@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>nn.Module로 모델 만들기 — 골격과 nn.Linear ★★★ 시험 3번 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k4"><a href="index.html#c4">← 보드</a><span>클래스와 상속 · 9/12</span></div><h1>nn.Module로 모델 만들기 — 골격과 nn.Linear ★★★ 시험 3번</h1>
+<p>드디어 모델이에요. PyTorch는 모델을 만들 때 쓰라고 <b><code>nn.Module</code></b>이라는 <b><a class="w" href="words.html#w24" data-w="24">부모 클래스</a></b>를 미리 만들어 뒀어요. 우리는 이것을 <a class="w" href="words.html#w23" data-w="23">상속</a>해서 내 모델(<a class="w" href="words.html#w25" data-w="25">자식</a>)을 만들어요. 교수님은 이 구조를 "거의 외우다시피 알고 있으라"고 했어요.</p>
+<figure class="slide"><img src="slides/w38.jpg" alt="nn.Module의 기본 골격 MyModel"><figcaption>교수님 슬라이드 — MyModel(nn.Module). __init__은 layer 정의·등록, super().__init__()은 가장 먼저, forward는 계산 흐름 정의</figcaption></figure>
+<div class="code">import torch
+from torch import nn
+
+
+class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = nn.Linear(3, 2)
+
+    def forward(self, x):
+        return self.fc(x)
+
+
+model = MyModel()
+x = torch.ones(4, 3)
+y = model(x)
+print(tuple(y.shape))
+print(model.fc.weight.shape, model.fc.bias.shape)
+print(model)</div>
+<div class="code">(4, 2)
+torch.Size([2, 3]) torch.Size([2])
+MyModel(
+  (fc): Linear(in_features=3, out_features=2, bias=True)
+)</div>
+<div class="tw"><table>
+  <tr><th style="width:40%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>class MyModel(nn.Module):</code></td><td>MyModel은 <a class="w" href="words.html#w66" data-w="66">nn.Module</a>(부모)을 상속한 자식 클래스예요</td></tr>
+  <tr><td><code>super().__init__()</code></td><td><b>가장 먼저</b> 부모 nn.Module의 <a class="w" href="words.html#w22" data-w="22">__init__</a>을 실행해요. 부모가 <a class="w" href="words.html#w72" data-w="72">layer</a>와 <a class="w" href="words.html#w7" data-w="7">parameter</a>를 관리할 준비를 해요. 4-6에서 배운 그 규칙이에요</td></tr>
+  <tr><td><code>self.fc = nn.Linear(3, 2)</code></td><td><a class="w" href="words.html#w73" data-w="73">입력 특성</a> 3개를 출력 특성 2개로 바꾸는 층을 만들어 <code>self.fc</code>에 <b>저장(등록)</b>해요</td></tr>
+  <tr><td><code>def forward(self, x):</code></td><td>입력에서 출력까지의 계산 흐름을 적는 곳이에요</td></tr>
+  <tr><td><code>return self.fc(x)</code></td><td>저장해 둔 층에 x를 통과시켜 결과를 돌려줘요. <code>self.fc(x)</code>처럼 <b>괄호로 호출</b>해야 계산돼요</td></tr>
+  <tr><td><code>y = model(x)</code></td><td>(4, 3) 입력 → (4, 2) 출력</td></tr>
+  <tr><td><code>model.fc.weight.shape</code></td><td><a class="w" href="words.html#w68" data-w="68">weight</a>는 (2, 3). 출력 2개 × 입력 3개</td></tr>
+  <tr><td><code>model.fc.bias.shape</code></td><td><a class="w" href="words.html#w69" data-w="69">bias</a>는 (2,). 출력 개수만큼</td></tr>
+</table></div>
+<p><b><code>nn.Linear(입력 특성 수, 출력 특성 수)</code></b>는 입력의 <b>마지막 차원</b>만 바꾸고 맨 앞(<a class="w" href="words.html#w114" data-w="114">batch</a>)은 그대로 둬요. 입력 (N, 3) → 출력 (N, 2)예요. 파라미터 수는 weight 2×3 = 6개와 bias 2개를 합쳐 <b>8개</b>예요(1장 공식). 내부 계산은 <code>Y = XWᵀ + b</code>이고 <a class="w" href="words.html#w35" data-w="35">모양</a>은 (N, 3) @ (3, 2) + (2,) → (N, 2)예요(2장의 <a class="w" href="words.html#w51" data-w="51">행렬곱</a>과 <a class="w" href="words.html#w50" data-w="50">브로드캐스팅</a>).</p>
+<p><b>왜 layer를 <code>self.fc</code>에 저장할까요?</b> <a class="w" href="words.html#w21" data-w="21">self</a>의 <a class="w" href="words.html#w19" data-w="19">attribute</a>로 저장(등록)해야 PyTorch가 그 층과 파라미터를 "이 모델의 부품"으로 인식하고 <a class="w" href="words.html#w83" data-w="83">gradient</a>를 계산하고 weight를 업데이트할 수 있기 때문이에요. 교수님이 이 점을 강조했어요. <code>forward</code> 안에서 매번 <code>nn.Linear(3, 2)(x)</code>를 새로 만들어 쓰면 계산은 되지만 등록이 안 돼서 <a class="w" href="words.html#w135" data-w="135">학습</a> 대상이 아무것도 안 잡혀요.</p>
+<p>수업 초반에는 <code>self.W = torch.randn(2, 3)</code>, <code>self.B = torch.randn(2)</code>처럼 일반 <a class="w" href="words.html#w31" data-w="31">Tensor</a>로 만들고 <code>x @ self.W.T + self.B</code>로 계산하는 모델도 썼어요. 결과 shape은 똑같이 (4, 2)지만 이렇게 두면 학습 대상으로 등록되지 않아서, 뒤 장에서 <code>nn.Parameter</code>와 <code>nn.Linear</code>로 개선해요. (9월 수업 녹취(4주차)에서는 <a class="w" href="words.html#w67" data-w="67">nn.Linear</a> 버전으로 설명했고, 10월에 업데이트된 3주차 자료는 일반 Tensor 버전을 먼저 보여 줘요. 뼈대는 같고 시험 <a class="w" href="words.html#w113" data-w="113">샘플</a> 3번은 nn.Linear 버전이에요.)</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>nn.Module을 상속한 모델은 __init__()에서 <a class="w" href="words.html#w27" data-w="27">super().__init__()</a>을 먼저 호출한 뒤 layer를 self의 attribute로 정의·등록하고, <a class="w" href="words.html#w70" data-w="70">forward()</a>에서 입력으로부터 출력까지의 계산 흐름을 정의한다. nn.Linear(in, out)은 입력의 마지막 차원 in을 out으로 바꾸고 맨 앞의 batch 크기는 유지한다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x가 (8, 5)일 때 nn.Linear(5, 7)을 통과한 결과의 shape은?</summary>
+<p>(8, 7)이에요. 맨 앞의 batch 8은 그대로이고 마지막 차원만 5에서 7로 바뀌어요.</p></details>
+
+<div class="done"><a class="go" href="c4-10.html">다음 카드 → model(x)의 내부 — __call__이 forward를 불러요 ★★★</a><div class="pn"><a href="c4-08.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c4"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3~4주차 · Week03_Class_for_PyTorch(pdf, ipynb 업데이트본) · 빅데이터03(3주차)·빅데이터04(4주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

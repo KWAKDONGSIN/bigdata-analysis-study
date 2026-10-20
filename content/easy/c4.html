@@ -1,0 +1,576 @@
+<!-- 4장: 클래스와 상속. class와 객체, __init__과 self, 메서드, 클래스 속성, 상속, super().__init__(), 오버라이딩, __call__, nn.Module과 model(x)가 forward를 실행하는 과정을 코드 따라가기로 설명해요 -->
+<h2>클래스와 상속 — 설계도에서 물건을 만들어 쓰기</h2>
+<p class="lead">PyTorch 모델은 전부 "클래스"로 만들어요. 그래서 클래스를 읽을 줄 알아야 모델 코드를 읽을 수 있어요. 시험 2번(상속과 오버라이딩)과 3번(모델 정의와 호출)이 바로 이 장에서 나와요. 클래스를 폭넓게 배우는 게 아니라, 모델을 읽는 데 필요한 것만 골라서 익혀요.</p>
+
+<h3>4-1. class와 객체(instance) — 설계도와 만들어진 물건 <span class="st">★★</span></h3>
+<p><b>class(클래스)</b>는 데이터와 동작을 하나로 묶어 정의한 <b>설계도</b>예요. 이 설계도로 실제로 만들어진 값을 <b>object(객체)</b> 또는 <b>instance(인스턴스)</b>라고 해요. 교수님도 "클래스는 설계도, 실제로 만들어진 값이 객체"라고 설명했어요.</p>
+<div class="box eg"><span class="t">비유 — 붕어빵 틀과 붕어빵</span>
+<p>붕어빵 틀이 설계도(class)이고, 틀로 찍어 낸 붕어빵 하나하나가 객체(instance)예요. 같은 틀에서 나와도 붕어빵마다 속 재료(팥, 슈크림)를 따로 넣을 수 있어요. 한 붕어빵의 속을 바꿔도 다른 붕어빵은 그대로예요.</p>
+</div>
+<figure class="slide"><img src="slides/w33.jpg" alt="class는 설계도, instance는 실제 객체"><figcaption>교수님 슬라이드 — class = 설계도, instance = 실제로 생성된 값. s1.score를 바꿔도 s2.score는 그대로</figcaption></figure>
+<div class="code">class Student:
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+    def introduce(self):
+        print(f"이름: {self.name}, 점수: {self.score}")
+
+
+s1 = Student("Kim", 95)
+s2 = Student("Lee", 88)
+
+print(s1 is s2)
+s1.introduce()
+s2.introduce()</div>
+<div class="code">False
+이름: Kim, 점수: 95
+이름: Lee, 점수: 88</div>
+<table>
+  <tr><th style="width:34%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>class Student:</code></td><td>"Student라는 설계도를 정의한다". 이 줄 아래 들여쓴 부분이 설계도 내용이에요. 정의만으로는 아무것도 만들어지지 않아요</td></tr>
+  <tr><td><code>s1 = Student("Kim", 95)</code></td><td>설계도로 <b>객체를 하나 만들어</b> s1이라는 이름표를 붙여요</td></tr>
+  <tr><td><code>s2 = Student("Lee", 88)</code></td><td>같은 설계도에서 <b>또 하나</b> 만들어요. s1과 s2는 서로 다른 객체예요</td></tr>
+  <tr><td><code>s1 is s2</code></td><td>"같은 객체인가?" → 다른 객체라 False</td></tr>
+  <tr><td><code>s1.introduce()</code></td><td>s1에게 introduce 동작을 시켜요. 점은 "~의"이고 괄호가 있으니 동작이에요(0장)</td></tr>
+</table>
+<p>클래스 안에서 쓰는 용어를 표로 정리할게요.</p>
+<table>
+  <tr><th style="width:20%">용어</th><th style="width:36%">뜻</th><th>이 예에서</th></tr>
+  <tr><td><b>attribute</b> (속성)</td><td>객체가 기억하는 데이터(상태)</td><td><code>self.name</code>, <code>self.score</code></td></tr>
+  <tr><td><b>method</b> (메서드)</td><td>객체가 하는 동작. class 안에 정의한 함수</td><td><code>introduce()</code></td></tr>
+  <tr><td><b>instance</b></td><td>설계도로 만든 객체</td><td><code>s1</code>, <code>s2</code></td></tr>
+</table>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>class는 attribute와 method를 하나로 묶어 정의한 설계도이고, instance는 class로부터 만들어진 실제 객체이며 각 instance는 자신만의 상태(attribute 값)를 독립적으로 가진다. 객체가 여러 개이면 "누구의 값인지" 이름표(s1, s2)를 구분해서 따라가세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — Student("Kim", 95)와 Student("Lee", 88)을 만들었습니다. 이 둘은 같은 객체인가요?</summary>
+<p>아니에요. 같은 class(설계도)에서 만들었을 뿐 서로 다른 instance(객체)예요.</p></details>
+
+<h3>4-2. __init__과 self — 객체가 만들어질 때 일어나는 일 <span class="st">★★★</span></h3>
+<p>클래스를 읽을 때 가장 먼저 만나는 두 가지가 <code>__init__</code>과 <code>self</code>예요.</p>
+<ul>
+  <li><b><code>__init__</code></b> — 객체가 만들어질 때 <b>자동으로 실행</b>되는 특별한 메서드예요. 초기 상태(처음 값)를 저장해요. 이름 앞뒤에 밑줄이 두 개씩 붙어요.</li>
+  <li><b><code>self</code></b> — 지금 그 메서드를 호출한 <b>객체 자기 자신</b>을 가리켜요. "나"라고 생각하세요.</li>
+</ul>
+<p><code>s1 = Student("Kim", 95)</code>가 실행될 때 컴퓨터 속에서는 이런 일이 차례로 일어나요.</p>
+<table>
+  <tr><th style="width:12%">순서</th><th>일어나는 일</th></tr>
+  <tr><td>1</td><td>비어 있는 새 Student 객체를 하나 만들어요</td></tr>
+  <tr><td>2</td><td>그 객체의 <code>__init__</code>을 자동으로 호출해요. <b>self에는 방금 만든 객체가 들어가고</b>, name에는 "Kim", score에는 95가 들어가요</td></tr>
+  <tr><td>3</td><td><code>self.name = name</code> → 이 객체의 name 칸에 "Kim" 저장. <code>self.score = score</code> → score 칸에 95 저장</td></tr>
+  <tr><td>4</td><td>완성된 객체에 s1이라는 이름표를 붙여요</td></tr>
+</table>
+<div class="box def"><span class="t">self 사용 규칙</span>
+<p><b>메서드를 정의할 때는 첫 번째 칸에 self를 쓰지만, 호출할 때는 self를 직접 넘기지 않아요.</b> <code>s1.introduce()</code>라고 부르면 파이썬이 자동으로 s1을 self 자리에 넣어 줘요. 그래서 <code>s1.introduce()</code>는 <code>Student.introduce(self=s1)</code>과 같은 뜻이에요.</p>
+</div>
+<p><b>왜 self.name처럼 앞에 self.를 붙일까요?</b> self.name은 "이 객체의 name 칸"이고, name은 그냥 함수 안에서만 쓰는 임시 변수라서 둘은 달라요. 메서드 안에서 self 없이 <code>name</code>만 쓰면 이름이 없다는 에러(NameError)가 나요. 교수님도 이 실수를 "흔한 실수"로 짚었어요. <code>self.name = name</code>에서 좌우 이름이 꼭 같아야 하는 것은 아니지만 보통 맞춰요.</p>
+<p>객체마다 상태가 독립이라는 것도 코드로 확인해 볼게요.</p>
+<div class="code">s1 = Student("Kim", 95)
+s2 = Student("Lee", 88)
+
+s1.score = 100
+print(s1.score, s2.score)
+s1.introduce()</div>
+<div class="code">100 88
+이름: Kim, 점수: 100</div>
+<table>
+  <tr><th style="width:30%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>s1.score = 100</code></td><td>s1의 score 칸만 100으로 바꿔요. s2는 그대로 88</td></tr>
+  <tr><td><code>print(s1.score, s2.score)</code></td><td><code>100 88</code> (서로 독립)</td></tr>
+  <tr><td><code>s1.introduce()</code></td><td>introduce 안의 self는 s1이라서 s1의 값(Kim, 100)이 나와요</td></tr>
+</table>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>self = 지금 부른 그 객체</b>". <code>s1.introduce()</code>면 self는 s1, <code>s2.introduce()</code>면 self는 s2예요. 메서드 안의 <code>self.xxx</code>는 항상 그 객체의 값이에요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>__init__()은 instance가 생성될 때 자동으로 실행되어 초기 상태를 저장하고, self는 현재 메서드를 호출한 instance 자신을 가리킨다. 메서드를 정의할 때는 self를 쓰지만 호출할 때는 직접 전달하지 않는다. 코드를 따라갈 때는 메서드 안의 self를 "지금 부른 객체 이름"으로 바꿔 읽으세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — s2.introduce()를 실행할 때 introduce 안의 self는 누구인가요?</summary>
+<p>s2예요. 점 앞의 객체가 self 자리에 자동으로 들어가요.</p></details>
+
+<h3>4-3. 메서드와 상태 변화 따라가기 <span class="st">★★</span></h3>
+<p>메서드는 보통 객체의 attribute 값을 <b>바꾸거나 읽는</b> 일을 해요. 시험 코드는 "메서드를 순서대로 호출한 뒤 값이 얼마인가?"를 자주 물어요. 이럴 때는 <b>attribute 값을 적은 상태표</b>를 만들어 한 줄씩 고쳐 가요.</p>
+<div class="code">class Car:
+    def __init__(self, brand, speed=0):
+        self.brand = brand
+        self.speed = speed
+
+    def accelerate(self, amount):
+        self.speed += amount
+
+    def brake(self, amount):
+        self.speed = max(0, self.speed - amount)
+
+    def show_state(self):
+        print(f"{self.brand}: {self.speed} km/h")
+
+
+my_car = Car("Hyundai")
+my_car.show_state()
+my_car.accelerate(30)
+my_car.show_state()
+my_car.brake(20)
+my_car.show_state()
+my_car.brake(20)
+my_car.show_state()</div>
+<div class="code">Hyundai: 0 km/h
+Hyundai: 30 km/h
+Hyundai: 10 km/h
+Hyundai: 0 km/h</div>
+<table>
+  <tr><th style="width:38%">실행하는 줄</th><th style="width:16%">speed</th><th>설명</th></tr>
+  <tr><td><code>my_car = Car("Hyundai")</code></td><td>0</td><td>speed를 안 넘겨서 기본값 0이 들어가요</td></tr>
+  <tr><td><code>show_state()</code></td><td>0</td><td>"Hyundai: 0 km/h" 출력 (값은 안 바뀜)</td></tr>
+  <tr><td><code>accelerate(30)</code></td><td>30</td><td><code>+=</code>는 "더해서 다시 저장". 0+30. <b>출력은 없어요</b></td></tr>
+  <tr><td><code>show_state()</code></td><td>30</td><td>"Hyundai: 30 km/h" 출력</td></tr>
+  <tr><td><code>brake(20)</code></td><td>10</td><td>max(0, 30−20) = max(0, 10) = 10</td></tr>
+  <tr><td><code>show_state()</code></td><td>10</td><td>"Hyundai: 10 km/h" 출력</td></tr>
+  <tr><td><code>brake(20)</code></td><td>0</td><td>max(0, 10−20) = max(0, −10) = <b>0</b>. 음수로 안 내려가요</td></tr>
+  <tr><td><code>show_state()</code></td><td>0</td><td>"Hyundai: 0 km/h" 출력</td></tr>
+</table>
+<p>주의할 점은 <b>accelerate나 brake는 값만 바꾸고 화면에 아무것도 찍지 않는다</b>는 거예요. 출력은 show_state()를 호출했을 때만 나와요. 교수님이 "함수는 한 가지 일만 하고, 보여주는 건 show_state()가 맡는 게 이 클래스의 설계"라고 했어요. 그래서 출력은 print가 있는 메서드를 호출한 횟수와 같아요(여기서는 4줄).</p>
+<p>조건문이 들어간 예도 하나 볼게요. 은행 계좌예요.</p>
+<div class="code">class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+
+    def deposit(self, amount):
+        if amount &gt; 0:
+            self.balance += amount
+
+    def withdraw(self, amount):
+        if amount &lt;= self.balance:
+            self.balance -= amount
+            print(f"{amount}원 출금 완료")
+        else:
+            print(f"잔액이 부족합니다. (현재잔액: {self.balance})")
+
+    def show_balance(self):
+        print(f"{self.owner}의 잔액: {self.balance}원")
+
+
+account = BankAccount("Lee", 10000)
+account.deposit(5000)
+account.withdraw(3000)
+account.withdraw(20000)
+account.show_balance()</div>
+<div class="code">3000원 출금 완료
+잔액이 부족합니다. (현재잔액: 12000)
+Lee의 잔액: 12000원</div>
+<table>
+  <tr><th style="width:38%">실행하는 줄</th><th style="width:16%">balance</th><th>설명</th></tr>
+  <tr><td><code>BankAccount("Lee", 10000)</code></td><td>10000</td><td>owner = "Lee", balance = 10000</td></tr>
+  <tr><td><code>deposit(5000)</code></td><td>15000</td><td>5000 &gt; 0이 True라서 더해요. 출력 없음</td></tr>
+  <tr><td><code>withdraw(3000)</code></td><td>12000</td><td>3000 &lt;= 15000이 True → 빼고 "3000원 출금 완료" 출력</td></tr>
+  <tr><td><code>withdraw(20000)</code></td><td>12000</td><td>20000 &lt;= 12000은 False → else 쪽. 값은 그대로, "잔액이 부족합니다…" 출력</td></tr>
+  <tr><td><code>show_balance()</code></td><td>12000</td><td>"Lee의 잔액: 12000원" 출력</td></tr>
+</table>
+<p>기본값(<code>balance=0</code>)이 있는 인자는 안 넘겨도 되지만, 기본값이 없는 인자를 빠뜨리면 에러(TypeError)가 나요. 예를 들어 <code>Student("Kim")</code>처럼 score를 빼면 에러예요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>메서드는 instance의 attribute를 읽거나 변경한다. 결과 예측은 ① attribute 상태표를 만들고 ② 메서드를 호출 순서대로 실행하며 값을 고치고 ③ print가 있는 메서드에서만 출력을 적는다. 값을 바꾸는 메서드와 보여 주는 메서드를 구분하세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — Car 예제에서 my_car.accelerate(30) 한 줄만 실행하면 화면에 무엇이 나오나요?</summary>
+<p>아무것도 안 나와요. accelerate는 speed 값만 바꾸고 print를 하지 않아요.</p></details>
+
+<h3>4-4. 객체마다 다른 값 vs 모두가 같이 쓰는 값 — instance attribute와 class attribute</h3>
+<p>attribute에도 두 종류가 있어요. <b>instance attribute</b>는 <code>self.xxx</code>로 만들어 객체마다 따로 갖고, <b>class attribute</b>는 클래스 안에 바로 써서 <b>모든 객체가 같이</b> 가져요.</p>
+<div class="code">class Student:
+    school = "The University of Suwon"
+
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+    def show_info(self):
+        print(f"{self.school} / {self.name} / {self.score}")
+
+
+s1 = Student("Kim", 95)
+s2 = Student("Lee", 88)
+s1.show_info()
+s2.show_info()
+
+s1.score = 100
+Student.school = "New University"
+
+s1.show_info()
+s2.show_info()</div>
+<div class="code">The University of Suwon / Kim / 95
+The University of Suwon / Lee / 88
+New University / Kim / 100
+New University / Lee / 88</div>
+<table>
+  <tr><th style="width:34%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>school = "The University of Suwon"</code></td><td>class attribute. 설계도 자체에 적힌 값이라 모든 객체가 공유해요</td></tr>
+  <tr><td><code>self.name = name</code></td><td>instance attribute. 객체마다 따로 저장돼요</td></tr>
+  <tr><td><code>s1.score = 100</code></td><td>s1의 score만 바뀌어요. 마지막 출력에서 Kim은 100, Lee는 88</td></tr>
+  <tr><td><code>Student.school = "New University"</code></td><td><b>설계도의 값을 바꿨기 때문에 s1, s2 모두에 반영</b>돼요. 마지막 두 줄이 둘 다 New University</td></tr>
+</table>
+<p><b>왜 이런 구분이 필요할까요?</b> 객체가 1,000개인데 모두에게 공통인 값 하나를 바꿔야 한다면 하나씩 고치기 힘들어요. class attribute로 두면 <b>한 번에</b> 바뀌어요(교수님 설명). 참고로 <code>s1.school = "X"</code>처럼 객체 하나에 직접 대입하면 그 객체만 따로 갖게 돼요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>instance attribute는 객체마다 독립적으로 가지고, class attribute는 class에 공통으로 정의되어 모든 instance가 공유한다. <code>클래스이름.속성 = 값</code>으로 바꾸면 모든 instance에 반영되고, <code>객체이름.속성 = 값</code>으로 바꾸면 그 객체에만 적용된다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — Student.school을 바꾸면 s2.school도 바뀌나요?</summary>
+<p>바뀌어요. school은 class attribute라서 모든 객체가 같은 값을 보기 때문이에요.</p></details>
+
+<h3>4-5. 상속 — 부모의 기능을 물려받기 <span class="st">★★★</span></h3>
+<p><b>상속(inheritance)</b>은 기존 class(<b>부모</b>)의 attribute와 method를 새 class(<b>자식</b>)가 그대로 물려받아 쓰는 방법이에요. 자식은 <code>class Dog(Animal):</code>처럼 클래스 이름 뒤 괄호에 부모 이름을 적어요. 읽는 법은 "Dog는 Animal을 상속한다"예요.</p>
+<div class="box eg"><span class="t">비유 — 가업 물려받기</span>
+<p>부모 가게(Animal)의 레시피와 도구를 자식 가게(Dog)가 그대로 물려받아요. 자식은 거기에 자기만의 메뉴(bark)를 추가하거나, 같은 이름 메뉴를 자기 방식으로 바꿀 수 있어요. 물려받은 것을 매번 다시 만들 필요가 없어서 편해요. 동물 종이 1,000개일 때 이름 같은 공통 기능을 부모에 한 번만 쓰면 돼요(교수님 설명).</p>
+</div>
+<div class="code">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def eat(self):
+        print(f"{self.name}가 밥을 먹습니다.")
+
+
+class Dog(Animal):
+    def bark(self):
+        print(f"{self.name}가 멍멍 짖습니다.")
+
+
+dog = Dog("Bori")
+print("name:", dog.name)
+dog.eat()
+dog.bark()</div>
+<div class="code">name: Bori
+Bori가 밥을 먹습니다.
+Bori가 멍멍 짖습니다.</div>
+<table>
+  <tr><th style="width:36%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>class Dog(Animal):</code></td><td>Dog는 Animal의 자식. Dog에는 <code>bark</code>만 직접 적혀 있어요</td></tr>
+  <tr><td><code>dog = Dog("Bori")</code></td><td>Dog에는 <code>__init__</code>이 없으니 <b>부모의 __init__</b>이 실행돼서 name = "Bori"가 저장돼요</td></tr>
+  <tr><td><code>dog.name</code></td><td>Bori. 부모의 __init__이 만든 attribute예요</td></tr>
+  <tr><td><code>dog.eat()</code></td><td>Dog에 eat가 없으니 <b>부모 Animal의 eat</b>를 찾아 실행해요</td></tr>
+  <tr><td><code>dog.bark()</code></td><td>Dog에 직접 정의된 bark 실행</td></tr>
+</table>
+<p>메서드를 찾는 순서는 이래요. <b>① 자식 class에서 먼저 찾고, ② 없으면 부모 class에서 찾아요.</b> 부모의 메서드가 자식에게 "복사되는" 것이 아니라 못 찾으면 부모에게 가서 찾는 거예요.</p>
+<p>반대는 안 돼요. <b>부모의 객체는 자식에만 있는 메서드를 못 써요.</b> 위 예에서 <code>Animal("Zzz").bark()</code>는 "Animal에는 bark가 없다"는 에러(AttributeError)예요. 부모는 공통 기능, 자식은 공통 기능 + 자기만의 기능을 가져요.</p>
+<div class="code">class Character:
+    def __init__(self, name, health):
+        self.name = name
+        self.health = health
+
+    def take_damage(self, amount):
+        self.health = max(0, self.health - amount)
+        print(f"{self.name}의 체력: {self.health}")
+
+
+class Wizard(Character):
+    def __init__(self, name, health, mana):
+        super().__init__(name, health)
+        self.mana = mana
+
+    def use_magic(self):
+        if self.mana &gt;= 10:
+            self.mana -= 10
+            print(f"마법 사용, 남은 mana: {self.mana}")
+        else:
+            print("mana가 부족합니다.")
+
+
+wizard = Wizard("Merlin", health=80, mana=20)
+wizard.take_damage(15)
+wizard.use_magic()</div>
+<div class="code">Merlin의 체력: 65
+마법 사용, 남은 mana: 10</div>
+<table>
+  <tr><th style="width:38%">실행하는 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>Wizard("Merlin", health=80, mana=20)</code></td><td>Wizard의 __init__ 실행. 이름표를 붙여 넘긴 값(health=80, mana=20)도 자리가 맞는 칸에 들어가요</td></tr>
+  <tr><td><code>super().__init__(name, health)</code></td><td>부모(Character)의 __init__을 실행해 name, health를 저장</td></tr>
+  <tr><td><code>self.mana = mana</code></td><td>자식만의 attribute 저장</td></tr>
+  <tr><td><code>wizard.take_damage(15)</code></td><td>Wizard에 없으니 부모의 take_damage 실행. 80−15 = 65 → "Merlin의 체력: 65"</td></tr>
+  <tr><td><code>wizard.use_magic()</code></td><td>자식의 메서드. mana 20 ≥ 10 → 10을 빼서 mana = 10 → "마법 사용, 남은 mana: 10"</td></tr>
+</table>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>상속은 기존 class의 attribute와 method를 새 class에서 재사용하는 방법이다. 자식 class에서 메서드를 찾지 못하면 부모 class에서 찾아 사용한다(복사되는 것이 아니다). 부모 instance는 자식에만 있는 메서드를 사용할 수 없다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — Dog 클래스에 eat 메서드가 없는데 dog.eat()을 부르면 왜 실행되나요?</summary>
+<p>자식에서 못 찾으면 부모(Animal)에서 찾아 쓰기 때문이에요. 부모의 eat가 실행돼요.</p></details>
+
+<h3>4-6. super().__init__() — 부모의 __init__은 자동으로 안 불려요 <span class="st">★★★ 시험 단골</span></h3>
+<p>상속에서 가장 헷갈리고 시험에 잘 나오는 부분이에요. <b>자식이 자기 <code>__init__</code>을 정의하면, 부모의 <code>__init__</code>은 자동으로 실행되지 않아요.</b> 자식 것이 부모 것을 "덮어쓰기" 때문이에요. 교수님은 "얘가 불리면 얘는 안 불린다는 게 문제"라고 표현했어요.</p>
+<p>그래서 부모가 만들던 attribute(예 name)가 필요하면 자식의 <code>__init__</code> 안에서 <b><code>super().__init__(...)</code></b>로 부모의 초기화를 직접 불러줘야 해요. <code>super()</code>는 "부모 클래스"를 가리켜요.</p>
+<svg viewBox="0 0 380 150" width="96mm">
+  <defs><marker id="c4ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker></defs>
+  <rect x="120" y="8" width="140" height="34" rx="8" fill="#dbe6ff" stroke="#1b2333"/>
+  <text x="190" y="24" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b2333">Animal (부모)</text>
+  <text x="190" y="37" text-anchor="middle" font-size="10" fill="#1b2333">__init__ : name 저장</text>
+  <rect x="120" y="104" width="140" height="38" rx="8" fill="#fff1d6" stroke="#1b2333"/>
+  <text x="190" y="120" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b2333">Dog (자식)</text>
+  <text x="190" y="135" text-anchor="middle" font-size="10" fill="#1b2333">__init__ : breed 저장</text>
+  <line x1="190" y1="104" x2="190" y2="46" stroke="#1d4ed8" stroke-width="3" marker-end="url(#c4ar)"/>
+  <text x="200" y="80" font-size="12" font-weight="bold" fill="#1d4ed8">super().__init__(name)</text>
+  <text x="200" y="94" font-size="10" fill="#5d6b80">이 줄이 있어야 부모의 name 저장이 실행돼요</text>
+</svg>
+<p>세 가지 경우를 비교해 볼게요. 모두 <code>Animal</code>(name 저장)을 부모로 해요.</p>
+<table>
+  <tr><th style="width:34%">자식의 모양</th><th style="width:28%">부모 __init__은?</th><th>dog.name을 쓰면</th></tr>
+  <tr><td>자식에 <code>__init__</code>이 <b>없음</b></td><td>자동으로 부모 것을 사용</td><td>사용 가능</td></tr>
+  <tr><td>자식에 <code>__init__</code>이 있고 <b><code>super().__init__(name)</code>이 없음</b></td><td><b>실행 안 됨</b></td><td><b>에러</b> (name이 없음)</td></tr>
+  <tr><td>자식에 <code>__init__</code>이 있고 <b><code>super().__init__(name)</code>이 있음</b></td><td>직접 불러서 실행됨</td><td>사용 가능</td></tr>
+</table>
+<div class="code">class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)
+        self.breed = breed
+
+
+dog = Dog("Bori", "Poodle")
+print("name:", dog.name)
+print("breed:", dog.breed)
+dog.eat()</div>
+<div class="code">name: Bori
+breed: Poodle
+Bori가 밥을 먹습니다.</div>
+<table>
+  <tr><th style="width:40%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>def __init__(self, name, breed):</code></td><td>자식은 재료를 두 개(이름, 품종) 받아요</td></tr>
+  <tr><td><code>super().__init__(name)</code></td><td>부모의 __init__을 name으로 실행 → <code>self.name = "Bori"</code>가 저장돼요</td></tr>
+  <tr><td><code>self.breed = breed</code></td><td>자식이 추가한 attribute. 부모가 만든 name이든 자식이 만든 breed든 결국 같은 객체의 attribute일 뿐이에요</td></tr>
+</table>
+<p>만약 <code>super().__init__(name)</code> 줄을 빼면 어떻게 될까요? <code>dog.breed</code>는 되지만 <code>dog.name</code>에서 "Dog 객체에는 name이 없다"는 에러(AttributeError)가 나요. 부모의 name 저장 줄이 한 번도 실행되지 않았기 때문이에요. 그래서 <code>dog.eat()</code>도 안에서 self.name을 쓰다가 같은 에러가 나요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>자식이 __init__을 가지면, super().__init__()을 꼭 부른다</b>". 부모의 재료를 받으려면 자식이 받은 재료 중 부모 몫(name)을 <code>super().__init__(name)</code>으로 넘겨요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>자식 class가 __init__()을 정의(오버라이딩)하면 부모의 __init__()은 자동으로 호출되지 않는다. 부모가 초기화하는 attribute를 사용하려면 자식의 __init__() 안에서 super().__init__()을 호출해야 한다. 선택지에 "부모의 __init__()은 항상 자동으로 실행된다"가 있으면 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 자식 __init__에서 super().__init__(name)을 빠뜨리면 어떤 일이 생기나요?</summary>
+<p>부모가 저장하던 self.name이 만들어지지 않아서, 나중에 self.name을 쓰는 순간 attribute가 없다는 에러가 나요.</p></details>
+
+<h3>4-7. 오버라이딩 — 같은 이름 메서드를 자식이 새로 쓰기 <span class="st">★★★ 시험 2번</span></h3>
+<p>자식 class가 부모와 <b>같은 이름</b>의 메서드를 새로 정의하면 호출할 때 <b>자식 것이 먼저</b> 쓰여요. 이것이 <b>오버라이딩(overriding)</b>(재정의)이에요. 앞에서 본 <code>__init__</code>을 자식이 다시 쓴 것도 오버라이딩이에요.</p>
+<figure class="slide"><img src="slides/w35.jpg" alt="super와 오버라이딩"><figcaption>교수님 슬라이드 — super().__init__(...)은 부모 초기화를 호출. 같은 이름의 speak를 자식이 새로 정의하는 것이 method overriding</figcaption></figure>
+<p>시험 샘플 2번 코드예요. 직접 따라가 봐요.</p>
+<div class="code">class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        print("동물이 소리를 냅니다.")
+
+
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)
+        self.breed = breed
+
+    def speak(self):
+        print(f"{self.name}가 멍멍 짖습니다.")
+
+
+dog = Dog("Bori", "Poodle")
+dog.speak()</div>
+<div class="code">Bori가 멍멍 짖습니다.</div>
+<table>
+  <tr><th style="width:36%">실행하는 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>dog = Dog("Bori", "Poodle")</code></td><td>Dog의 __init__ 실행. <code>super().__init__(name)</code>으로 부모가 name = "Bori" 저장, 이어서 breed = "Poodle" 저장</td></tr>
+  <tr><td><code>dog.speak()</code></td><td>Dog에 speak가 있으니 <b>자식 것</b>이 실행돼요. 부모의 speak는 실행되지 않아요</td></tr>
+  <tr><td>출력</td><td><code>Bori가 멍멍 짖습니다.</code> 한 줄뿐이에요. "동물이 소리를 냅니다."는 찍히지 않아요</td></tr>
+</table>
+<p>이제 선택지를 하나씩 판정해 볼게요.</p>
+<table>
+  <tr><th style="width:50%">선택지</th><th>판정과 이유</th></tr>
+  <tr><td>① dog.speak()은 부모와 자식의 speak()을 차례로 실행한다</td><td>틀림. 자식 것 <b>하나만</b> 실행돼요(부모 것은 호출하지 않아요)</td></tr>
+  <tr><td>② 자식이 __init__()을 정의해도 부모의 __init__()은 항상 자동으로 실행된다</td><td>틀림. 자식이 정의하면 <b>자동 실행되지 않아서</b> super()로 불러야 해요</td></tr>
+  <tr><td>③ Dog가 speak()를 재정의했으므로 부모의 speak()은 더 이상 호출할 수 없다</td><td>틀림. Animal 객체로는 부모 speak를 쓸 수 있고, 자식 안에서 <code>super().speak()</code>로도 부를 수 있어요</td></tr>
+  <tr><td><b>④ super().__init__(name)은 부모의 초기화 메서드를 실행하며, dog.speak()은 자식이 재정의한 메서드를 실행한다</b></td><td><b>맞음 (정답)</b></td></tr>
+  <tr><td>⑤ 상속받은 메서드를 쓰려면 먼저 Animal 인스턴스를 별도로 만들어야 한다</td><td>틀림. Dog 객체가 상속받은 메서드를 이미 가지고 있어서 따로 만들 필요 없어요</td></tr>
+</table>
+<p>③번의 <code>super().speak()</code>를 확인해 볼게요. 자식이 부모 기능을 먼저 쓰고 자기 일을 덧붙이는 모양이에요.</p>
+<div class="code">class Dog(Animal):
+    def speak(self):
+        super().speak()
+        print("멍멍")
+
+
+Dog("Bori").speak()</div>
+<div class="code">동물이 소리를 냅니다.
+멍멍</div>
+<p>여기서는 자식이 직접 <code>super().speak()</code>를 호출했기 때문에 부모 것이 실행됐어요. 호출하지 않으면 실행되지 않는다는 점이 ①번의 오답 이유예요. 그리고 이름을 <code>speak2</code>처럼 바꾸면 다른 메서드가 새로 생길 뿐 오버라이딩이 아니에요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>자식 class에 부모와 같은 이름의 메서드를 정의하면 자식의 메서드가 우선 사용되며 이를 오버라이딩이라고 한다. 이때 부모의 메서드는 호출되지 않는다(자식이 super()로 부를 때만 예외). 설명형 선택지는 "자동으로", "항상", "더 이상 ~할 수 없다" 같은 단정적인 표현이 있으면 반례를 먼저 떠올려 보세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 자식 class에 부모와 같은 이름의 speak()를 만들고 dog.speak()을 호출하면 어느 것이 실행되나요?</summary>
+<p>자식의 speak()이에요. 같은 이름이면 자식 것이 우선이에요.</p></details>
+
+<h3>4-8. __call__ — 객체를 함수처럼 부르기 <span class="st">★★</span></h3>
+<p>보통 객체는 <code>f(3)</code>처럼 함수 부르듯 부를 수 없어요. 클래스에 <b><code>__call__</code></b>이라는 특별한 메서드를 정의하면 그 객체 뒤에 괄호를 붙여 바로 호출할 수 있어요. <code>f(3)</code>이라고 쓰면 파이썬이 <b>내부에서 <code>f.__call__(3)</code>을 실행</b>해요.</p>
+<div class="code">class AffineFunction:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __call__(self, x):
+        return self.a * x + self.b
+
+
+f = AffineFunction(a=2, b=1)
+
+print("f(3):", f(3))
+print("f(10):", f(10))</div>
+<div class="code">f(3): 7
+f(10): 21</div>
+<table>
+  <tr><th style="width:36%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>f = AffineFunction(a=2, b=1)</code></td><td>객체를 만들고 a = 2, b = 1 저장</td></tr>
+  <tr><td><code>f(3)</code></td><td>객체에 괄호를 붙여 부르면 <code>__call__(self=f, x=3)</code> 실행. 2×3 + 1 = <b>7</b></td></tr>
+  <tr><td><code>f(10)</code></td><td>2×10 + 1 = <b>21</b></td></tr>
+</table>
+<p>실제 계산은 <b><code>forward()</code></b>라는 다른 메서드에 두고, <code>__call__</code>은 그걸 불러 주기만 하게 만들 수도 있어요. 호출 방식은 똑같이 <code>m1(3)</code>인데 안에서는 <code>m1.__call__(3)</code> → <code>forward(3)</code> 순서로 실행돼요. 뒤에서 볼 <code>nn.Module</code>이 정확히 이 방식으로 동작해요.</p>
+<div class="code">class AffineFunction:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __call__(self, x):
+        return self.forward(x)
+
+    def forward(self, x):
+        print("forward() 호출됨")
+        return self.a * x + self.b
+
+
+m1 = AffineFunction(a=2, b=1)
+
+print("f(3):", m1(3))
+print("f(10):", m1(10))</div>
+<div class="code">forward() 호출됨
+f(3): 7
+forward() 호출됨
+f(10): 21</div>
+<table>
+  <tr><th style="width:44%">실행하는 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>print("f(3):", m1(3))</code></td><td>print가 찍기 <b>전에</b> 괄호 안의 <code>m1(3)</code>부터 계산해야 해요. m1(3) → __call__ → forward 안에서 먼저 "forward() 호출됨"을 찍고 7을 돌려줘요. 그다음 print가 <code>f(3): 7</code>을 찍어요</td></tr>
+  <tr><td><code>print("f(10):", m1(10))</code></td><td>똑같이 "forward() 호출됨"이 먼저, 그다음 <code>f(10): 21</code></td></tr>
+</table>
+<p>그래서 출력 순서가 "forward() 호출됨 → f(3): 7 → forward() 호출됨 → f(10): 21"이에요. <b>호출 메시지가 결과보다 먼저</b> 나오는 점을 조심하세요. 한편 <code>__call__</code>이 없는 객체를 <code>g(3)</code>처럼 부르면 "이 객체는 호출할 수 없다"는 에러(TypeError)가 나요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>__call__()을 정의한 class의 instance는 f(x)처럼 함수 호출 형태로 사용할 수 있으며, f(x)는 내부적으로 f.__call__(x)를 실행한다. __call__ 안에서 forward()를 실행하면 호출은 f(x)이지만 실제 계산은 forward()에서 이뤄진다. print 안에서 함수를 호출하면 그 함수 속 print가 먼저 찍혀요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — f = AffineFunction(a=3, b=2)에서 f(4)의 값은?</summary>
+<p>3×4 + 2 = 14예요.</p></details>
+
+<h3>4-9. nn.Module로 모델 만들기 — 골격과 nn.Linear <span class="st">★★★ 시험 3번</span></h3>
+<p>드디어 모델이에요. PyTorch는 모델을 만들 때 쓰라고 <b><code>nn.Module</code></b>이라는 <b>부모 클래스</b>를 미리 만들어 뒀어요. 우리는 이것을 상속해서 내 모델(자식)을 만들어요. 교수님은 이 구조를 "거의 외우다시피 알고 있으라"고 했어요.</p>
+<figure class="slide"><img src="slides/w38.jpg" alt="nn.Module의 기본 골격 MyModel"><figcaption>교수님 슬라이드 — MyModel(nn.Module). __init__은 layer 정의·등록, super().__init__()은 가장 먼저, forward는 계산 흐름 정의</figcaption></figure>
+<div class="code">import torch
+from torch import nn
+
+
+class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = nn.Linear(3, 2)
+
+    def forward(self, x):
+        return self.fc(x)
+
+
+model = MyModel()
+x = torch.ones(4, 3)
+y = model(x)
+print(tuple(y.shape))
+print(model.fc.weight.shape, model.fc.bias.shape)
+print(model)</div>
+<div class="code">(4, 2)
+torch.Size([2, 3]) torch.Size([2])
+MyModel(
+  (fc): Linear(in_features=3, out_features=2, bias=True)
+)</div>
+<table>
+  <tr><th style="width:40%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>class MyModel(nn.Module):</code></td><td>MyModel은 nn.Module(부모)을 상속한 자식 클래스예요</td></tr>
+  <tr><td><code>super().__init__()</code></td><td><b>가장 먼저</b> 부모 nn.Module의 __init__을 실행해요. 부모가 layer와 parameter를 관리할 준비를 해요. 4-6에서 배운 그 규칙이에요</td></tr>
+  <tr><td><code>self.fc = nn.Linear(3, 2)</code></td><td>입력 특성 3개를 출력 특성 2개로 바꾸는 층을 만들어 <code>self.fc</code>에 <b>저장(등록)</b>해요</td></tr>
+  <tr><td><code>def forward(self, x):</code></td><td>입력에서 출력까지의 계산 흐름을 적는 곳이에요</td></tr>
+  <tr><td><code>return self.fc(x)</code></td><td>저장해 둔 층에 x를 통과시켜 결과를 돌려줘요. <code>self.fc(x)</code>처럼 <b>괄호로 호출</b>해야 계산돼요</td></tr>
+  <tr><td><code>y = model(x)</code></td><td>(4, 3) 입력 → (4, 2) 출력</td></tr>
+  <tr><td><code>model.fc.weight.shape</code></td><td>weight는 (2, 3). 출력 2개 × 입력 3개</td></tr>
+  <tr><td><code>model.fc.bias.shape</code></td><td>bias는 (2,). 출력 개수만큼</td></tr>
+</table>
+<p><b><code>nn.Linear(입력 특성 수, 출력 특성 수)</code></b>는 입력의 <b>마지막 차원</b>만 바꾸고 맨 앞(batch)은 그대로 둬요. 입력 (N, 3) → 출력 (N, 2)예요. 파라미터 수는 weight 2×3 = 6개와 bias 2개를 합쳐 <b>8개</b>예요(1장 공식). 내부 계산은 <code>Y = XWᵀ + b</code>이고 모양은 (N, 3) @ (3, 2) + (2,) → (N, 2)예요(2장의 행렬곱과 브로드캐스팅).</p>
+<p><b>왜 layer를 <code>self.fc</code>에 저장할까요?</b> self의 attribute로 저장(등록)해야 PyTorch가 그 층과 파라미터를 "이 모델의 부품"으로 인식하고 gradient를 계산하고 weight를 업데이트할 수 있기 때문이에요. 교수님이 이 점을 강조했어요. <code>forward</code> 안에서 매번 <code>nn.Linear(3, 2)(x)</code>를 새로 만들어 쓰면 계산은 되지만 등록이 안 돼서 학습 대상이 아무것도 안 잡혀요.</p>
+<p>수업 초반에는 <code>self.W = torch.randn(2, 3)</code>, <code>self.B = torch.randn(2)</code>처럼 일반 Tensor로 만들고 <code>x @ self.W.T + self.B</code>로 계산하는 모델도 썼어요. 결과 shape은 똑같이 (4, 2)지만 이렇게 두면 학습 대상으로 등록되지 않아서, 뒤 장에서 <code>nn.Parameter</code>와 <code>nn.Linear</code>로 개선해요. (9월 수업 녹취(4주차)에서는 nn.Linear 버전으로 설명했고, 10월에 업데이트된 3주차 자료는 일반 Tensor 버전을 먼저 보여 줘요. 뼈대는 같고 시험 샘플 3번은 nn.Linear 버전이에요.)</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>nn.Module을 상속한 모델은 __init__()에서 super().__init__()을 먼저 호출한 뒤 layer를 self의 attribute로 정의·등록하고, forward()에서 입력으로부터 출력까지의 계산 흐름을 정의한다. nn.Linear(in, out)은 입력의 마지막 차원 in을 out으로 바꾸고 맨 앞의 batch 크기는 유지한다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x가 (8, 5)일 때 nn.Linear(5, 7)을 통과한 결과의 shape은?</summary>
+<p>(8, 7)이에요. 맨 앞의 batch 8은 그대로이고 마지막 차원만 5에서 7로 바뀌어요.</p></details>
+
+<h3>4-10. model(x)의 내부 — __call__이 forward를 불러요 <span class="st">★★★</span></h3>
+<p>그런데 이상한 점이 있어요. 우리는 <code>model(x)</code>라고만 썼는데 <code>forward</code>가 실행됐어요. 왜일까요?</p>
+<p><code>MyModel</code>에는 <code>__call__</code>이 없어요. 하지만 <b>부모 <code>nn.Module</code>에 <code>__call__</code>이 이미 정의되어 있고</b> 우리는 그것을 상속받았어요. 그래서 <code>model(x)</code>는 부모의 <code>__call__</code>을 실행하고, 그 안에서 <code>forward(x)</code>를 불러요. 4-8에서 본 AffineFunction의 진짜 버전이에요.</p>
+<figure class="slide"><img src="slides/w39.jpg" alt="model(x)에서 forward까지의 호출 과정"><figcaption>교수님 슬라이드 — model(x) → nn.Module.__call__(x) → ① hook ② 상태관리 함수 ③ model.forward(x) → 출력 Tensor</figcaption></figure>
+<table>
+  <tr><th style="width:12%">순서</th><th>일어나는 일</th></tr>
+  <tr><td>1</td><td><code>model(x)</code> — 객체에 괄호를 붙여 불러요</td></tr>
+  <tr><td>2</td><td>부모(nn.Module)에서 상속받은 <code>__call__(x)</code>가 실행돼요</td></tr>
+  <tr><td>3</td><td>그 안에서 ① hook 실행(따로 정의한 경우만), ② 그 밖의 상태 관리 처리, ③ <b>자식이 정의한 <code>forward(x)</code> 실행</b></td></tr>
+  <tr><td>4</td><td>forward가 돌려준 값이 y(출력 Tensor)가 돼요. forward를 안 만들어 두었으면 에러</td></tr>
+</table>
+<div class="box def"><span class="t">하지 말아야 할 두 가지</span>
+<p>① <code>model.forward(x)</code>를 <b>직접 호출하지 않아요.</b> hook 등 __call__ 안의 부가 처리를 모두 건너뛰어요. ② <code>__call__</code>을 <b>다시 정의(재정의)하지 않아요.</b> nn.Module의 호출 기능이 정상 동작하지 않을 수 있어요. 올바른 사용은 <b>연산은 forward()에 정의하고, 호출은 항상 <code>y = model(x)</code></b>예요. (계산 결과는 둘 다 나오지만 부가 기능이 빠지는 것이 문제예요.)</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>model(x)는 nn.Module에서 상속받은 __call__()의 처리(hook, 상태 관리)를 거쳐 자식 class에서 정의한 forward()를 실행한다. 그래서 forward()를 직접 호출하거나 __call__()을 재정의하지 않고 항상 model(x) 형태로 호출한다. forward()가 없으면 에러가 발생한다.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — MyModel에는 __call__이 없는데 model(x)가 동작하는 이유는?</summary>
+<p>부모 nn.Module에 __call__이 정의되어 있고 MyModel이 그것을 상속받았기 때문이에요. 그 __call__이 forward를 불러요.</p></details>
+
+<h3>4-11. 시험 샘플 3번 풀기 — 빈칸 (A), (B)와 호출 과정 <span class="st">★★★</span></h3>
+<div class="code">class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = __________  # (A)
+
+    def forward(self, x):
+        return __________     # (B)
+
+model = MyModel()
+x = torch.ones(4, 3)
+y = model(x)
+print(tuple(y.shape))  # (4, 2)</div>
+<p>조건은 "입력 특성 3개를 출력 특성 2개로 변환"하고 입력 x가 (4, 3), 출력이 (4, 2)예요.</p>
+<ul>
+  <li><b>(A)</b> — 입력 특성 3개, 출력 특성 2개이니 <code>nn.Linear(3, 2)</code>. 순서는 (입력, 출력)이에요. x의 마지막 차원 3이 입력 특성이에요. 맨 앞의 4는 batch 크기라서 Linear에 안 들어가요.</li>
+  <li><b>(B)</b> — 저장한 층에 x를 통과시키는 <code>self.fc(x)</code>. 괄호로 호출해야 계산 결과(Tensor)를 돌려줘요. <code>self.fc</code>만 쓰면 층 객체 자체를 돌려줄 뿐이에요.</li>
+  <li><b>호출 과정</b> — 상속받은 <code>__call__()</code>의 처리를 거쳐 <code>forward()</code>가 실행돼요. <code>__init__()</code>은 객체를 만들 때 한 번만 실행되고 model(x)할 때는 다시 실행되지 않아요.</li>
+</ul>
+<table>
+  <tr><th style="width:12%">선택지</th><th style="width:24%">(A), (B)</th><th>판정과 이유</th></tr>
+  <tr><td>①</td><td><code>nn.Linear(2, 3)</code>, <code>self.fc(x)</code></td><td>틀림. 입력 2개 → 출력 3개라서 문제 조건(3 → 2)과 반대예요</td></tr>
+  <tr><td>②</td><td><code>nn.Linear(3, 2)</code>, <code>self.fc(x)</code>, __init__ 재실행</td><td>틀림. (A), (B)는 맞지만 호출 과정이 틀려요. model(x)는 __init__을 다시 실행하지 않아요</td></tr>
+  <tr><td>③</td><td><code>nn.Linear(3, 2)</code>, <code>self.fc</code>, __call__ → forward</td><td>틀림. (B)에 괄호가 없어서 x가 계산에 쓰이지 않아요</td></tr>
+  <tr><td>④</td><td><code>nn.Linear(4, 2)</code>, <code>self.fc(x)</code>, __init__ 재실행</td><td>틀림. 4는 batch 크기라서 입력 특성이 아니에요. 호출 과정도 틀려요</td></tr>
+  <tr><td><b>⑤</b></td><td><b><code>nn.Linear(3, 2)</code>, <code>self.fc(x)</code></b></td><td><b>맞음 (정답)</b>. 호출 과정은 "상속받은 __call__()의 처리를 거쳐 forward() 실행"</td></tr>
+</table>
+<p>선택지가 (A), (B), 호출 과정 세 부분으로 나뉘어 있어서 <b>한 군데라도 틀리면 오답</b>이에요. 위 표처럼 세 칸을 따로 확인하면 돼요.</p>
+<p>이 모델에서 자주 하는 실수 세 가지도 알아 두세요(수업 자료의 "자주 발생하는 오류").</p>
+<table>
+  <tr><th style="width:44%">실수</th><th>결과</th></tr>
+  <tr><td><code>super().__init__()</code>을 부르지 않음</td><td>nn.Module 내부 준비가 안 돼서 layer를 등록할 때 에러가 나요</td></tr>
+  <tr><td><code>forward()</code>를 정의하지 않음</td><td><code>model(x)</code>가 실행할 계산이 없어 NotImplementedError</td></tr>
+  <tr><td>Linear의 입력 특성 수와 입력의 마지막 차원이 다름</td><td>shape이 안 맞는다는 에러. 예를 들어 <code>nn.Linear(4, 3)</code>에는 마지막 차원이 4인 Tensor를 넣어야 해요</td></tr>
+</table>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>모델 코드의 뼈대는 <b>① 부모(nn.Module) 상속 → ② __init__ 맨 앞에 super().__init__() → ③ self.층 = nn.Linear(입력, 출력) → ④ forward에서 self.층(x) → ⑤ 사용은 model(x)</b>예요. 이 다섯 줄을 외워 두면 시험 3번은 풀려요.</p>
+</div>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>nn.Module을 상속한 모델은 __init__()에서 super().__init__()을 먼저 호출한 뒤 layer를 정의·등록하고, forward()에서 입력으로부터 출력까지의 계산 흐름을 정의한다. model(x)는 부모의 __call__()을 거쳐 forward()를 실행하므로 forward()를 직접 호출하지 않는다. nn.Linear(in, out)은 입력의 마지막 차원 in을 out으로 바꾼다. 빈칸 문제는 "(입력, 출력) 순서", "괄호로 호출", "__init__은 다시 실행되지 않음"을 차례로 확인하세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — (A)를 nn.Linear(4, 2)로 쓰면 y = model(x)에서 어떻게 되나요? (x는 (4, 3))</summary>
+<p>에러가 나요. Linear는 입력의 마지막 차원이 4일 것으로 기대하는데 x의 마지막 차원은 3이라서 shape이 맞지 않아요.</p></details>
+
+<div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>class는 설계도, instance는 만들어진 객체이고 attribute(데이터)는 객체마다 독립이에요. <code>__init__</code>은 만들 때 자동 실행, <code>self</code>는 지금 부른 객체 자신이며 정의할 때만 쓰고 호출할 때는 안 넘겨요.</li>
+  <li>자식은 부모를 상속하고, 같은 이름 메서드는 자식 것이 우선이에요(오버라이딩). 자식이 <code>__init__</code>을 정의하면 부모 <code>__init__</code>은 자동 실행되지 않아서 <code>super().__init__()</code>을 직접 불러야 해요.</li>
+  <li><code>__call__</code>이 있으면 객체를 <code>f(x)</code>로 부를 수 있어요. 모델은 <code>nn.Module</code>을 상속해 <code>super().__init__()</code> 뒤에 <code>self.fc = nn.Linear(입력, 출력)</code>을 등록하고 <code>forward</code>에서 <code>self.fc(x)</code>를 써요. <code>model(x)</code>는 부모의 <code>__call__</code>을 거쳐 <code>forward</code>를 실행해요.</li>
+</ul>
+</div>

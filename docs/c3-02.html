@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>내 컴퓨터에 GPU가 있나 — cuda와 is_available ★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k3"><a href="index.html#c3">← 보드</a><span>GPU와 Colab · 2/8</span></div><h1>내 컴퓨터에 GPU가 있나 — cuda와 is_available ★★</h1>
+<p><a class="w" href="words.html#w60" data-w="60">GPU</a>는 컴퓨터에 따라 있기도 하고 없기도 해요. 특히 <a class="w" href="words.html#w16" data-w="16">노트북</a>에는 없는 경우가 많아요. PyTorch에서 GPU를 쓰려면 NVIDIA 그래픽 카드와 <b><a class="w" href="words.html#w61" data-w="61">CUDA</a>(쿠다)</b>가 필요해요. 교수님 설명으로 CUDA는 "GPU를 사용할 수 있게 해 주는 프로그램"이에요. 컴퓨터에 GPU가 있는지는 터미널에서 <code>nvidia-smi</code>를 입력해 확인해요. 결과가 나오면 GPU가 있는 거예요.</p>
+<p>이 수업은 1주차에 <b>GPU 유무와 관계없이 <a class="w" href="words.html#w59" data-w="59">CPU</a> 버전 PyTorch로 통일</b>하기로 했어요. GPU판은 용량이 3~4GB로 커서 설치가 오래 걸리고 충돌도 생기기 때문이에요. 교수님은 GPU가 필요하면 학과 서버를 쓸 계획이라고 했어요.</p>
+<p>코드에서는 이렇게 GPU 사용 가능 여부를 물어봐요.</p>
+<div class="code">print("CUDA 사용 가능 여부:", torch.cuda.is_available())
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print("선택된 device:", device)</div>
+<div class="code">CUDA 사용 가능 여부: False
+선택된 device: cpu</div>
+<div class="tw"><table>
+  <tr><th style="width:44%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>torch.cuda.is_available()</code></td><td>"지금 GPU를 쓸 수 있나요?"라는 질문. 가능하면 True, 아니면 False</td></tr>
+  <tr><td><code>'cuda' if ... else 'cpu'</code></td><td>0장에서 본 한 줄 조건식이에요. 쓸 수 있으면 <b>'cuda'</b>(GPU), 아니면 <b>'cpu'</b>를 <a class="w" href="words.html#w37" data-w="37">device</a> 이름으로 골라요</td></tr>
+  <tr><td>위 결과</td><td>위 출력은 GPU가 없는 컴퓨터에서 나온 결과예요. GPU가 있는 곳(예: <a class="w" href="words.html#w64" data-w="64">Colab</a> GPU)에서는 <code>True</code>와 <code>cuda</code>가 나와요</td></tr>
+</table></div>
+<div class="box def"><span class="t">왜 'cuda'라고 고정하지 않고 이렇게 쓸까요</span>
+<p>코드가 돌아갈 컴퓨터에 GPU가 있는지 미리 알 수 없기 때문이에요. <code>'cuda'</code>로 못 박으면 GPU가 없는 PC에서 <a class="w" href="words.html#w14" data-w="14">에러</a>가 나요. 위 한 줄로 "있으면 GPU, 없으면 CPU"를 고르면 <b>같은 코드를 어디서든 그대로 돌릴 수 있어요.</b> 교수님도 "디바이스를 명시하는 건 좋지 않다"고 했어요.</p>
+</div>
+<p>한 가지 더 알아 둘 것이 있어요. CUDA를 설치했다고 <code>is_available()</code>이 저절로 True가 되는 것은 아니에요. 실제로 사용할 수 있는 GPU가 있는 환경이어야 True가 나와요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>GPU 사용 가능 여부는 <a class="w" href="words.html#w62" data-w="62">torch.cuda.is_available</a>()로 확인하고, device = 'cuda' <a class="w" href="words.html#w13" data-w="13">if</a> torch.cuda.is_available() else 'cpu'로 선택하면 GPU 유무와 관계없이 같은 코드를 실행할 수 있다. 결과 예측 문제는 GPU가 없는 환경이면 False와 cpu가 나온다고 보세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 노트북에 GPU가 없을 때 위 코드의 device는 무엇이 되나요?</summary>
+<p>'cpu'예요. is_available()이 False라서 else 쪽 값을 골라요.</p></details>
+
+<div class="done"><a class="go" href="c3-03.html">다음 카드 → Tensor와 모델을 device로 옮기기 — .to(device) ★★★</a><div class="pn"><a href="c3-01.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c3"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2주차(+1·3주차) · Week02_Tensor_and_GPU, 구글 Colab GPU 환경 사용법.pdf · 빅분01(1주차)·빅분02(2주차)·빅데이터03(3주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

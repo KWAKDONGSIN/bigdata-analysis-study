@@ -1,0 +1,360 @@
+<!-- 6장: Autograd. 기울기(gradient)가 왜 필요한지, requires_grad, backward(), .grad, 계산 그래프와 chain rule, 기울기 누적과 zero_grad, torch.no_grad, 손으로 grad 값 구하기 -->
+<h2>Autograd — 기울기를 자동으로 구해 주는 기능</h2>
+<p class="lead">모델이 학습한다는 것은 "틀린 정도(loss)를 줄이는 방향으로 숫자를 조금씩 고치는 일"이에요. 그 방향을 알려 주는 것이 <b>기울기(gradient)</b>이고, PyTorch가 이것을 자동으로 계산해 주는 기능이 <b>Autograd</b>예요. 이 장에서는 <code>requires_grad</code>, <code>backward()</code>, <code>.grad</code>, 기울기가 쌓이는 성질, <code>torch.no_grad()</code>를 배워요.</p>
+
+<h3>6-1. 왜 기울기가 필요할까 — 방향과 민감도</h3>
+<p>모델에는 W와 B 같은 숫자(파라미터)가 있어요. 처음에는 아무 값이나 넣어 두기 때문에 예측이 많이 틀려요. 이 틀린 정도를 숫자 하나로 나타낸 것이 <b>손실(loss)</b>이에요. 우리 목표는 loss가 작아지도록 파라미터를 고치는 거예요.</p>
+<div class="box def"><span class="t">한 줄 정의</span>
+<p><b>기울기(gradient)</b> = 파라미터를 살짝 바꿨을 때 loss가 얼마나, 어느 방향으로 변하는지를 알려 주는 숫자예요. <b>부호는 방향, 크기는 민감도</b>예요.</p>
+</div>
+<div class="box eg"><span class="t">비유 — 안개 낀 산에서 내려오기</span>
+<p>안개가 짙은 산에서 가장 낮은 곳으로 내려가려면 발밑의 경사를 느껴서 "내리막 쪽"으로 한 걸음 가면 돼요. 기울기가 바로 그 발밑의 경사예요. 경사가 가파를수록(크기가 클수록) loss가 그 방향에 더 민감하다는 뜻이에요.</p>
+</div>
+<svg viewBox="0 0 380 180" width="96mm"><rect x="0" y="0" width="380" height="180" rx="10" fill="#f8fafc"/>
+  <defs><marker id="b6g" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#c2410c"/></marker></defs>
+  <line x1="30" y1="160" x2="350" y2="160" stroke="#9aa7bd" stroke-width="1.5"/>
+  <path d="M 60 20 Q 190 280 320 20" fill="none" stroke="#1d4ed8" stroke-width="3"/>
+  <circle cx="281" cy="86" r="7" fill="#c2410c"/>
+  <line x1="268" y1="78" x2="226" y2="124" stroke="#c2410c" stroke-width="3" marker-end="url(#b6g)"/>
+  <text x="190" y="176" text-anchor="middle" font-size="12" fill="#1b2333">w (파라미터)</text>
+  <text x="48" y="14" font-size="12" fill="#1b2333">loss</text>
+  <text x="372" y="124" text-anchor="end" font-size="12" font-weight="bold" fill="#1b2333">w=3, 기울기 +6</text>
+  <text x="120" y="60" font-size="12" fill="#1b2333">기울기가 양수면 w를 줄여요</text>
+</svg>
+<p>업데이트 식은 이렇게 써요. 학습률(learning rate, η)은 "한 걸음의 크기"예요. 7장에서 자세히 배워요.</p>
+<div class="code">w ← w − η × (loss를 w로 미분한 기울기)</div>
+<p>예를 들어 loss가 <code>L = w²</code>이고 <code>w = 3</code>이면 기울기는 <code>2w = 6</code>이에요. 학습률이 0.1이면 <code>w = 3 − 0.1 × 6 = 2.4</code>가 돼요. loss는 3² = 9에서 2.4² = 5.76으로 줄었어요. 기울기가 양수라서 w를 줄인 거예요. 반대로 기울기가 음수면 w를 늘려요.</p>
+<table>
+  <tr><th style="width:30%">기울기</th><th style="width:30%">뜻</th><th>업데이트</th></tr>
+  <tr><td>양수 (+)</td><td>w가 커지면 loss도 커져요</td><td>w를 <b>줄여요</b></td></tr>
+  <tr><td>음수 (−)</td><td>w가 커지면 loss가 줄어요</td><td>w를 <b>늘려요</b></td></tr>
+  <tr><td>크기가 큼</td><td>loss가 w에 민감해요</td><td>많이 움직여요</td></tr>
+</table>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>기울기를 설명하는 보기에서는 <b>"파라미터를 바꿨을 때 loss가 변하는 방향과 정도"</b>가 맞는 문장이에요. 업데이트는 <b>기울기의 반대 방향</b>으로 해서 loss를 줄이니, "기울기 방향으로 더한다"는 보기는 오답이에요. 식은 w ← w − 학습률 × 기울기예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 기울기가 −24이고 학습률이 0.01이면 w는 커질까요, 작아질까요?</summary>
+<p>커져요. w − 0.01 × (−24) = w + 0.24이니까 0.24만큼 커져요. 기울기가 음수이면 w를 늘려요.</p></details>
+
+<h3>6-2. requires_grad, backward(), .grad — 가장 기본 예제 <span class="st">★★★</span></h3>
+<p>PyTorch에게 "이 값의 기울기가 필요해"라고 알려 주는 표시가 <b><code>requires_grad=True</code></b>예요. 이 표시가 붙은 Tensor에서 시작한 계산은 PyTorch가 전부 기록해 두었다가, 나중에 기울기를 한꺼번에 계산해요.</p>
+<ul>
+  <li><b><code>requires_grad=True</code></b> : "이 값부터 계산 과정을 기록해 줘."</li>
+  <li><b><code>L.backward()</code></b> : 마지막 결과 L에서 거꾸로 거슬러 가며 기울기를 <b>계산해서 저장</b>해요.</li>
+  <li><b><code>w.grad</code></b> : 저장된 기울기를 꺼내 보는 곳이에요. backward 전에는 <code>None</code>(아직 없음)이에요.</li>
+</ul>
+<div class="code">w = torch.tensor(3.0, requires_grad=True)
+L = w ** 2
+
+print("w:", w)
+print("L:", L)
+print("backward 전 w.grad:", w.grad)
+
+L.backward()
+
+print("backward 후 w.grad:", w.grad)</div>
+<div class="code">w: tensor(3., requires_grad=True)
+L: tensor(9., grad_fn=&lt;PowBackward0&gt;)
+backward 전 w.grad: None
+backward 후 w.grad: tensor(6.)</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>w = torch.tensor(3.0, requires_grad=True)</code></td><td>값이 3.0인 w를 만들고 기울기를 추적하라고 표시해요.</td></tr>
+  <tr><td><code>L = w ** 2</code></td><td>L = w² = 9. 이 계산도 기록돼요. 출력의 <code>grad_fn</code>이 "기록 중"이라는 표시예요.</td></tr>
+  <tr><td><code>print(w.grad)</code> (첫 번째)</td><td>아직 backward 전이라 <code>None</code>이에요.</td></tr>
+  <tr><td><code>L.backward()</code></td><td>L을 w로 미분해요. L = w²이므로 2w = 2×3 = 6을 계산해서 <code>w.grad</code>에 저장해요.</td></tr>
+  <tr><td><code>print(w.grad)</code> (두 번째)</td><td><code>tensor(6.)</code>이에요.</td></tr>
+</table>
+<p>꼭 알아둘 점이 두 가지 있어요. 첫째, <code>backward()</code>는 <b>w.backward()가 아니라 마지막 값 L에 걸어요.</b> 둘째, <code>backward()</code>는 기울기를 <b>계산해서 저장만</b> 해요. w의 값(3.0)은 그대로이고, 값을 바꾸는 일은 나중에 업데이트(옵티마이저)가 해요.</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>미분을 몰라도 시험은 풀 수 있어요. 교수님도 chain rule로 구하든 한 번에 미분하든 값만 맞으면 된다는 취지로 말했어요. 필요한 규칙은 딱 3개예요. ① <b>wⁿ의 기울기는 n × wⁿ⁻¹</b> (w²는 2w, w³는 3w², w⁴는 4w³) ② 상수 곱하기는 그대로 따라 나와요(3w는 3) ③ 상수만 더한 것은 사라져요(w+1은 1).</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"backward()를 호출하면 무엇이 일어나는가"는 <b>기울기를 계산해 .grad에 저장한다</b>가 정답이에요. "파라미터 값까지 갱신한다"는 보기는 오답이에요. 갱신은 <code>optimizer.step()</code>이 해요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — w=3, loss=(w−1)²에서 backward 후 w.grad는? 그리고 w의 값은 바뀔까요?</summary>
+<p>w.grad는 2×(3−1) = 4예요. w는 3 그대로예요. backward는 기울기만 계산하고 w 값은 바꾸지 않아요.</p></details>
+
+<h3>6-3. 계산 그래프와 chain rule — 뒤에서 앞으로 곱하기 <span class="st">★★</span></h3>
+<p>모델은 계산이 여러 단계로 이어져 있어요. PyTorch는 계산한 순서를 지도처럼 기록해 두는데 이것이 <b>계산 그래프</b>예요. 그리고 기울기를 구할 때는 이 지도를 <b>뒤에서 앞으로</b> 거슬러 가요.</p>
+<div class="box eg"><span class="t">비유 — 도미노와 톱니바퀴</span>
+<p>톱니바퀴가 3개 이어져 있다고 생각해 보세요. 첫 톱니를 1바퀴 돌릴 때 마지막 톱니가 몇 바퀴 도는지는 <b>각 톱니바퀴 사이의 비율을 곱하면</b> 나와요. chain rule(연쇄 법칙)이 바로 "각 단계의 변화 비율을 차례로 곱하기"예요.</p>
+</div>
+<p>교수님 자료의 예제예요. <code>w = 2</code>일 때 <code>a = w²</code>, <code>b = 3a</code>, <code>L = b + 1</code>이에요.</p>
+<svg viewBox="0 0 400 150" width="100mm"><rect x="0" y="0" width="400" height="150" rx="10" fill="#f8fafc"/>
+  <defs>
+    <marker id="b6f" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#1d4ed8"/></marker>
+    <marker id="b6b" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#c2410c"/></marker>
+  </defs>
+  <rect x="6" y="20" width="70" height="38" rx="6" fill="#dbe6ff"/><text x="41" y="44" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b2333">w = 2</text>
+  <rect x="100" y="20" width="84" height="38" rx="6" fill="#e3f6ec"/><text x="142" y="44" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b2333">a = w² = 4</text>
+  <rect x="208" y="20" width="88" height="38" rx="6" fill="#fff1d6"/><text x="252" y="44" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b2333">b = 3a = 12</text>
+  <rect x="318" y="20" width="78" height="38" rx="6" fill="#fde2e2"/><text x="357" y="44" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b2333">L = b+1 = 13</text>
+  <line x1="76" y1="39" x2="98" y2="39" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#b6f)"/>
+  <line x1="184" y1="39" x2="206" y2="39" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#b6f)"/>
+  <line x1="296" y1="39" x2="316" y2="39" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#b6f)"/>
+  <line x1="316" y1="82" x2="298" y2="82" stroke="#c2410c" stroke-width="2.5" marker-end="url(#b6b)"/>
+  <line x1="206" y1="82" x2="186" y2="82" stroke="#c2410c" stroke-width="2.5" marker-end="url(#b6b)"/>
+  <line x1="98" y1="82" x2="78" y2="82" stroke="#c2410c" stroke-width="2.5" marker-end="url(#b6b)"/>
+  <text x="357" y="86" text-anchor="middle" font-size="11" fill="#1b2333">dL/db = 1</text>
+  <text x="252" y="76" text-anchor="middle" font-size="11" fill="#1b2333">db/da = 3</text>
+  <text x="142" y="76" text-anchor="middle" font-size="11" fill="#1b2333">da/dw = 2w = 4</text>
+  <text x="200" y="12" text-anchor="middle" font-size="11" fill="#1d4ed8">앞으로 가며 값 계산 (forward)</text>
+  <text x="200" y="108" text-anchor="middle" font-size="11" fill="#c2410c">뒤로 가며 비율 곱하기 (backward)</text>
+  <text x="200" y="136" text-anchor="middle" font-size="13" font-weight="bold" fill="#1b2333">dL/dw = 1 × 3 × 4 = 12</text>
+</svg>
+<div class="code">w = torch.tensor(2.0, requires_grad=True)
+a = w ** 2
+b = 3 * a
+L = b + 1
+
+L.backward()
+
+print("a =", a.item(), "b =", b.item(), "L =", L.item())
+print("dL/dw =", w.grad.item())</div>
+<div class="code">a = 4.0 b = 12.0 L = 13.0
+dL/dw = 12.0</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>a = w ** 2</code></td><td>a = 2² = 4</td></tr>
+  <tr><td><code>b = 3 * a</code></td><td>b = 3 × 4 = 12</td></tr>
+  <tr><td><code>L = b + 1</code></td><td>L = 12 + 1 = 13</td></tr>
+  <tr><td><code>L.backward()</code></td><td>뒤에서부터 각 단계의 비율을 곱해요. 1 × 3 × 4 = 12</td></tr>
+  <tr><td><code>.item()</code></td><td>숫자 하나짜리 Tensor에서 순수한 파이썬 숫자를 꺼내요.</td></tr>
+</table>
+<p>한 번에 미분해도 같은 값이에요. L = 3w² + 1이니까 기울기는 6w이고, w = 2를 넣으면 12예요. 각 단계가 자기 비율만 알면 되기 때문에, 층이 수십 개인 모델도 같은 방식으로 계산할 수 있어요. 이 과정이 신경망의 <b>역전파(backpropagation)</b>예요.</p>
+<p>조금 더 모델다운 예제도 볼게요. 예측값 = w × x, 손실 = (예측값 − 정답)²이에요. w = 2, x = 3, 정답 = 10을 넣어요.</p>
+<div class="code">w = torch.tensor(2.0, requires_grad=True)
+x = torch.tensor(3.0)
+target = torch.tensor(10.0)
+
+prediction = w * x
+loss = (prediction - target) ** 2
+loss.backward()
+
+print("prediction =", prediction.item())
+print("loss =", loss.item())
+print("dL/dw =", w.grad.item())</div>
+<div class="code">prediction = 6.0
+loss = 16.0
+dL/dw = -24.0</div>
+<ul>
+  <li>예측값 = 2 × 3 = <b>6</b></li>
+  <li>loss = (6 − 10)² = <b>16</b></li>
+  <li>loss를 예측값으로 미분하면 2 × (6 − 10) = −8, 예측값을 w로 미분하면 x = 3이에요. 곱하면 −8 × 3 = <b>−24</b>예요.</li>
+</ul>
+<p>기울기가 −24로 음수예요. w를 늘리면 예측값이 10에 가까워지니 loss가 줄어든다는 뜻이에요. 6-1의 표와 맞아요. 또한 기울기는 <b>w의 현재 값을 정한 다음에야</b> 구할 수 있어요. 위치마다 경사가 다르기 때문이에요.</p>
+<figure class="slide"><img src="slides/b_w4_chain.jpg" alt="계산 그래프와 chain rule"><figcaption>교수님 슬라이드 — 계산 그래프와 chain rule, 뒤에서 앞으로 곱하기</figcaption></figure>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>기울기 값을 묻는 문제는 ① 앞으로 계산해 중간 값(예측값, loss)을 구하고 ② loss를 w로 미분해서 ③ w, x의 숫자를 넣어요. 위 예제에서 w=2, x=3, 정답 10이면 −24예요. 이 숫자들은 교수님 자료에 나온 값이라서 그대로 외워 두면 비슷한 문제에 바로 쓸 수 있어요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — w=2에서 a=w², b=3a, L=b+1일 때 dL/dw를 chain rule로 쓰면?</summary>
+<p>1 × 3 × 4 = 12예요. dL/db = 1, db/da = 3, da/dw = 2w = 4를 곱해요.</p></details>
+
+<h3>6-4. .grad를 다룰 때 알아야 할 규칙 — leaf, 스칼라</h3>
+<p>교수님 슬라이드가 정리한 4가지 규칙 중 앞의 두 가지부터 볼게요.</p>
+<p><b>규칙 1. 기울기는 leaf Tensor에만 저장돼요.</b> leaf(잎)는 계산 그래프의 맨 끝에서 만나는 값이에요. 내가 직접 만든 <code>requires_grad=True</code> Tensor와 모델의 weight, bias가 leaf예요. 계산하는 중간에 생긴 값(예 <code>prediction</code>)은 leaf가 아니라서 <code>.grad</code>가 저장되지 않아요.</p>
+<div class="code">w = torch.tensor(2.0, requires_grad=True)   # leaf
+x = torch.tensor(3.0)                       # leaf (추적은 안 함)
+target = torch.tensor(10.0)
+
+prediction = w * x                          # 중간 값
+loss = (prediction - target) ** 2
+loss.backward()
+
+print("[w.is_leaf]:", w.is_leaf, "[w.grad]:", w.grad)
+print("[x.is_leaf]:", x.is_leaf, "[x.grad]:", x.grad)
+print("[prediction.is_leaf]:", prediction.is_leaf, "[prediction.grad]:", prediction.grad)</div>
+<div class="code">[w.is_leaf]: True [w.grad]: tensor(-24.)
+[x.is_leaf]: True [x.grad]: None
+[prediction.is_leaf]: False [prediction.grad]: None</div>
+<table>
+  <tr><th style="width:30%">변수</th><th style="width:30%">leaf?</th><th>.grad</th></tr>
+  <tr><td><code>w</code></td><td>True</td><td>−24 (추적을 켰어요)</td></tr>
+  <tr><td><code>x</code></td><td>True</td><td>None (추적을 안 켰어요. 필요 없는 계산을 줄이려고요)</td></tr>
+  <tr><td><code>prediction</code></td><td>False</td><td>None (중간 값이에요. 경고 메시지가 같이 나와요)</td></tr>
+</table>
+<p>실제 학습에서는 업데이트할 대상이 weight와 bias이니까 <b>leaf의 .grad만 보면 충분</b>해요.</p>
+<p><b>규칙 2. backward()는 숫자 하나(스칼라)에서 호출해요.</b> loss가 숫자 여러 개짜리 Tensor이면 <code>.sum()</code>이나 <code>.mean()</code>으로 하나로 합친 다음 호출해요. 보통 loss 함수는 원래부터 숫자 하나를 돌려줘요. 반면 기울기를 구하는 대상(파라미터)은 숫자 여러 개짜리여도 괜찮아요.</p>
+<div class="code">w = torch.tensor(1.0, requires_grad=True)
+x = torch.tensor(3.0)
+
+L1 = (w * x - 5) ** 2
+L2 = (w * x - 7) ** 2
+L = torch.stack([L1, L2])      # 숫자 2개짜리 Tensor로 묶음
+
+print("L =", L)
+L.sum().backward()             # 하나로 합쳐서 backward
+print("w.grad =", w.grad)</div>
+<div class="code">L = tensor([ 4., 16.], grad_fn=&lt;StackBackward0&gt;)
+w.grad = tensor(-36.)</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>L1 = (w * x - 5) ** 2</code></td><td>(3−5)² = 4</td></tr>
+  <tr><td><code>L2 = (w * x - 7) ** 2</code></td><td>(3−7)² = 16</td></tr>
+  <tr><td><code>torch.stack([L1, L2])</code></td><td>두 값을 [4, 16] 한 Tensor로 쌓아요.</td></tr>
+  <tr><td><code>L.sum().backward()</code></td><td>4 + 16 = 20 하나로 만든 뒤 backward. 기울기는 L1의 −12와 L2의 −24를 더한 <b>−36</b>이에요.</td></tr>
+  <tr><td><code>L.backward()</code> (바로)</td><td>"grad can be implicitly created only for scalar outputs" 오류가 나요.</td></tr>
+</table>
+<p>파라미터가 여러 개짜리일 때는 이렇게 돼요. <code>W = [1, 2, 3]</code>, <code>X = [2, 1, 4]</code>이고 <code>b = W @ X</code>(곱해서 더하기), <code>L = b²</code>이면 b = 2+2+12 = 16, L = 256이에요. <code>L.backward()</code> 후 <code>W.grad = [64, 32, 128]</code>이에요. 원소마다 기울기가 따로 계산돼요. 손으로는 2 × b × X의 각 칸 = 32 × [2, 1, 4]로 구해요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"<code>.grad</code>가 <code>None</code>인 이유"를 묻는 보기는 대개 ① backward를 아직 안 불렀다 ② <code>requires_grad=False</code>이다 ③ leaf가 아닌 중간 값이다 중 하나예요. 그리고 숫자 여러 개짜리 loss에는 <code>.sum()</code> 또는 <code>.mean()</code>을 먼저 쓰고 backward를 불러요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — x = torch.tensor(3.0)처럼 requires_grad를 안 켠 값의 .grad는?</summary>
+<p><code>None</code>이에요. 추적을 켜지 않았으니 기울기를 계산하지 않아요.</p></details>
+<figure class="slide"><img src="slides/b_w4_gradrules.jpg" alt=".grad 규칙 4가지"><figcaption>교수님 슬라이드 — .grad를 다룰 때 꼭 알아야 할 4가지 규칙</figcaption></figure>
+
+<h3>6-5. 기울기는 쌓여요 — 누적과 zero_grad <span class="st">★★★</span></h3>
+<p>이 장에서 시험에 가장 잘 나올 부분이에요. <code>backward()</code>를 부를 때마다 PyTorch는 기울기를 덮어쓰지 않고 <b>기존 값에 더해요(+=)</b>. 이것을 <b>누적</b>이라고 해요.</p>
+<div class="box eg"><span class="t">비유 — 주차 요금 정산기</span>
+<p>정산기에 어제 낸 금액이 안 지워진 채로 오늘 금액이 더해지면 총액이 엉망이 돼요. 새 계산을 하기 전에 정산기를 0으로 되돌려야 해요. <code>zero_grad</code>(기울기 0으로 만들기)가 그 "초기화 버튼"이에요.</p>
+</div>
+<p>교수님이 수업에서 든 예예요. 기존에 기울기가 1이었는데 새 기울기 3이 계산되면 덮어써서 3이 되는 게 아니라 <b>더해져서 4</b>가 돼요.</p>
+<div class="code">w = torch.tensor(2.0, requires_grad=True)
+print("초기 grad 값:", w.grad)
+L1 = w ** 2
+L2 = w ** 3
+L3 = w ** 4
+
+L1.backward()
+print("첫 번째 backward 후:", w.grad.item())
+
+L2.backward()
+print("두 번째 backward 후:", w.grad.item())
+
+w.grad.zero_()                 # 기울기를 0으로
+L3.backward()
+print("초기화 후 backward:", w.grad.item())</div>
+<div class="code">초기 grad 값: None
+첫 번째 backward 후: 4.0
+두 번째 backward 후: 16.0
+초기화 후 backward: 32.0</div>
+<table>
+  <tr><th style="width:36%">단계</th><th style="width:34%">그 단계의 기울기</th><th>저장된 .grad</th></tr>
+  <tr><td><code>L1 = w²</code> backward</td><td>2w = 2×2 = 4</td><td><b>4</b></td></tr>
+  <tr><td><code>L2 = w³</code> backward</td><td>3w² = 3×4 = 12</td><td>4 + 12 = <b>16</b></td></tr>
+  <tr><td><code>zero_()</code></td><td>—</td><td>0으로 지워요</td></tr>
+  <tr><td><code>L3 = w⁴</code> backward</td><td>4w³ = 4×8 = 32</td><td>0 + 32 = <b>32</b></td></tr>
+</table>
+<p><b>왜 누적이 기본일까요?</b> 같은 파라미터가 여러 경로로 loss에 영향을 주면, 각 경로의 기울기를 모두 더해야 전체 기울기가 되기 때문이에요. 하지만 보통 학습에서는 loss가 하나뿐이라서 매번 직접 지워 줘야 해요.</p>
+<p>또 하나의 규칙이 <b>규칙 4. 같은 계산 그래프는 한 번만 backward할 수 있다</b>는 거예요. backward를 하면 메모리를 아끼려고 기록(그래프)을 풀어 버려요. 같은 L에서 또 부르면 오류가 나요. 다시 하려면 forward(계산)를 새로 해서 그래프를 다시 만들어야 해요.</p>
+<div class="code">w = torch.tensor(2.0, requires_grad=True)
+L1 = w ** 2
+L1.backward()
+print("첫 번째 backward 후:", w.grad.item())
+
+# L1.backward()   ← 다시 부르면 RuntimeError
+
+w.grad.zero_()          # 기울기 초기화
+L1 = w ** 2             # forward를 다시 해서 새 그래프를 만든다
+L1.backward()
+print("새 그래프의 backward:", w.grad.item())</div>
+<div class="code">첫 번째 backward 후: 4.0
+새 그래프의 backward: 4.0</div>
+<p>교수님 자료의 기본 실습 2는 두 가지가 <b>별개</b>라는 점을 보여 줘요. 새 forward는 그래프를 새로 만들 뿐 <code>.grad</code>를 지우지 않아요. <code>w = 2</code>에서 <code>loss = w²</code>를 backward → 4, loss를 새로 계산해 다시 backward(초기화 없이) → <b>8</b>, <code>zero_()</code> 후 → 0, 새 loss로 backward → 4예요.</p>
+<table>
+  <tr><th style="width:34%">하고 싶은 일</th><th style="width:28%">해야 하는 것</th><th>왜</th></tr>
+  <tr><td>이전 기울기 지우기</td><td><code>grad.zero_()</code> / <code>optimizer.zero_grad()</code></td><td>기울기가 쌓이기 때문이에요.</td></tr>
+  <tr><td>backward를 또 하기</td><td>forward부터 다시</td><td>그래프가 한 번 쓰면 풀려요.</td></tr>
+</table>
+<p>실제 학습 루프에서는 매번 <code>pred = model(x)</code>, <code>loss = criterion(pred, y)</code>를 새로 계산하니까 그래프 재사용 문제는 없어요. 대신 <b>매 반복마다 기울기는 꼭 지워야</b> 해요. 이것이 학습 5단계의 맨 앞 <code>zero_grad</code>예요(9장).</p>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"<b>새 forward ≠ 기울기 초기화</b>". 그래프를 새로 만드는 것과 기울기를 지우는 것은 서로 상관없는 두 가지 일이에요. 4 → 8 → 0 → 4 순서를 기억하세요.</p>
+</div>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>backward를 여러 번 호출하는 코드의 출력은 <b>"앞 기울기 + 이번 기울기"</b>를 손으로 더해 가면 나와요. 중간에 <code>zero_()</code>나 <code>zero_grad()</code>가 있으면 그 줄부터 0에서 다시 시작해요. 예를 들어 w=2에서 w² → w³ → (zero) → w⁴이면 4 → 16 → 32예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — w=2에서 L=w²를 backward하고, zero 없이 loss를 새로 계산해 또 backward하면 w.grad는?</summary>
+<p>8이에요. 첫 번째 4에 두 번째 4가 더해져요. 새로 forward를 했어도 .grad는 지워지지 않아요.</p></details>
+
+<h3>6-6. torch.no_grad() — 기록을 잠깐 끄기 <span class="st">★★</span></h3>
+<p>Autograd는 계산을 계속 기록하느라 메모리와 시간을 써요. 기록이 필요 없는 순간에는 <b><code>with torch.no_grad():</code></b>로 감싸서 꺼요. 이 블록 안의 계산만 기록에서 빠지고, 블록 밖으로 나오면 다시 기록해요.</p>
+<p>꺼야 하는 대표적인 경우가 두 가지예요.</p>
+<ol>
+  <li><b>파라미터를 직접 업데이트할 때</b> — <code>requires_grad=True</code>인 leaf를 <code>-=</code>처럼 제자리(in-place)에서 고치면 오류가 나요. 그래서 no_grad 안에서 해요.</li>
+  <li><b>평가나 예측을 할 때</b> — 값을 안 고칠 거라서 기울기가 필요 없어요. 끄면 계산이 빨라지고 메모리가 줄어요(9장).</li>
+</ol>
+<div class="code">w = torch.tensor(2.0, requires_grad=True)
+x = torch.tensor(3.0)
+target = torch.tensor(10.0)
+
+loss = (w * x - target) ** 2
+loss.backward()                       # 기울기 계산
+print("grad:", w.grad.item())
+
+learning_rate = 0.01
+with torch.no_grad():                 # 추적을 끄고
+    w -= learning_rate * w.grad       # 제자리에서 업데이트
+
+print("업데이트 후 w:", round(w.item(), 2))
+print("requires_grad:", w.requires_grad)</div>
+<div class="code">grad: -24.0
+업데이트 후 w: 2.24
+requires_grad: True</div>
+<table>
+  <tr><th style="width:42%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>loss.backward()</code></td><td>w의 기울기 −24를 계산해 <code>w.grad</code>에 저장해요.</td></tr>
+  <tr><td><code>with torch.no_grad():</code></td><td>이 아래 들여쓴 줄에서는 기록을 꺼요.</td></tr>
+  <tr><td><code>w -= learning_rate * w.grad</code></td><td>w = 2 − 0.01 × (−24) = 2.24. <code>-=</code>는 <b>제자리 수정</b>이라 실제 w 값이 바뀌어요.</td></tr>
+  <tr><td><code>w.requires_grad</code></td><td>그대로 True예요. 블록 안만 잠깐 끈 것이라서 다음 학습에서 다시 기록해요.</td></tr>
+</table>
+<p>모델이 크면 파라미터마다 이 줄을 쓰기 번거로워서 <code>model.parameters()</code>로 한꺼번에 돌아요. 과제 1의 5번 빈칸이 바로 이 구조예요.</p>
+<div class="code">with torch.no_grad():
+    for parameter in model.parameters():
+        parameter -= learning_rate * parameter.grad</div>
+<p>조심할 점이 있어요. <code>parameter = parameter - ...</code>처럼 쓰면 새 Tensor가 만들어질 뿐 모델 안의 값은 안 바뀌어요. 꼭 <code>-=</code>로 써야 해요. 그리고 나중에 배울 <b>옵티마이저를 쓰면 <code>step()</code>이 이 일을 알아서 처리</b>해서 no_grad로 따로 감쌀 필요가 없어요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>"<code>torch.no_grad()</code>의 효과"는 <b>블록 안의 연산만 기울기 추적에서 제외한다</b>예요. <code>requires_grad=True</code> 설정 자체가 바뀌는 것은 아니에요. 블록 안에서 만든 결과는 <code>requires_grad=False</code>이고, 기존 w는 True 그대로예요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — no_grad 블록 안에서 w -= lr * w.grad를 하면 w.requires_grad가 False가 될까요?</summary>
+<p>아니에요. 그대로 True예요. no_grad는 블록 안의 연산 기록만 끄고 설정은 바꾸지 않아요.</p></details>
+
+<h3>6-7. 손으로 기울기 값 구하기와 자주 나는 문제 <span class="st">★★</span></h3>
+<p>교수님이 시험을 "코드를 주고 결과를 쓰는" 객관식으로 낸다고 했어요. 이 장에서 나올 수 있는 유형은 <b>기울기 값 계산</b>과 <b>누적 결과</b>예요. 순서만 익히면 쉬워요.</p>
+<ol>
+  <li>앞으로 계산해서 예측값과 loss의 숫자를 구해요.</li>
+  <li>loss를 w로 미분하는 식을 세워요. (예측값 − 정답)²이면 <b>2 × (예측값 − 정답) × x</b>예요.</li>
+  <li>숫자를 넣어요.</li>
+  <li><code>backward()</code>가 여러 번이면 더하고, 중간에 <code>zero</code>가 있으면 0부터 다시 시작해요.</li>
+</ol>
+<p>연습 문제 두 개를 풀어 볼게요. 직접 실행해서 확인한 값이에요.</p>
+<div class="code">w = torch.tensor(1.0, requires_grad=True)
+loss = (w * 2 - 7) ** 2
+loss.backward()
+print(loss.item(), w.grad.item())</div>
+<ul>
+  <li>예측값 = 1 × 2 = 2, 정답 7이니 loss = (2 − 7)² = <b>25</b></li>
+  <li>기울기 = 2 × (2 − 7) × 2 = <b>−20</b></li>
+  <li>출력은 <code>25.0 -20.0</code>이에요.</li>
+</ul>
+<div class="code">w = torch.tensor(2.0, requires_grad=True)
+for i in range(3):
+    L = w ** 2
+    L.backward()
+    print(w.grad.item())</div>
+<ul>
+  <li>매번 기울기 2w = 4가 새로 계산되지만 지우지 않아서 계속 더해져요.</li>
+  <li>출력은 <code>4.0</code>, <code>8.0</code>, <code>12.0</code>이에요.</li>
+</ul>
+<p>마지막으로 교수님 자료의 <b>오류 점검표</b>를 요약해요. 증상이 나오면 원인을 고르는 문제가 가능해요.</p>
+<table>
+  <tr><th style="width:34%">증상</th><th>원인</th></tr>
+  <tr><td><code>.grad</code>가 None</td><td>backward 전이에요 / <code>requires_grad=False</code>예요 / leaf가 아닌 중간 값이에요</td></tr>
+  <tr><td>기울기가 예상보다 커요</td><td>이전 기울기가 누적됐어요 (zero_grad 위치 확인)</td></tr>
+  <tr><td>두 번째 backward에서 오류</td><td>같은 계산 그래프를 다시 썼어요 (forward를 다시 해요)</td></tr>
+  <tr><td>backward에서 "does not require grad" 오류</td><td><code>detach()</code>, <code>no_grad()</code>, <code>.item()</code> 등으로 계산 그래프가 끊겼어요</td></tr>
+  <tr><td>숫자 여러 개짜리 loss에서 오류</td><td>스칼라가 아니에요 (<code>.sum()</code>, <code>.mean()</code>으로 합쳐요)</td></tr>
+</table>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>Autograd 설명 보기에서 맞는 문장은 이 두 개예요. "requires_grad=True인 Tensor의 연산을 계산 그래프로 기록하고, backward()가 chain rule로 leaf Tensor의 기울기를 계산해 .grad에 저장한다." "기울기는 덮어쓰이지 않고 누적되므로 매 학습 단계마다 zero_grad()로 초기화해야 한다." 반대로 "backward()가 파라미터 값까지 바꾼다"거나 "기울기는 매번 자동으로 새로 시작한다"는 보기는 오답이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 학습할 때 기울기를 매번 0으로 만들지 않으면 어떤 일이 생기나요?</summary>
+<p>이전 단계의 기울기가 계속 더해져서 기울기가 실제보다 커져요. 그러면 파라미터를 엉뚱한 방향과 크기로 업데이트하게 돼요.</p></details>
+
+<div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>기울기는 loss를 줄일 방향(부호)과 민감도(크기)를 알려 줘요. <code>requires_grad=True</code>로 추적을 켜고 loss에서 <code>backward()</code>를 호출하면 leaf Tensor의 <code>.grad</code>에 chain rule로 계산한 값이 저장돼요(w=3, L=w²이면 6 / w=2, x=3, 정답 10이면 −24).</li>
+  <li><code>backward()</code>는 스칼라 loss에서 한 번만 호출할 수 있고(그래프는 한 번 쓰면 풀려요), 기울기는 <b>누적</b>되기 때문에 <code>zero_grad</code>가 필요해요. 새 forward와 기울기 초기화는 별개예요(4 → 8 → 0 → 4).</li>
+  <li>파라미터를 직접 업데이트하거나 평가할 때는 <code>with torch.no_grad():</code>로 추적을 꺼요. 블록 안의 연산만 제외되고 <code>requires_grad=True</code>는 유지돼요. 옵티마이저의 <code>step()</code>은 이것을 알아서 처리해요.</li>
+</ul>
+</div>

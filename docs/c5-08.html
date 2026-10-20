@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>이 장 3줄 요약 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k5"><a href="index.html#c5">← 보드</a><span>nn.Module로 모델 만들기 · 8/8</span></div><h1>이 장 3줄 요약</h1><div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>모델은 <code>nn.Module</code>을 물려받은 <a class="w" href="words.html#w17" data-w="17">클래스</a>예요. <code>__init__</code>에서 <code>super().__init__()</code>을 맨 먼저 쓰고 층을 만들며, <code>forward</code>에서 계산 흐름을 써요.</li>
+  <li><code>nn.Linear(입력, 출력)</code>은 <code>x @ W.T + B</code>를 해 주는 층이에요. <a class="w" href="words.html#w68" data-w="68">weight</a>는 (출력, 입력), <a class="w" href="words.html#w69" data-w="69">bias</a>는 (출력,), <a class="w" href="words.html#w7" data-w="7">파라미터</a> 개수는 입력×출력+출력이고, 출력은 (<a class="w" href="words.html#w114" data-w="114">배치</a>, 출력)이에요.</li>
+  <li><code>model(x)</code>를 쓰면 <a class="w" href="words.html#w24" data-w="24">부모</a>의 <code>__call__</code>을 거쳐 <code>forward</code>가 실행돼요. <code>__init__</code>은 모델을 만들 때 한 번뿐이고, 일반 <a class="w" href="words.html#w31" data-w="31">Tensor</a>가 아니라 <code>nn.Parameter</code>(또는 <code>nn.Linear</code>)여야 파라미터로 등록돼요.</li>
+</ul>
+</div>
+<div class="done"><a class="go" href="c6-01.html">다음 카드 → Autograd — 자동으로 기울기 구하기 시작</a><div class="pn"><a href="c5-07.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c5"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3·6주차 · Week03_Class_for_PyTorch(업데이트), Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

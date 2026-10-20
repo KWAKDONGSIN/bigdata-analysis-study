@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>리스트와 인덱스, 슬라이싱 ★★★ 시험 단골 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k0"><a href="index.html#c0">← 보드</a><span>왕초보 코드 읽기 · 4/11</span></div><h1>리스트와 인덱스, 슬라이싱 ★★★ 시험 단골</h1>
+<p><b><a class="w" href="words.html#w1" data-w="1">리스트</a>(list)</b>는 값을 대괄호 <code>[ ]</code>로 묶어 줄 세운 거예요. 칸마다 <a class="w" href="words.html#w2" data-w="2">번호</a>가 있고, <b>번호는 0부터 시작해요.</b> 이 번호를 <b>인덱스(index)</b>라고 해요.</p>
+<div class="box eg"><span class="t">비유</span>
+<p>자(ruler)의 눈금은 1cm가 아니라 <b>0cm</b>에서 시작해요. 리스트의 첫 칸도 "1번"이 아니라 "0번"이에요. 0번이 있어서 마지막 칸 번호는 "개수 − 1"이에요.</p>
+</div>
+<div class="tw"><table>
+  <tr><th style="width:26%">리스트 a</th><td>10</td><td>20</td><td>30</td><td>40</td><td>50</td></tr>
+  <tr><th>앞에서 센 번호</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+  <tr><th>뒤에서 센 번호</th><td>-5</td><td>-4</td><td>-3</td><td>-2</td><td>-1</td></tr>
+</table></div>
+<p>뒤에서부터 세고 싶으면 <b>마이너스 번호</b>를 써요. <code>-1</code>은 맨 마지막 칸이에요.</p>
+<p>여러 칸을 한꺼번에 꺼내는 것이 <b><a class="w" href="words.html#w3" data-w="3">슬라이싱</a>(slicing)</b>이에요. <a class="w" href="words.html#w35" data-w="35">모양</a>은 <code>a[시작:끝]</code>이고, <b>끝 번호의 칸은 포함하지 않아요.</b> "시작 칸부터 끝 번호 바로 앞 칸까지"예요.</p>
+<div class="code">a = [10, 20, 30, 40, 50]
+print(a[0])
+print(a[-1])
+print(a[1:3])
+print(a[:2])
+print(a[2:])
+print(a[::2])
+print(len(a))
+a.append(60)
+print(a)</div>
+<div class="code">10
+50
+[20, 30]
+[10, 20]
+[30, 40, 50]
+[10, 30, 50]
+5
+[10, 20, 30, 40, 50, 60]</div>
+<div class="tw"><table>
+  <tr><th style="width:30%">코드 줄</th><th>무슨 뜻</th></tr>
+  <tr><td><code>a[0]</code></td><td>0번 칸 → 10</td></tr>
+  <tr><td><code>a[-1]</code></td><td>맨 마지막 칸 → 50</td></tr>
+  <tr><td><code>a[1:3]</code></td><td>1번 칸부터 3번 <b>앞</b>까지 → 1번, 2번 칸 → <code>[20, 30]</code>. 개수는 3−1 = 2개</td></tr>
+  <tr><td><code>a[:2]</code></td><td>시작을 비우면 "처음부터". 0번, 1번 칸 → <code>[10, 20]</code></td></tr>
+  <tr><td><code>a[2:]</code></td><td>끝을 비우면 "끝까지". 2번 칸부터 마지막까지</td></tr>
+  <tr><td><code>a[::2]</code></td><td>맨 끝의 숫자는 간격(보폭)이에요. 2칸씩 건너뛰며 → 10, 30, 50</td></tr>
+  <tr><td><code>len(a)</code></td><td>칸 개수 = 5. 마지막 번호(4)보다 1 커요</td></tr>
+  <tr><td><code>a.append(60)</code></td><td>리스트 맨 뒤에 60을 덧붙여요. 점(.) 쓰는 법은 0-8에서 설명해요</td></tr>
+</table></div>
+<p><b>왜 끝 번호를 포함하지 않을까요?</b> 이렇게 하면 <code>a[0:2]</code>와 <code>a[2:5]</code>를 이어 붙였을 때 빠지거나 겹치는 칸이 없어서 깔끔하기 때문이에요. 이 규칙은 다음 장 <a class="w" href="words.html#w31" data-w="31">Tensor</a> 슬라이싱에서 그대로 쓰여요.</p>
+<p>소괄호로 묶은 <b>튜플(tuple)</b>도 자주 나와요. 리스트와 거의 같은데 값을 바꿀 수 없어요. 특히 <b>원소가 하나뿐인 튜플은 쉼표를 꼭 붙여서 <code>(3,)</code></b>이라고 써요. 그냥 <code>(3)</code>이면 괄호 친 숫자 3일 뿐이라서 구분하려고 쉼표를 붙여요. 시험 선택지의 <code>(3,)</code>은 "원소가 3개인 한 줄"이라는 뜻이에요(2장).</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>슬라이싱 문제는 먼저 <b>칸마다 0, 1, 2, …번호를 써 놓고</b> 풀어요. <code>[시작:끝]</code>은 "시작 칸부터 끝 칸 바로 앞까지"이고 개수는 <code>끝 − 시작</code>이에요. 마이너스 번호는 뒤에서부터 세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — b = [5, 6, 7, 8, 9]일 때 b[1:4]와 b[-2:]는?</summary>
+<p><code>b[1:4]</code>는 1, 2, 3번 칸이라서 <code>[6, 7, 8]</code>이에요. <code>b[-2:]</code>는 뒤에서 두 번째부터 끝까지라서 <code>[8, 9]</code>예요.</p></details>
+
+<div class="done"><a class="go" href="c0-05.html">다음 카드 → 함수 — 이름 붙은 작은 기계 (def, return) ★★</a><div class="pn"><a href="c0-03.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c0"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 2~4주차 · Week02/Week03 노트북(풀이포함) · 빅분02(2주차)·빅데이터03(3주차)·빅데이터04(4주차) 녹취</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>샘플 시험 3번 손으로 풀기와 자주 나오는 오류 ★★★ · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k5"><a href="index.html#c5">← 보드</a><span>nn.Module로 모델 만들기 · 7/8</span></div><h1>샘플 시험 3번 손으로 풀기와 자주 나오는 오류 ★★★</h1>
+<p>이제 시험 문제를 풀 준비가 됐어요. 문제 내용은 이래요. 모델이 <a class="w" href="words.html#w73" data-w="73">입력 특성</a> 3개를 출력 특성 2개로 바꾸고, 빈칸 (A)에는 층을 만드는 코드, (B)에는 <a class="w" href="words.html#w70" data-w="70">forward</a>가 돌려줄 값을 써야 해요. 입력은 <code>torch.ones(4, 3)</code>이고 출력 크기가 <code>(4, 2)</code>가 되어야 해요.</p>
+<div class="code">class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = __________  # (A)
+
+    def forward(self, x):
+        return __________     # (B)</div>
+<ol>
+  <li><b>(A) 찾기</b> — 입력 3개, 출력 2개이니 <code>nn.Linear(3, 2)</code>예요. 보기 ①의 <code>(2, 3)</code>은 순서가 뒤집혔어요. 보기 ④의 <code>(4, 2)</code>는 <a class="w" href="words.html#w115" data-w="115">배치 크기</a> 4를 입력 특성으로 착각한 거예요.</li>
+  <li><b>(B) 찾기</b> — 층에 x를 넣어야 계산돼요. <code>self.fc(x)</code>가 맞아요. <code>self.fc</code>만 쓰면 층 상자 자체를 돌려줄 뿐 계산하지 않아서 보기 ③은 오답이에요.</li>
+  <li><b><code>model(x)</code>의 호출 과정</b> — "<a class="w" href="words.html#w23" data-w="23">상속</a>받은 <code>__call__()</code>의 호출 처리를 거쳐 <code>forward()</code> 실행"이 맞아요. "<code>__init__()</code>을 다시 실행"은 보기 ②, ④에 있는데 둘 다 틀려요.</li>
+</ol>
+<p>세 조건을 모두 만족하는 것은 (A) <code>nn.Linear(3, 2)</code>, (B) <code>self.fc(x)</code>, 호출 과정은 <code>__call__</code> 경유인 <b>⑤번</b>이에요.</p>
+<div class="box exam"><span class="t">이렇게 고르세요 (풀이 요령)</span>
+<p>표로 된 보기는 <b>열마다 지우는 방식</b>으로 풀어요. (A) 열에서 입력→출력 순서가 틀린 보기를 지우고, (B) 열에서 괄호나 x가 빠진 보기를 지우고, 마지막 열에서 "<code>__init__</code> 다시 실행"을 지우면 하나만 남아요.</p>
+</div>
+<p>마지막으로 교수님 자료에 나온 <b>자주 발생하는 <a class="w" href="words.html#w14" data-w="14">오류</a></b> 3가지를 정리해요. 실제로 실행해서 나온 메시지예요.</p>
+<div class="tw"><table>
+  <tr><th style="width:34%">실수</th><th style="width:30%">나오는 오류</th><th>이유</th></tr>
+  <tr><td><code>super().__init__()</code>을 빼먹음</td><td>AttributeError ("cannot assign <a class="w" href="words.html#w66" data-w="66">module</a> before Module.<a class="w" href="words.html#w22" data-w="22">__init__</a>() <a class="w" href="words.html#w28" data-w="28">call</a>")</td><td><a class="w" href="words.html#w24" data-w="24">부모</a>의 준비가 안 돼서 층을 등록할 수 없어요.</td></tr>
+  <tr><td><code>forward</code>를 정의하지 않음</td><td>NotImplementedError ("missing the required forward <a class="w" href="words.html#w6" data-w="6">function</a>")</td><td><code>model(x)</code>가 실행할 계산 흐름이 없어요.</td></tr>
+  <tr><td><a class="w" href="words.html#w67" data-w="67">Linear</a> 입력 크기와 데이터가 안 맞음</td><td>RuntimeError ("mat1 and mat2 shapes cannot be multiplied")</td><td><code>nn.Linear(4, 3)</code>에는 마지막 차원이 4인 데이터를 넣어야 해요.</td></tr>
+</table></div>
+<details class="check"><summary>잠깐 확인 — nn.Linear(4, 3)에 (2, 5) 크기의 데이터를 넣으면?</summary>
+<p>오류가 나요. 마지막 차원이 5인데 Linear는 4를 기대해서 곱셈이 안 되기 때문이에요. 이때 오류 메시지에 "2x5 and 4x3"처럼 두 크기가 찍혀요.</p></details>
+
+<div class="done"><a class="go" href="c5-08.html">다음 카드 → 이 장 3줄 요약</a><div class="pn"><a href="c5-06.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c5"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3·6주차 · Week03_Class_for_PyTorch(업데이트), Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>

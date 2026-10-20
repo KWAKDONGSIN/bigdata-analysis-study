@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>딥러닝이 뭐예요 — 다이얼이 잔뜩 달린 기계 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=b78e39c4">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="index.html" class=on>보드</a><a href="b.html">최소코스</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a></nav>
+</div></header>
+<main>
+<div class="crumb k1"><a href="index.html#c1">← 보드</a><span>딥러닝이 뭐예요 + 학습 과정 큰 그림 · 1/11</span></div><h1>딥러닝이 뭐예요 — 다이얼이 잔뜩 달린 기계</h1>
+<p><a class="w" href="words.html#w133" data-w="133">딥러닝</a>(deep learning)은 컴퓨터에게 규칙을 하나하나 가르치지 않고, <b>입력과 <a class="w" href="words.html#w101" data-w="101">정답</a>의 짝을 많이 보여 줘서 규칙을 스스로 찾게 하는 방법</b>이에요. 이때 규칙을 담는 계산 기계를 <b>모델(model)</b>이라고 해요.</p>
+<p>모델 안에는 값을 바꿀 수 있는 <b>숫자(<a class="w" href="words.html#w7" data-w="7">파라미터</a>, parameter)</b>가 아주 많이 들어 있어요. 이 숫자들을 <b>다이얼</b>이라고 생각하세요. 처음엔 다이얼이 아무렇게나 맞춰져 있어서 예측이 엉망이에요. 틀린 정도를 보고 다이얼을 조금씩 돌려서 정답에 가까워지게 만드는 과정이 <b><a class="w" href="words.html#w135" data-w="135">학습</a>(training)</b>이에요.</p>
+<div class="box eg"><span class="t">비유 — 찌개 간 맞추기</span>
+<p>된장찌개가 너무 싱거워요(예측이 정답과 달라요). 간을 보고 "목표 맛과 얼마나 다른지"를 느껴요(<a class="w" href="words.html#w99" data-w="99">loss</a>). 소금을 조금 넣어 보면 나아질지, 오히려 짜질지 방향을 따져요(<a class="w" href="words.html#w83" data-w="83">gradient</a>). 그 방향으로 소금을 아주 조금 넣어요(update). 이걸 맛이 맞을 때까지 반복해요. 딥러닝은 소금 같은 재료(다이얼)가 수천, 수만 가지인 찌개를 컴퓨터가 대신 맞추는 일이에요.</p>
+</div>
+<p>교수님도 같은 방식으로 설명했어요. 3주차에 칠판으로 "<a class="w" href="words.html#w68" data-w="68">weight</a> 하나를 조금 올려 보고 loss가 줄면 그 방향이 맞다, 늘면 반대 방향"이라고 했어요. 이것이 곧 이 장의 핵심이에요.</p>
+<p>여러 층(<a class="w" href="words.html#w72" data-w="72">layer</a>)을 겹겹이 쌓은 모델을 쓰기 때문에 "깊다(deep)"는 말이 붙어요. 이 과목은 이 모델을 PyTorch로 만들고 학습시키는 코드를 다뤄요.</p>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>시험은 코드를 직접 짜는 문제가 아니라 <b>코드를 주고 결과를 고르는 객관식</b>이에요(1주차·7주차 교수님 안내). 교수님이 말한 문제 유형은 개념 설명, 결과 예측, 빈칸 채우기예요. 이 장은 개념 문제의 바탕이에요. "학습이란 loss를 줄이는 방향으로 파라미터를 조금씩 고치는 일"이라는 한 문장을 기억하세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 모델 안의 "다이얼"에 해당하는 것은 무엇인가요?</summary>
+<p>파라미터(weight와 <a class="w" href="words.html#w69" data-w="69">bias</a>)예요. 학습은 이 숫자들을 조금씩 고치는 일이에요.</p></details>
+
+<div class="done"><a class="go" href="c1-02.html">다음 카드 → 학습 5단계 한눈에 보기 ★★★</a><div class="pn"><a href="index.html#c1"><b>← 이전</b>보드로</a><a class="next" href="quiz.html#c1"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 4주차 · 딥러닝 모델 Training 과정.pdf, Week04 Autograd_Loss_Optimizer.ipynb · 빅데이터04(4주차) 녹취, 빅데이터03·07 녹취 일부</p></div>
+</main>
+<script src="assets/words.js?v=b78e39c4"></script>
+<script src="assets/app.js?v=b78e39c4"></script>
+</body>
+</html>
