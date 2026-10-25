@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>model(x)는 어떻게 forward를 실행할까 — __call__ ★★★ · 빅데이터분석 시험공부</title>
 <meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
-<link rel="stylesheet" href="assets/style.css?v=c12fbd1e">
+<link rel="stylesheet" href="assets/style.css?v=16d0174b">
 </head>
 <body>
 <header class="top"><div class="top-in">
@@ -13,7 +13,7 @@
 <nav class="nav" aria-label="메뉴"><a href="plan.html">내 일정</a><a href="index.html" class=on>보드</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a><a href="research.html">왜 이렇게?</a></nav>
 </div></header>
 <main>
-<div class="crumb k5"><a href="index.html#c5">← 보드</a><span>nn.Module로 모델 만들기 · 4/8</span></div><h1>model(x)는 어떻게 forward를 실행할까 — __call__ ★★★</h1>
+<div class="crumb k6"><a href="index.html#c5">← 보드</a><span>nn.Module로 모델 만들기 · 4/8</span></div><h1>model(x)는 어떻게 forward를 실행할까 — __call__ ★★★</h1>
 <p>코드를 보면 <code>forward</code>를 만들었는데 실제로는 <code>model.forward(x)</code>가 아니라 <code>model(x)</code>라고 불러요. 이상하죠. 교수님이 여러 번 강조한 부분이라서 순서대로 따라가 볼게요.</p>
 <div class="box eg"><span class="t">비유 — 식당 접수대</span>
 <p>손님(x)이 바로 주방(<code>forward</code>)으로 들어가지 않고 <b>접수대(<code>__call__</code>)</b>를 먼저 거쳐요. 접수대는 <a class="w" href="words.html#w2" data-w="2">번호</a>표를 주고 기록을 남기는 등 부가 업무를 한 다음 주방에 주문을 넘겨요. 접수대는 식당 본사(<a class="w" href="words.html#w24" data-w="24">부모</a> <code>nn.Module</code>)가 이미 만들어 뒀고, 주방(<code>forward</code>)만 우리 가게(<a class="w" href="words.html#w25" data-w="25">자식 클래스</a>)가 직접 꾸려요.</p>
@@ -68,7 +68,7 @@ f(10): 21</div>
 
 <div class="recall"><b>덮고 10초 — 말해 보기</b><p>화면을 가리고 <b>"model(x)는 어떻게 forward를 실행할까 — __call__ ★★★"</b>을(를) 친구에게 설명하듯 한 문장으로 말해 보세요. 막히면 위의 빨간 칸만 다시 보고 넘어가요.</p></div><div class="done"><a class="go" href="c5-05.html">다음 카드 → nn.Parameter — 학습할 값은 &quot;등록&quot;해야 해요</a><div class="pn"><a href="c5-03.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c5"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3·6주차 · Week03_Class_for_PyTorch(업데이트), Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)</p></div>
 </main>
-<script src="assets/words.js?v=c12fbd1e"></script>
-<script src="assets/app.js?v=c12fbd1e"></script>
+<script src="assets/words.js?v=16d0174b"></script>
+<script src="assets/app.js?v=16d0174b"></script>
 </body>
 </html>

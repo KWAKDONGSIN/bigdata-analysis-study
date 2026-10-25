@@ -1,0 +1,509 @@
+<!-- 10장: 코드 손으로 따라가기 훈련. 풀이 예시 → 빈칸 풀이 → 혼자 풀기(점점 풀이를 지우는 방식)로 시험의 '코드를 보고 결과 고르기'를 0에서 훈련해요 -->
+<h2>코드 손으로 따라가기 훈련 — 예시 보고, 빈칸 채우고, 혼자 풀어요</h2>
+<p class="lead">이 시험은 코드를 <b>만드는</b> 시험이 아니라 코드를 <b>읽고 결과를 고르는</b> 시험이에요. 그래서 필요한 능력은 딱 하나, 코드를 한 줄씩 손으로 따라가며 변수 값을 적어 나가는 힘이에요. 이 장은 그 힘을 아무것도 모르는 상태에서부터 8단계로 키워요.</p>
+
+<h3>1단계. print와 변수 — 이름표 상자 값 따라가기</h3>
+<div class="box eg"><span class="t">비유 — 실험 노트에 값 적기</span>
+<p>시료를 희석할 때마다 노트에 "지금 농도 얼마"를 한 줄씩 고쳐 적잖아요. 코드 따라가기도 똑같아요. 줄이 실행될 때마다 변수 값이 어떻게 바뀌는지 <b>메모장 표</b>에 한 줄씩 적으면, 마지막에 답이 저절로 나와요.</p>
+</div>
+
+<div class="box def"><span class="t">코드 읽기 3원칙</span>
+<ul>
+<li><b>위에서 아래로, 한 줄씩.</b> 컴퓨터는 적힌 순서대로만 일해요. 건너뛰거나 미리 알아맞히지 않아요.</li>
+<li><b>오른쪽을 먼저 계산하고, 그 결과를 왼쪽 이름에 저장해요.</b> <code>x = 3 + 4</code>는 "3+4를 계산해서 7을 x라는 이름표 상자에 넣어라"예요. 수학의 "같다"가 아니에요.</li>
+<li><b>print가 찍은 것만 화면에 나와요.</b> 시험의 "실행 결과는?"은 print가 찍는 글자를 순서대로 맞히는 문제예요.</li>
+</ul>
+</div>
+
+<div class="box tip"><span class="t">이 장을 쓰는 법 — 점점 풀이를 지워 가요</span>
+<p>각 단계는 세 칸이에요. <b>① 풀이 예시</b>는 표가 다 채워져 있으니 눈으로 따라가세요. <b>② 빈칸 풀이</b>는 표의 몇 칸이 <code>?</code>로 가려져 있어요. 직접 계산해 본 뒤 눌러서 확인하세요. <b>③ 혼자 풀기</b>는 표 없이 종이에 직접 표를 그려 풀고 답을 열어 보세요.</p>
+<p>왜 이렇게 하냐면, 처음부터 혼자 풀면 막막하고 풀이만 읽으면 눈에만 익고 손에는 안 남기 때문이에요. 완성된 풀이를 보고, 빈칸을 채우고, 마지막에 혼자 하는 순서가 처음 배우는 사람에게 가장 잘 남아요.</p>
+</div>
+<p><b>변수</b>(variable)는 값을 담는 상자에 이름표를 붙인 거예요. <code>a = 5</code>는 "a 상자에 5를 넣어라"예요. 상자에는 한 번에 값 하나만 들어가서, 새 값을 넣으면 예전 값은 사라져요.</p>
+<p><code>f"..."</code>는 따옴표 안의 <code>{이름}</code> 자리에 그 변수의 값을 끼워 넣어 주는 문자열이에요. 읽을 때는 중괄호 안을 값으로 바꾸기만 하면 돼요.</p>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">a = 5
+b = a + 2
+a = 10
+print(a, b)
+print(b * 2)
+print(f"b는 {b}")</div>
+<p>변수마다 열을 하나씩 만들고, 줄이 실행될 때마다 바뀐 값을 적어요. 이게 메모장 표예요.</p>
+<table>
+<tr><th>줄</th><th>하는 일</th><th>a</th><th>b</th><th>화면에 나온 것</th></tr>
+<tr><td>1</td><td><code>a = 5</code> → a에 5 저장</td><td>5</td><td>-</td><td></td></tr>
+<tr><td>2</td><td><code>b = a + 2</code> → 5+2=7을 b에 저장</td><td>5</td><td>7</td><td></td></tr>
+<tr><td>3</td><td><code>a = 10</code> → a만 새 값으로 바뀜</td><td>10</td><td><b>7</b> (그대로)</td><td></td></tr>
+<tr><td>4</td><td><code>print(a, b)</code></td><td>10</td><td>7</td><td><code>10 7</code></td></tr>
+<tr><td>5</td><td><code>print(b * 2)</code> → 7×2</td><td>10</td><td>7</td><td><code>14</code></td></tr>
+<tr><td>6</td><td><code>print(f"b는 {b}")</code> → {b}를 7로</td><td>10</td><td>7</td><td><code>b는 7</code></td></tr>
+</table>
+<div class="code">10 7
+14
+b는 7</div>
+<p>3번 줄에서 a가 바뀌어도 b는 7 그대로예요. b를 만들 때 <b>그 순간 계산된 값 7</b>이 들어갔을 뿐, a와 계속 이어져 있는 게 아니기 때문이에요. 초보자가 가장 많이 틀리는 곳이에요.</p>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">x = 3
+y = x * 2
+x = x + 1
+print(x, y)</div>
+<table>
+<tr><th>줄</th><th>하는 일</th><th>x</th><th>y</th><th>화면에 나온 것</th></tr>
+<tr><td>1</td><td><code>x = 3</code></td><td>3</td><td>-</td><td></td></tr>
+<tr><td>2</td><td><code>y = x * 2</code> → 3×2</td><td>3</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">6</p></details></td><td></td></tr>
+<tr><td>3</td><td><code>x = x + 1</code> → 오른쪽 먼저 3+1, 그 값을 x에 다시 저장</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">4</p></details></td><td>6</td><td></td></tr>
+<tr><td>4</td><td><code>print(x, y)</code></td><td>4</td><td>6</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>4 6</code></p></details></td></tr>
+</table>
+<p><b>③ 혼자 풀기</b> — 종이에 name, n 열이 있는 표를 그리고 화면에 나오는 두 줄을 적어 보세요.</p>
+<div class="code">name = "Bori"
+n = 2
+n = n * n
+print(name, n)
+print(f"{name}는 {n}살")</div>
+<details class="check"><summary>답 보기</summary><div class="code">Bori 4
+Bori는 4살</div>
+<p>name은 계속 "Bori"예요. n은 2로 시작해 <code>n = n * n</code>에서 2×2=4가 되어 다시 n에 저장돼요. 두 print 모두 n이 4일 때 실행돼요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>변수마다 열을 하나 만들고, 줄을 실행할 때마다 그 줄에서 바뀐 칸만 고쳐 적어요. 선택지를 먼저 보지 말고 표를 끝까지 채운 다음에 맞는 것을 고르세요. 답은 "print가 찍은 것"뿐이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — a = 1 다음 줄에 a = a + 1이 있으면 a는 얼마인가요?</summary>
+<p>2예요. 오른쪽을 먼저 계산해(1+1=2) 그 값을 다시 a 상자에 넣어요. 예전 값 1은 사라져요.</p></details>
+<h3>2단계. 리스트 번호와 슬라이싱 — 번호는 0부터, 끝 칸은 빠져요</h3>
+<p><b>리스트</b>(list)는 값을 한 줄로 늘어놓은 상자예요. <code>[10, 20, 30]</code>처럼 대괄호 안에 쉼표로 적어요. 각 칸의 번호(<b>인덱스</b>)는 <b>0부터</b> 시작해요. 자의 첫 눈금이 1cm가 아니라 0이듯, 번호는 "앞에서 몇 칸을 건너뛰었나"예요.</p>
+<ul>
+<li><code>s[0]</code>은 첫 칸, <code>s[1]</code>은 둘째 칸이에요. 뒤에서는 <code>s[-1]</code>이 마지막 칸, <code>s[-2]</code>가 뒤에서 둘째 칸이에요.</li>
+<li>슬라이싱 <code>s[시작:끝]</code>은 시작 번호부터 <b>끝 번호 바로 앞까지</b> 잘라요. 끝 번호 칸은 <b>빠져요</b>. 칸 사이의 경계선에 번호가 붙어 있고 두 경계선 사이를 자른다고 생각하면 쉬워요.</li>
+<li>시작을 비우면 맨 앞부터(<code>s[:2]</code>), 끝을 비우면 맨 뒤까지(<code>s[3:]</code>)예요.</li>
+</ul>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">s = [10, 20, 30, 40, 50]
+print(s[0])
+print(s[-1])
+print(s[1:3])
+print(s[:2])
+print(len(s))</div>
+<table>
+<tr><th>앞에서 번호</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+<tr><td><b>값</b></td><td>10</td><td>20</td><td>30</td><td>40</td><td>50</td></tr>
+<tr><td>뒤에서 번호</td><td>-5</td><td>-4</td><td>-3</td><td>-2</td><td>-1</td></tr>
+</table>
+<table>
+<tr><th>코드</th><th>따라가기</th><th>화면에 나온 것</th></tr>
+<tr><td><code>print(s[0])</code></td><td>앞 번호 0 → 10</td><td><code>10</code></td></tr>
+<tr><td><code>print(s[-1])</code></td><td>뒤 번호 -1 → 맨 마지막 50</td><td><code>50</code></td></tr>
+<tr><td><code>print(s[1:3])</code></td><td>번호 1, 2번 칸 (3번은 빠짐) → 20, 30</td><td><code>[20, 30]</code></td></tr>
+<tr><td><code>print(s[:2])</code></td><td>처음부터 번호 0, 1번 칸 → 10, 20</td><td><code>[10, 20]</code></td></tr>
+<tr><td><code>print(len(s))</code></td><td>len은 칸 수 → 5칸</td><td><code>5</code></td></tr>
+</table>
+<div class="code">10
+50
+[20, 30]
+[10, 20]
+5</div>
+<p>슬라이싱 결과는 값 하나가 아니라 <b>리스트</b>라서 대괄호가 붙어서 나와요. <code>s[1]</code>은 20(값 하나), <code>s[1:2]</code>는 <code>[20]</code>(리스트)예요. 이 차이는 5단계의 텐서에서 그대로 다시 나와요.</p>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">w = [5, 6, 7, 8, 9]
+print(w[2])
+print(w[-2])
+print(w[1:4])
+print(w[3:])</div>
+<table>
+<tr><th>앞에서 번호</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+<tr><td><b>값</b></td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td></tr>
+</table>
+<table>
+<tr><th>코드</th><th>따라가기</th><th>화면에 나온 것</th></tr>
+<tr><td><code>print(w[2])</code></td><td>앞 번호 2</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>7</code></p></details></td></tr>
+<tr><td><code>print(w[-2])</code></td><td>뒤에서 둘째 칸</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>8</code></p></details></td></tr>
+<tr><td><code>print(w[1:4])</code></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">번호 1, 2, 3번 칸 (4번은 빠짐)</p></details></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>[6, 7, 8]</code></p></details></td></tr>
+<tr><td><code>print(w[3:])</code></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">3번 칸부터 끝까지</p></details></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>[8, 9]</code></p></details></td></tr>
+</table>
+<p><b>③ 혼자 풀기</b> — 종이에 번호표(앞 번호와 값)를 먼저 그리고 풀어 보세요.</p>
+<div class="code">t = [3, 1, 4, 1, 5, 9]
+print(t[1:4])
+print(t[-3:])
+print(t[2] + t[-1])</div>
+<details class="check"><summary>답 보기</summary><div class="code">[1, 4, 1]
+[1, 5, 9]
+13</div>
+<p>t의 번호표는 0→3, 1→1, 2→4, 3→1, 4→5, 5→9예요. <code>t[1:4]</code>는 1, 2, 3번 칸이라 1, 4, 1이에요. <code>t[-3:]</code>은 뒤에서 셋째 칸부터 끝까지라 1, 5, 9예요. 마지막은 t[2]=4와 t[-1]=9를 더한 13이고, 이건 리스트가 아니라 숫자 하나예요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>리스트가 나오면 먼저 종이에 번호표(0, 1, 2, ...)를 그려 값 아래에 붙이세요. 그다음 <code>[시작:끝]</code>은 "끝 번호 칸은 빼고" 읽어요. 선택지에 끝 칸이 들어간 값이 있으면 함정이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 칸이 5개인 리스트 s에서 s[1:3]에 3번 칸 값이 들어가나요?</summary>
+<p>안 들어가요. 끝 번호 3은 "3번 칸 바로 앞까지"라는 뜻이라 1번과 2번 칸 값만 나와요.</p></details>
+<h3>3단계. for 반복 — 바퀴 표를 그려요</h3>
+<p><b>for</b>는 같은 일을 여러 번 시키는 문장이에요. 시료 3개를 하나씩 같은 방법으로 처리하는 실험과 같아요. <b>들여쓰기</b>(앞쪽 공백)로 한 줄 안쪽으로 들어간 줄들이 한 바퀴마다 반복되고, 들여쓰기가 끝난 줄은 반복이 다 끝난 뒤 한 번만 실행돼요.</p>
+<ul>
+<li><code>for i in range(3)</code>은 i가 0, 1, 2로 바뀌며 세 바퀴를 돌아요. <code>range(n)</code>은 0부터 <b>n-1</b>까지예요(슬라이싱처럼 끝 숫자는 빠져요). <code>range(1, 4)</code>는 1, 2, 3이에요.</li>
+<li><code>for n in [2, 4, 6]</code>은 리스트의 값을 앞에서부터 하나씩 n에 넣으며 세 바퀴 돌아요.</li>
+<li><code>리스트.append(값)</code>은 리스트 맨 끝에 값을 덧붙여요.</li>
+</ul>
+<p>따라가는 법은 <b>바퀴마다 한 행</b>을 적는 거예요. 왜냐하면 반복문의 결과는 "몇 바퀴째에 변수가 어떻게 바뀌나"로만 정해지기 때문이에요.</p>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">total = 0
+for i in range(3):
+    total = total + i
+    print(i, total)
+print("끝", total)</div>
+<table>
+<tr><th>바퀴</th><th>i</th><th>계산</th><th>total (바퀴 끝)</th><th>화면에 나온 것</th></tr>
+<tr><td>시작 전</td><td>-</td><td>-</td><td>0</td><td></td></tr>
+<tr><td>1</td><td>0</td><td>0 + 0</td><td>0</td><td><code>0 0</code></td></tr>
+<tr><td>2</td><td>1</td><td>0 + 1</td><td>1</td><td><code>1 1</code></td></tr>
+<tr><td>3</td><td>2</td><td>1 + 2</td><td>3</td><td><code>2 3</code></td></tr>
+<tr><td>반복 끝난 뒤</td><td>-</td><td>-</td><td>3</td><td><code>끝 3</code></td></tr>
+</table>
+<div class="code">0 0
+1 1
+2 3
+끝 3</div>
+<p>print가 들여쓰기 안쪽에 있어서 바퀴마다 한 번씩 세 번 찍히고, 바깥쪽 print는 마지막에 한 번만 찍혀요. print가 안쪽이냐 바깥쪽이냐에 따라 결과 줄 수가 달라져요.</p>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">result = []
+for n in [2, 4, 6]:
+    result.append(n + 1)
+print(result)</div>
+<table>
+<tr><th>바퀴</th><th>n</th><th>덧붙이는 값 (n+1)</th><th>result (바퀴 끝)</th></tr>
+<tr><td>시작 전</td><td>-</td><td>-</td><td><code>[]</code> (비어 있음)</td></tr>
+<tr><td>1</td><td>2</td><td>3</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>[3]</code></p></details></td></tr>
+<tr><td>2</td><td>4</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">5</p></details></td><td><code>[3, 5]</code></td></tr>
+<tr><td>3</td><td>6</td><td>7</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>[3, 5, 7]</code></p></details></td></tr>
+</table>
+<p>화면에 나오는 것은 print가 한 번뿐이라 한 줄이에요.</p>
+<details class="check"><summary>화면 결과 보기</summary><div class="code">[3, 5, 7]</div>
+</details>
+<p><b>③ 혼자 풀기</b> — 바퀴 표(k, 계산, s)를 그려서 풀어 보세요. range(1, 4)가 어떤 숫자를 만드는지부터 적으세요.</p>
+<div class="code">s = 0
+for k in range(1, 4):
+    s = s + k * 2
+print(s)</div>
+<details class="check"><summary>답 보기</summary><div class="code">12</div>
+<p>k는 1, 2, 3이에요. s는 0에서 시작해 1바퀴 0+1×2=2, 2바퀴 2+2×2=6, 3바퀴 6+3×2=12가 돼요. print는 들여쓰기 밖에 있어서 마지막에 한 번만 찍혀요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>for가 나오면 먼저 "몇 바퀴, 각 바퀴에서 변수 값은?"을 적어요. 그다음 들여쓴 줄을 바퀴마다 한 번씩 실행해 바퀴 표를 채워요. print의 들여쓰기 위치를 꼭 확인하세요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — range(5)가 만드는 숫자는 무엇인가요?</summary>
+<p>0, 1, 2, 3, 4예요. 모두 5개이고 끝 숫자 5는 들어가지 않아요.</p></details>
+<h3>4단계. 함수 호출 — 넣으면 돌려주는 작은 기계</h3>
+<p><b>함수</b>(function)는 이름을 붙여 둔 작은 기계예요. <code>def 이름(재료):</code>로 기계를 <b>만들어 두기만</b> 하고, <code>이름(값)</code>처럼 <b>부를 때</b> 비로소 안쪽 줄이 실행돼요. 믹서기를 사 놓기만 하면 아무것도 갈리지 않는 것과 같아요.</p>
+<ul>
+<li>호출하면 값이 괄호 안 이름표(<b>매개변수</b>)에 순서대로 들어가요. <code>area(3, 4)</code>면 w=3, h=4예요.</li>
+<li><code>return 값</code>을 만나면 그 값이 호출한 자리로 돌아가 호출 부분을 대신해요. 그래서 <code>a = area(3, 4)</code>는 <code>a = 12</code>와 같아져요.</li>
+<li><code>y=1</code>처럼 = 이 붙은 이름은 <b>기본값</b>이에요. 호출할 때 값을 주지 않으면 이 값이 쓰여요.</li>
+</ul>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">def area(w, h):
+    return w * h
+
+a = area(3, 4)
+b = area(a, 2)
+print(a, b)</div>
+<table>
+<tr><th>실행</th><th>하는 일</th><th>w, h</th><th>돌려준 값</th><th>a</th><th>b</th></tr>
+<tr><td>1~2줄</td><td><code>def</code> → 기계를 만들어 두기만 해요 (아직 실행 안 함)</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+<tr><td>4줄</td><td><code>area(3, 4)</code> 호출 → w=3, h=4, 3×4</td><td>3, 4</td><td>12</td><td>12</td><td>-</td></tr>
+<tr><td>5줄</td><td><code>area(a, 2)</code> 호출 → a는 지금 12라서 w=12, h=2, 12×2</td><td>12, 2</td><td>24</td><td>12</td><td>24</td></tr>
+<tr><td>6줄</td><td><code>print(a, b)</code></td><td>-</td><td>-</td><td>12</td><td>24</td></tr>
+</table>
+<div class="code">12 24</div>
+<p>화면에는 마지막 print의 <code>12 24</code> 한 줄만 나와요. 함수 안의 계산은 return으로 값을 돌려줄 뿐 화면에 찍지 않기 때문이에요.</p>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">def f(x, y=1):
+    return x * 10 + y
+
+print(f(2))
+print(f(2, 5))</div>
+<table>
+<tr><th>호출</th><th>x</th><th>y</th><th>x×10+y</th><th>화면에 나온 것</th></tr>
+<tr><td><code>f(2)</code></td><td>2</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">1 (기본값)</p></details></td><td>2×10+1</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>21</code></p></details></td></tr>
+<tr><td><code>f(2, 5)</code></td><td>2</td><td>5</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">2×10+5</p></details></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>25</code></p></details></td></tr>
+</table>
+<p><b>③ 혼자 풀기</b> — 화면에 나오는 두 줄을 적어 보세요. show 함수에 return이 있는지부터 보세요.</p>
+<div class="code">def show(n):
+    print(n * 2)
+
+r = show(4)
+print(r)</div>
+<details class="check"><summary>답 보기</summary><div class="code">8
+None</div>
+<p><code>show(4)</code>를 부르면 안쪽 print가 4×2=8을 화면에 찍어요(첫 줄). 그런데 show에는 return이 없어서 돌려주는 값이 없고, 이때 파이썬은 <b>None</b>(아무것도 없음)을 돌려줘요. 그래서 r은 None이고 두 번째 print가 <code>None</code>을 찍어요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>호출이 나오면 "누가 어떤 이름표에 들어가나"를 w, h 같은 열로 적고, 안쪽을 계산해 return 값을 호출 자리에 갈아 끼우세요. <code>print</code>는 화면에 찍기, <code>return</code>은 값을 돌려주기라서 둘은 다른 일이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — def만 쓰고 한 번도 부르지 않으면 함수 안쪽 줄이 실행되나요?</summary>
+<p>안 돼요. def는 만들어 두기만 해요. 이름(값)으로 호출해야 실행돼요.</p></details>
+<h3>5단계. 텐서 shape 읽기 — 숫자 하나는 줄이고, 범위는 남겨요</h3>
+<p><b>텐서</b>(Tensor)는 숫자를 격자 모양으로 담은 상자예요. <b>shape</b>는 방향마다 칸이 몇 개인지를 적은 거예요. <code>(2, 3)</code>은 2줄 × 3칸이고, 시료 트레이가 2줄에 3칸씩 있는 모양이에요. shape의 숫자를 모두 곱하면 숫자 전체 개수예요(2×3=6).</p>
+<ul>
+<li><code>torch.arange(6)</code>은 0, 1, 2, 3, 4, 5를 만들어요(range처럼 끝 숫자는 빠져요).</li>
+<li><code>.reshape(2, 3)</code>은 같은 숫자들을 새 모양으로 다시 채워요. 곱이 같아야 해요. 숫자 하나 자리에 <code>-1</code>을 쓰면 "나머지는 알아서 계산해"라는 뜻이에요.</li>
+<li>텐서 번호도 0부터예요. <code>x[:, 1]</code>은 "모든 줄(:)에서 1번 칸"이에요.</li>
+</ul>
+<div class="box tip"><span class="t">외우기 팁 — 가장 중요한 규칙</span>
+<p>번호를 <b>숫자 하나</b>로 뽑으면(<code>x[:, 1]</code>) 그 방향 칸이 사라져요. 번호를 <b>범위</b>로 뽑으면(<code>x[:, 1:2]</code>) 그 방향 칸이 1개짜리로 남아요. 이 한 쌍이 시험 1번이에요.</p>
+</div>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">import torch
+
+x = torch.arange(6).reshape(2, 3)
+print(x)
+print(tuple(x.shape))
+print(x[:, 1])
+print(tuple(x[:, 1].shape))
+print(tuple(x[:, 1:2].shape))</div>
+<p>x는 이런 모양이에요. 줄 번호는 0, 1이고 칸 번호는 0, 1, 2예요.</p>
+<table>
+<tr><th></th><th>칸 0</th><th>칸 1</th><th>칸 2</th></tr>
+<tr><td>줄 0</td><td>0</td><td><b>1</b></td><td>2</td></tr>
+<tr><td>줄 1</td><td>3</td><td><b>4</b></td><td>5</td></tr>
+</table>
+<table>
+<tr><th>코드</th><th>따라가기</th><th>화면에 나온 것</th></tr>
+<tr><td><code>print(x)</code></td><td>여섯 숫자가 2줄 × 3칸으로 채워진 모양 그대로</td><td><code>tensor([[0, 1, 2],<br>[3, 4, 5]])</code></td></tr>
+<tr><td><code>x.shape</code></td><td>2줄 3칸</td><td><code>(2, 3)</code></td></tr>
+<tr><td><code>x[:, 1]</code></td><td>모든 줄의 칸 1번 → 1과 4. 숫자 하나로 뽑아서 칸 방향이 사라짐</td><td><code>tensor([1, 4])</code></td></tr>
+<tr><td><code>x[:, 1].shape</code></td><td>남은 건 줄 방향 2개뿐</td><td><code>(2,)</code></td></tr>
+<tr><td><code>x[:, 1:2].shape</code></td><td>범위로 뽑아서 칸 방향이 1개짜리로 남음 → 2줄 × 1칸</td><td><code>(2, 1)</code></td></tr>
+</table>
+<div class="code">tensor([[0, 1, 2],
+        [3, 4, 5]])
+(2, 3)
+tensor([1, 4])
+(2,)
+(2, 1)</div>
+<p>원소가 하나뿐인 튜플은 <code>(2,)</code>처럼 쉼표를 붙여 적어요. 그래서 <code>(2,)</code>는 "숫자 하나짜리 shape"로 읽으면 돼요.</p>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">y = torch.arange(12).reshape(3, 4)
+print(tuple(y.shape))
+print(tuple(y[1].shape))
+print(tuple(y[:, 2].shape))
+print(tuple(y[:, 2:3].shape))
+print(tuple(y.reshape(2, -1).shape))</div>
+<p>y는 3줄 × 4칸이에요.</p>
+<table>
+<tr><th>코드</th><th>따라가기</th><th>화면에 나온 것</th></tr>
+<tr><td><code>y.shape</code></td><td>arange(12)를 3줄 × 4칸으로</td><td><code>(3, 4)</code></td></tr>
+<tr><td><code>y[1].shape</code></td><td>줄 1번 하나만 뽑음 → 줄 방향이 사라지고 칸 4개만 남음</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>(4,)</code></p></details></td></tr>
+<tr><td><code>y[:, 2].shape</code></td><td>모든 줄에서 칸 2번을 숫자 하나로 → 칸 방향이 사라짐</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>(3,)</code></p></details></td></tr>
+<tr><td><code>y[:, 2:3].shape</code></td><td>범위로 뽑았으니 칸 방향이 1개짜리로 남음</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>(3, 1)</code></p></details></td></tr>
+<tr><td><code>y.reshape(2, -1).shape</code></td><td>전체 12개, 2줄로 나누면 한 줄에 12÷2 = ?</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>(2, 6)</code></p></details></td></tr>
+</table>
+<p><b>③ 혼자 풀기</b> — 3차원이에요. shape 숫자 세 개를 (층, 줄, 칸)이라고 읽고, 각 줄에서 사라지는 방향과 남는 방향을 적어 보세요.</p>
+<div class="code">z = torch.arange(24).reshape(2, 3, 4)
+print(tuple(z.shape))
+print(tuple(z[0].shape))
+print(tuple(z[:, 1, :].shape))
+print(tuple(z[:, :, 0:1].shape))</div>
+<details class="check"><summary>답 보기</summary><div class="code">(2, 3, 4)
+(3, 4)
+(2, 4)
+(2, 3, 1)</div>
+<p><code>z[0]</code>은 층을 숫자 하나로 뽑아 층 방향이 사라져서 (3, 4)예요. <code>z[:, 1, :]</code>은 가운데(줄) 방향만 숫자 하나로 뽑아서 사라지니 (2, 4)예요. <code>z[:, :, 0:1]</code>은 칸 방향을 범위로 뽑아 1개짜리로 남아서 (2, 3, 1)이에요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>shape 문제는 순서대로 푸세요. ① 원래 shape를 적는다. ② 대괄호 안을 방향마다 읽어, 숫자 하나면 그 방향을 지우고 범위(<code>a:b</code>)나 <code>:</code>면 남긴다. ③ 남은 숫자를 순서대로 적는다. 예를 들어 (3, 4)에서 <code>[:, 1]</code>은 (3,), <code>[:, 1:2]</code>는 (3, 1)이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 12개짜리를 reshape(5, -1)로 바꿀 수 있나요?</summary>
+<p>안 돼요(에러). 12를 5로 나누어떨어지지 않아서 한 줄에 몇 칸이 되는지 정할 수 없어요. 곱이 원래 개수와 같아야 해요.</p></details>
+<h3>6단계. nn.Linear(in, out) — 출력 shape와 파라미터 수</h3>
+<p><code>nn.Linear(3, 2)</code>는 "입력 숫자 3개를 받아 출력 숫자 2개를 내놓는 계산기 한 층"이에요. 재료 3가지를 넣으면 점수 2개가 나오는 계산기를 떠올리면 돼요. 괄호 안 순서는 <b>(입력 개수 in, 출력 개수 out)</b>이에요.</p>
+<ul>
+<li><b>입력 shape</b>는 (샘플 수, in)이어야 하고 <b>출력 shape</b>는 (샘플 수, out)이에요. 샘플 수 칸은 그대로 두고 마지막 칸만 in에서 out으로 바뀐다고 읽으세요.</li>
+<li>이 층이 학습으로 고치는 값(파라미터)은 두 가지예요. <code>weight</code>의 shape는 <b>(out, in)</b>이고 <code>bias</code>의 shape는 <b>(out,)</b>예요.</li>
+<li>파라미터 개수는 <b>in × out + out</b>이에요. weight 칸 수 in×out에 bias 칸 수 out을 더한 거예요.</li>
+</ul>
+<p><code>sum(p.numel() for p in fc.parameters())</code>는 길어 보이지만 "이 층의 모든 파라미터 숫자 개수의 합"이라고만 읽으세요. 문법을 풀어 쓸 필요는 없어요.</p>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">import torch
+from torch import nn
+
+fc = nn.Linear(3, 2)
+x = torch.ones(4, 3)
+y = fc(x)
+print(tuple(y.shape))
+print(tuple(fc.weight.shape), tuple(fc.bias.shape))
+print(sum(p.numel() for p in fc.parameters()))</div>
+<table>
+<tr><th>코드</th><th>따라가기</th><th>화면에 나온 것</th></tr>
+<tr><td><code>fc = nn.Linear(3, 2)</code></td><td>in=3, out=2인 층을 만듦</td><td></td></tr>
+<tr><td><code>x = torch.ones(4, 3)</code></td><td>1로 가득한 4줄 × 3칸. 샘플 4개, 샘플마다 숫자 3개</td><td></td></tr>
+<tr><td><code>y = fc(x)</code></td><td>(4, 3)에서 마지막 칸 3이 2로 바뀜 → (4, 2)</td><td></td></tr>
+<tr><td><code>print(tuple(y.shape))</code></td><td>샘플 수 4는 그대로, 마지막은 out=2</td><td><code>(4, 2)</code></td></tr>
+<tr><td><code>fc.weight.shape, fc.bias.shape</code></td><td>weight는 (out, in) = (2, 3), bias는 (out,) = (2,)</td><td><code>(2, 3) (2,)</code></td></tr>
+<tr><td><code>sum(... numel ...)</code></td><td>weight 2×3 = 6개 + bias 2개</td><td><code>8</code></td></tr>
+</table>
+<div class="code">(4, 2)
+(2, 3) (2,)
+8</div>
+<p>입력의 마지막 칸이 in과 다르면 에러가 나요. 예를 들어 <code>torch.ones(4, 5)</code>를 이 층에 넣으면 <code>RuntimeError: mat1 and mat2 shapes cannot be multiplied (4x5 and 3x2)</code>라는 에러가 떠요. 층은 숫자 3개짜리 입력만 받도록 만들어졌기 때문이에요.</p>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">fc = nn.Linear(5, 3)
+x = torch.ones(10, 5)
+print(tuple(fc.weight.shape))
+print(tuple(fc(x).shape))
+print(sum(p.numel() for p in fc.parameters()))</div>
+<table>
+<tr><th>코드</th><th>따라가기</th><th>화면에 나온 것</th></tr>
+<tr><td><code>fc.weight.shape</code></td><td>in=5, out=3 이므로 (out, in)</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>(3, 5)</code></p></details></td></tr>
+<tr><td><code>fc(x).shape</code></td><td>x는 (10, 5). 마지막 칸이 in=5와 같아서 OK. 마지막만 out=3으로</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>(10, 3)</code></p></details></td></tr>
+<tr><td>파라미터 개수</td><td>weight 5×3 + bias 3 =</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>18</code></p></details></td></tr>
+</table>
+<p><b>③ 혼자 풀기</b> — 층이 두 개예요(ReLU는 파라미터가 없고 모양도 안 바꿔요). 층마다 shape를 이어서 따라가고 파라미터를 층별로 더해 보세요.</p>
+<div class="code">net = nn.Sequential(nn.Linear(4, 8), nn.ReLU(), nn.Linear(8, 1))
+x = torch.ones(2, 4)
+print(tuple(net(x).shape))
+print(sum(p.numel() for p in net.parameters()))</div>
+<details class="check"><summary>답 보기</summary><div class="code">(2, 1)
+49</div>
+<p>shape는 (2, 4) → 첫 Linear(4, 8)을 지나 (2, 8) → ReLU를 지나도 (2, 8) → Linear(8, 1)을 지나 (2, 1)이에요. 파라미터는 첫 층 4×8+8 = 40, 둘째 층 8×1+1 = 9로 합해서 49예요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>Linear(in, out)이 보이면 세 가지만 하세요. ① 입력의 마지막 칸이 in인지 확인. ② 출력은 마지막 칸만 out으로. ③ 파라미터 개수는 in×out+out. 층이 여러 개면 앞 층의 out이 다음 층의 in과 같아야 이어져요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — nn.Linear(4, 2)에 (7, 4) 텐서를 넣으면 출력 shape는?</summary>
+<p>(7, 2)예요. 샘플 수 7은 그대로이고 마지막 칸 4가 out인 2로 바뀌어요.</p></details>
+<h3>7단계. DataLoader — 배치 개수와 마지막 배치</h3>
+<p><b>Dataset</b>은 (입력, 정답) 쌍을 번호로 꺼낼 수 있게 묶어 둔 명부이고, <b>DataLoader</b>는 그 명부에서 <b>batch_size</b>개씩 묶어 순서대로 내주는 트레이예요. 시료 7개를 3개씩 트레이에 담으면 3개, 3개, 1개가 되는 것과 같아요.</p>
+<ul>
+<li><code>len(ds)</code>는 샘플 총 개수예요. <code>len(loader)</code>는 배치(트레이) 개수예요.</li>
+<li>배치 개수는 샘플 수 ÷ batch_size를 <b>올림</b>한 값이고, 마지막 배치는 남은 개수만 담겨요(<code>7 ÷ 3</code>이면 3개, 3개, 1개).</li>
+<li><code>drop_last=True</code>이면 모자란 마지막 배치를 <b>버려요</b>. 그래서 배치 개수는 내림한 값이 돼요.</li>
+<li><code>shuffle=False</code>면 번호 순서대로 담겨요. <code>shuffle=True</code>면 어떤 번호가 들어갈지는 매번 달라지지만 개수는 그대로예요.</li>
+<li>for 반복이 끝난 뒤에도 <code>bx</code>, <code>by</code>는 <b>마지막 배치</b> 값으로 남아 있어요. 시험 샘플 4번이 바로 이걸 물어봐요.</li>
+</ul>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">import torch
+from torch.utils.data import TensorDataset, DataLoader
+
+x = torch.arange(7)
+y = x * 10
+ds = TensorDataset(x, y)
+loader = DataLoader(ds, batch_size=3, shuffle=False)
+
+print(len(ds), len(loader))
+for bx, by in loader:
+    print(bx.tolist())
+print(bx.tolist())</div>
+<p>x는 0부터 6까지 7개, y는 그 10배예요. batch_size가 3이라서 번호를 3개씩 끊어요.</p>
+<table>
+<tr><th>바퀴</th><th>담기는 번호</th><th><code>bx.tolist()</code></th><th>화면에 나온 것</th></tr>
+<tr><td>(바퀴 전)</td><td>-</td><td>-</td><td><code>7 3</code> (샘플 7개, 7÷3 올림 = 배치 3개)</td></tr>
+<tr><td>1</td><td>0, 1, 2</td><td>[0, 1, 2]</td><td><code>[0, 1, 2]</code></td></tr>
+<tr><td>2</td><td>3, 4, 5</td><td>[3, 4, 5]</td><td><code>[3, 4, 5]</code></td></tr>
+<tr><td>3</td><td>6 (남은 1개)</td><td>[6]</td><td><code>[6]</code></td></tr>
+<tr><td>(반복 끝난 뒤)</td><td>-</td><td>bx는 마지막 배치</td><td><code>[6]</code></td></tr>
+</table>
+<div class="code">7 3
+[0, 1, 2]
+[3, 4, 5]
+[6]
+[6]</div>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">x = torch.arange(10)
+y = x * 2
+loader = DataLoader(TensorDataset(x, y), batch_size=4, drop_last=True)
+print(len(loader))
+for bx, by in loader:
+    print(bx.tolist())</div>
+<p>샘플 10개를 4개씩 끊고, 모자란 마지막은 버려요.</p>
+<table>
+<tr><th>바퀴</th><th>담기는 번호</th><th>화면에 나온 것</th></tr>
+<tr><td>(바퀴 전)</td><td>10÷4 = 2.5, drop_last=True라서 내림</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>2</code> (배치 2개)</p></details></td></tr>
+<tr><td>1</td><td>0, 1, 2, 3</td><td><code>[0, 1, 2, 3]</code></td></tr>
+<tr><td>2</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">4, 5, 6, 7</p></details></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>[4, 5, 6, 7]</code></p></details></td></tr>
+<tr><td>버려진 것</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">8, 9 (남은 2개는 한 배치가 안 돼서 버림)</p></details></td><td>-</td></tr>
+</table>
+<p><b>③ 혼자 풀기</b> — 이번엔 drop_last를 안 썼어요(기본값은 False). 배치 크기를 sizes에 모으는 코드예요. 두 줄을 적어 보세요.</p>
+<div class="code">x = torch.arange(11)
+y = x * 2
+loader = DataLoader(TensorDataset(x, y), batch_size=5)
+sizes = []
+for bx, by in loader:
+    sizes.append(len(bx))
+print(len(loader), sizes)
+print(by.tolist())</div>
+<details class="check"><summary>답 보기</summary><div class="code">3 [5, 5, 1]
+[20]</div>
+<p>11개를 5개씩 끊으면 5개, 5개, 1개라서 배치는 3개이고 sizes는 <code>[5, 5, 1]</code>이에요. 반복이 끝난 뒤 by는 마지막 배치 값이에요. 마지막 배치의 x는 10번이고 y = 10×2 = 20이라 <code>[20]</code>이 나와요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>① 샘플 수 ÷ batch_size로 배치 개수(올림, drop_last=True면 내림)를 구해요. ② 마지막 배치 크기는 샘플 수를 batch_size로 나눈 나머지예요(0이면 가득 찬 거예요). ③ 반복 뒤에 변수를 찍으면 마지막 배치 값이에요. 샘플 4번이 정확히 이 순서로 풀려요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — 샘플 10개, batch_size=4, drop_last=False일 때 배치 크기는 차례로?</summary>
+<p>4, 4, 2예요. 배치는 올림해서 3개이고 마지막에 남은 2개가 담겨요.</p></details>
+<h3>8단계. 학습 5줄 — zero_grad, forward, loss, backward, step</h3>
+<p>딥러닝 학습은 매 바퀴 같은 5줄을 반복해요. 순서와 역할을 외우면 대부분의 문제가 풀려요.</p>
+<table>
+<tr><th>순서</th><th>코드</th><th>하는 일 (한 줄)</th></tr>
+<tr><td>1</td><td><code>optimizer.zero_grad()</code></td><td>지난 바퀴에 쌓인 기울기(grad)를 지워요</td></tr>
+<tr><td>2</td><td><code>prediction = model(x)</code></td><td>예측값을 계산해요 (forward)</td></tr>
+<tr><td>3</td><td><code>loss = criterion(prediction, y)</code></td><td>예측과 정답의 차이를 숫자 하나(loss)로 만들어요</td></tr>
+<tr><td>4</td><td><code>loss.backward()</code></td><td>기울기를 계산해 <code>.grad</code>에 <b>저장만</b> 해요. 파라미터 값은 안 바뀌어요</td></tr>
+<tr><td>5</td><td><code>optimizer.step()</code></td><td>저장된 기울기로 파라미터 <b>값을 실제로 고쳐요</b></td></tr>
+</table>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"비우고 → 예측하고 → 재고 → 기울기 구하고 → 한 걸음". 값이 바뀌는 건 <b>마지막 step 한 줄뿐</b>이에요. 기울기는 <code>w - lr × grad</code>로 w를 고치는 재료일 뿐이에요.</p>
+</div>
+<p>아래 예시는 모델 없이 값 하나(w)만 키워서 5줄이 실제로 숫자를 어떻게 바꾸는지 눈으로 보는 거예요. loss는 <code>(w - 5)²</code>이라서 w가 5에 가까울수록 작아요. 이때 기울기는 <code>2 × (w - 5)</code>이고, 계산은 컴퓨터가 해 주니 표에서는 값만 받아 적으세요. 학습률 <code>lr</code>은 한 걸음 크기예요.</p>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">import torch
+
+w = torch.tensor(1.0, requires_grad=True)
+optimizer = torch.optim.SGD([w], lr=0.25)
+
+for step in range(3):
+    optimizer.zero_grad()
+    loss = (w - 5) ** 2
+    loss.backward()
+    optimizer.step()
+    print(step, w.grad.item(), w.item())</div>
+<table>
+<tr><th>바퀴</th><th>시작 w</th><th>loss<br>(w-5)²</th><th>backward 뒤 grad</th><th>step 뒤 w<br>(w - 0.25×grad)</th><th>화면에 나온 것</th></tr>
+<tr><td>0</td><td>1.0</td><td>16</td><td>-8.0</td><td>1 - 0.25×(-8) = 3.0</td><td><code>0 -8.0 3.0</code></td></tr>
+<tr><td>1</td><td>3.0</td><td>4</td><td>-4.0</td><td>3 - 0.25×(-4) = 4.0</td><td><code>1 -4.0 4.0</code></td></tr>
+<tr><td>2</td><td>4.0</td><td>1</td><td>-2.0</td><td>4 - 0.25×(-2) = 4.5</td><td><code>2 -2.0 4.5</code></td></tr>
+</table>
+<div class="code">0 -8.0 3.0
+1 -4.0 4.0
+2 -2.0 4.5</div>
+<p>w가 1 → 3 → 4 → 4.5로 5에 가까워지고 loss는 16 → 4 → 1로 줄어들어요. 이게 학습이에요. 화면의 grad는 <b>step 하기 전에 계산된 값</b>이라서 step 뒤의 새 w로 다시 계산한 값이 아니에요.</p>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">w = torch.tensor(0.0, requires_grad=True)
+optimizer = torch.optim.SGD([w], lr=0.25)
+
+for step in range(3):
+    optimizer.zero_grad()
+    loss = (w - 2) ** 2
+    loss.backward()
+    optimizer.step()
+    print(step, w.grad.item(), w.item())</div>
+<p>이번엔 loss가 <code>(w - 2)²</code>이라서 기울기는 <code>2 × (w - 2)</code>예요. w는 0에서 시작해요.</p>
+<table>
+<tr><th>바퀴</th><th>시작 w</th><th>loss<br>(w-2)²</th><th>grad<br>2×(w-2)</th><th>step 뒤 w<br>(w - 0.25×grad)</th><th>화면에 나온 것</th></tr>
+<tr><td>0</td><td>0.0</td><td>4</td><td>-4.0</td><td>0 - 0.25×(-4) = 1.0</td><td><code>0 -4.0 1.0</code></td></tr>
+<tr><td>1</td><td>1.0</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">1</p></details></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">-2.0</p></details></td><td>1 - 0.25×(-2) = 1.5</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>1 -2.0 1.5</code></p></details></td></tr>
+<tr><td>2</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">1.5</p></details></td><td>0.25</td><td>-1.0</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">1.5 - 0.25×(-1) = 1.75</p></details></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>2 -1.0 1.75</code></p></details></td></tr>
+</table>
+<p><b>③ 혼자 풀기</b> — 첫 예시와 똑같은데 <code>optimizer.zero_grad()</code> 줄이 빠졌어요. 기울기를 지우지 않으면 새 기울기가 이전 값에 <b>더해져서 쌓여요</b>. 두 줄을 적어 보세요.</p>
+<div class="code">w = torch.tensor(1.0, requires_grad=True)
+optimizer = torch.optim.SGD([w], lr=0.25)
+
+for step in range(2):
+    loss = (w - 5) ** 2
+    loss.backward()
+    optimizer.step()
+    print(w.grad.item(), w.item())</div>
+<details class="check"><summary>답 보기</summary><div class="code">-8.0 3.0
+-12.0 6.0</div>
+<p>0바퀴는 처음이라 grad가 -8.0이고 w = 1 - 0.25×(-8) = 3.0이에요. 1바퀴에서 새 기울기는 2×(3-5) = -4인데, 지우지 않아서 이전 -8에 더해져 grad가 -12.0이 돼요. 그래서 w = 3 - 0.25×(-12) = 6.0이 되어 5를 지나쳐 버려요. zero_grad가 필요한 이유가 이거예요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>학습 5줄 문제는 이렇게 답하세요. <code>loss.backward()</code>는 기울기를 계산해 저장만 하고 파라미터 값은 바꾸지 않는다. <code>optimizer.step()</code>은 저장된 기울기로 옵티마이저에 전달된 파라미터를 갱신한다. <code>optimizer.zero_grad()</code>는 쌓인 기울기를 지우는 것이지 파라미터 값을 0으로 만드는 게 아니다. 샘플 5번의 정답이 이 문장이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — loss.backward()를 부르면 w의 값이 바뀌나요?</summary>
+<p>안 바뀌어요. backward는 기울기를 계산해 w.grad에 저장만 해요. 값을 바꾸는 건 optimizer.step()이에요.</p></details>
+<div class="box tip"><span class="t">이 장 3줄 요약</span>
+<ul>
+  <li>코드는 위에서 아래로 한 줄씩, 오른쪽을 계산해 왼쪽 이름에 저장하며, 화면에 나오는 건 print뿐이에요. 변수마다 열을 만들고 줄(또는 바퀴)마다 한 행씩 적는 메모장 표가 정답에 가는 길이에요.</li>
+  <li>번호는 0부터이고 <code>[시작:끝]</code>과 range는 끝을 빼요. 텐서에서 숫자 하나로 뽑으면 그 방향이 사라지고 범위로 뽑으면 남아요.</li>
+  <li>Linear(in, out)은 마지막 칸만 in에서 out으로 바꾸고 파라미터는 in×out+out개예요. DataLoader 배치 수는 샘플÷batch를 올림하고(drop_last면 내림), 학습은 값을 바꾸는 줄이 step 하나뿐이에요.</li>
+</ul>
+</div>

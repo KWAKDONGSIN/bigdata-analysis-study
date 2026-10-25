@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>8단계. 학습 5줄 — zero_grad, forward, loss, backward, step · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=16d0174b">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="plan.html">내 일정</a><a href="index.html" class=on>보드</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a><a href="research.html">왜 이렇게?</a></nav>
+</div></header>
+<main>
+<div class="crumb k1"><a href="index.html#c10">← 보드</a><span>코드 손으로 따라가기 훈련 · 8/9</span></div><h1>8단계. 학습 5줄 — zero_grad, forward, loss, backward, step</h1>
+<p><a class="w" href="words.html#w133" data-w="133">딥러닝</a> <a class="w" href="words.html#w135" data-w="135">학습</a>은 매 바퀴 같은 5줄을 반복해요. 순서와 역할을 외우면 대부분의 문제가 풀려요.</p>
+<div class="tw"><table>
+<tr><th>순서</th><th>코드</th><th>하는 일 (한 줄)</th></tr>
+<tr><td>1</td><td><code>optimizer.zero_grad()</code></td><td>지난 바퀴에 쌓인 <a class="w" href="words.html#w83" data-w="83">기울기</a>(grad)를 지워요</td></tr>
+<tr><td>2</td><td><code>prediction = model(x)</code></td><td><a class="w" href="words.html#w100" data-w="100">예측값</a>을 계산해요 (<a class="w" href="words.html#w70" data-w="70">forward</a>)</td></tr>
+<tr><td>3</td><td><code>loss = criterion(prediction, y)</code></td><td>예측과 <a class="w" href="words.html#w101" data-w="101">정답</a>의 차이를 숫자 하나(<a class="w" href="words.html#w99" data-w="99">loss</a>)로 만들어요</td></tr>
+<tr><td>4</td><td><code>loss.backward()</code></td><td>기울기를 계산해 <code>.grad</code>에 <b>저장만</b> 해요. <a class="w" href="words.html#w7" data-w="7">파라미터</a> 값은 안 바뀌어요</td></tr>
+<tr><td>5</td><td><code>optimizer.step()</code></td><td>저장된 기울기로 파라미터 <b>값을 실제로 고쳐요</b></td></tr>
+</table></div>
+<div class="box tip"><span class="t">외우기 팁</span>
+<p>"비우고 → 예측하고 → 재고 → 기울기 구하고 → 한 걸음". 값이 바뀌는 건 <b>마지막 <a class="w" href="words.html#w108" data-w="108">step</a> 한 줄뿐</b>이에요. 기울기는 <code>w - lr × grad</code>로 w를 고치는 재료일 뿐이에요.</p>
+</div>
+<p>아래 예시는 모델 없이 값 하나(w)만 키워서 5줄이 실제로 숫자를 어떻게 바꾸는지 눈으로 보는 거예요. loss는 <code>(w - 5)²</code>이라서 w가 5에 가까울수록 작아요. 이때 기울기는 <code>2 × (w - 5)</code>이고, 계산은 컴퓨터가 해 주니 표에서는 값만 받아 적으세요. <a class="w" href="words.html#w97" data-w="97">학습률</a> <code>lr</code>은 한 걸음 크기예요.</p>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">import torch
+
+w = torch.tensor(1.0, requires_grad=True)
+optimizer = torch.optim.SGD([w], lr=0.25)
+
+for step in range(3):
+    optimizer.zero_grad()
+    loss = (w - 5) ** 2
+    loss.backward()
+    optimizer.step()
+    print(step, w.grad.item(), w.item())</div>
+<div class="tw"><table>
+<tr><th>바퀴</th><th>시작 w</th><th>loss<br>(w-5)²</th><th>backward 뒤 grad</th><th>step 뒤 w<br>(w - 0.25×grad)</th><th>화면에 나온 것</th></tr>
+<tr><td>0</td><td>1.0</td><td>16</td><td>-8.0</td><td>1 - 0.25×(-8) = 3.0</td><td><code>0 -8.0 3.0</code></td></tr>
+<tr><td>1</td><td>3.0</td><td>4</td><td>-4.0</td><td>3 - 0.25×(-4) = 4.0</td><td><code>1 -4.0 4.0</code></td></tr>
+<tr><td>2</td><td>4.0</td><td>1</td><td>-2.0</td><td>4 - 0.25×(-2) = 4.5</td><td><code>2 -2.0 4.5</code></td></tr>
+</table></div>
+<div class="code">0 -8.0 3.0
+1 -4.0 4.0
+2 -2.0 4.5</div>
+<p>w가 1 → 3 → 4 → 4.5로 5에 가까워지고 loss는 16 → 4 → 1로 줄어들어요. 이게 학습이에요. 화면의 grad는 <b>step 하기 전에 계산된 값</b>이라서 step 뒤의 새 w로 다시 계산한 값이 아니에요.</p>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">w = torch.tensor(0.0, requires_grad=True)
+optimizer = torch.optim.SGD([w], lr=0.25)
+
+for step in range(3):
+    optimizer.zero_grad()
+    loss = (w - 2) ** 2
+    loss.backward()
+    optimizer.step()
+    print(step, w.grad.item(), w.item())</div>
+<p>이번엔 loss가 <code>(w - 2)²</code>이라서 기울기는 <code>2 × (w - 2)</code>예요. w는 0에서 시작해요.</p>
+<div class="tw"><table>
+<tr><th>바퀴</th><th>시작 w</th><th>loss<br>(w-2)²</th><th>grad<br>2×(w-2)</th><th>step 뒤 w<br>(w - 0.25×grad)</th><th>화면에 나온 것</th></tr>
+<tr><td>0</td><td>0.0</td><td>4</td><td>-4.0</td><td>0 - 0.25×(-4) = 1.0</td><td><code>0 -4.0 1.0</code></td></tr>
+<tr><td>1</td><td>1.0</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">1</p></details></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">-2.0</p></details></td><td>1 - 0.25×(-2) = 1.5</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>1 -2.0 1.5</code></p></details></td></tr>
+<tr><td>2</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">1.5</p></details></td><td>0.25</td><td>-1.0</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">1.5 - 0.25×(-1) = 1.75</p></details></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>2 -1.0 1.75</code></p></details></td></tr>
+</table></div>
+<p><b>③ 혼자 풀기</b> — 첫 예시와 똑같은데 <code>optimizer.zero_grad()</code> 줄이 빠졌어요. 기울기를 지우지 않으면 새 기울기가 이전 값에 <b>더해져서 쌓여요</b>. 두 줄을 적어 보세요.</p>
+<div class="code">w = torch.tensor(1.0, requires_grad=True)
+optimizer = torch.optim.SGD([w], lr=0.25)
+
+for step in range(2):
+    loss = (w - 5) ** 2
+    loss.backward()
+    optimizer.step()
+    print(w.grad.item(), w.item())</div>
+<details class="check"><summary>답 보기</summary><div class="code">-8.0 3.0
+-12.0 6.0</div>
+<p>0바퀴는 처음이라 grad가 -8.0이고 w = 1 - 0.25×(-8) = 3.0이에요. 1바퀴에서 새 기울기는 2×(3-5) = -4인데, 지우지 않아서 이전 -8에 더해져 grad가 -12.0이 돼요. 그래서 w = 3 - 0.25×(-12) = 6.0이 되어 5를 지나쳐 버려요. <a class="w" href="words.html#w92" data-w="92">zero_grad</a>가 필요한 이유가 이거예요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>학습 5줄 문제는 이렇게 답하세요. <code>loss.backward()</code>는 기울기를 계산해 저장만 하고 파라미터 값은 바꾸지 않는다. <code>optimizer.step()</code>은 저장된 기울기로 <a class="w" href="words.html#w105" data-w="105">옵티마이저</a>에 전달된 파라미터를 갱신한다. <code>optimizer.zero_grad()</code>는 쌓인 기울기를 지우는 것이지 파라미터 값을 0으로 만드는 게 아니다. <a class="w" href="words.html#w113" data-w="113">샘플</a> 5번의 정답이 이 문장이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — loss.backward()를 부르면 w의 값이 바뀌나요?</summary>
+<p>안 바뀌어요. <a class="w" href="words.html#w86" data-w="86">backward</a>는 기울기를 계산해 <a class="w" href="words.html#w90" data-w="90">w.grad</a>에 저장만 해요. 값을 바꾸는 건 optimizer.step()이에요.</p></details>
+<div class="recall"><b>덮고 10초 — 말해 보기</b><p>화면을 가리고 <b>"8단계. 학습 5줄 — zero_grad, forward, loss, backward, step"</b>을(를) 친구에게 설명하듯 한 문장으로 말해 보세요. 막히면 위의 빨간 칸만 다시 보고 넘어가요.</p></div><div class="done"><a class="go" href="c10-09.html">다음 카드 → 이 장 3줄 요약</a><div class="pn"><a href="c10-07.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c10"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 문제샘플.docx · Week02~05 노트북</p></div>
+</main>
+<script src="assets/words.js?v=16d0174b"></script>
+<script src="assets/app.js?v=16d0174b"></script>
+</body>
+</html>

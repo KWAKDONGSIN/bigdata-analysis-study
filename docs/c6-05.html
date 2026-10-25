@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>기울기는 쌓여요 — 누적과 zero_grad ★★★ · 빅데이터분석 시험공부</title>
 <meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
-<link rel="stylesheet" href="assets/style.css?v=c12fbd1e">
+<link rel="stylesheet" href="assets/style.css?v=16d0174b">
 </head>
 <body>
 <header class="top"><div class="top-in">
@@ -13,7 +13,7 @@
 <nav class="nav" aria-label="메뉴"><a href="plan.html">내 일정</a><a href="index.html" class=on>보드</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a><a href="research.html">왜 이렇게?</a></nav>
 </div></header>
 <main>
-<div class="crumb k6"><a href="index.html#c6">← 보드</a><span>Autograd — 자동으로 기울기 구하기 · 5/8</span></div><h1>기울기는 쌓여요 — 누적과 zero_grad ★★★</h1>
+<div class="crumb k7"><a href="index.html#c6">← 보드</a><span>Autograd — 자동으로 기울기 구하기 · 5/8</span></div><h1>기울기는 쌓여요 — 누적과 zero_grad ★★★</h1>
 <p>이 장에서 시험에 가장 잘 나올 부분이에요. <code>backward()</code>를 부를 때마다 PyTorch는 <a class="w" href="words.html#w83" data-w="83">기울기</a>를 덮어쓰지 않고 <b>기존 값에 더해요(+=)</b>. 이것을 <b><a class="w" href="words.html#w91" data-w="91">누적</a></b>이라고 해요.</p>
 <div class="box eg"><span class="t">비유 — 주차 요금 정산기</span>
 <p>정산기에 어제 낸 금액이 안 지워진 채로 오늘 금액이 더해지면 총액이 엉망이 돼요. 새 계산을 하기 전에 정산기를 0으로 되돌려야 해요. <code>zero_grad</code>(기울기 0으로 만들기)가 그 "<a class="w" href="words.html#w137" data-w="137">초기화</a> 버튼"이에요.</p>
@@ -78,7 +78,7 @@ print("새 그래프의 backward:", w.grad.item())</div>
 
 <div class="recall"><b>덮고 10초 — 말해 보기</b><p>화면을 가리고 <b>"기울기는 쌓여요 — 누적과 zero_grad ★★★"</b>을(를) 친구에게 설명하듯 한 문장으로 말해 보세요. 막히면 위의 빨간 칸만 다시 보고 넘어가요.</p></div><div class="done"><a class="go" href="c6-06.html">다음 카드 → torch.no_grad() — 기록을 잠깐 끄기 ★★</a><div class="pn"><a href="c6-04.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c6"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 6주차 · Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)</p></div>
 </main>
-<script src="assets/words.js?v=c12fbd1e"></script>
-<script src="assets/app.js?v=c12fbd1e"></script>
+<script src="assets/words.js?v=16d0174b"></script>
+<script src="assets/app.js?v=16d0174b"></script>
 </body>
 </html>

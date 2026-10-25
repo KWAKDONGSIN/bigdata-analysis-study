@@ -1732,6 +1732,224 @@
    ],
    "explain": "매 step 시작 때 optimizer.zero_grad()를 불러요. 기울기는 계속 누적되기 때문이에요.",
    "src": "6·7주차 녹취"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[변수 덮어쓰기] 다음 코드의 출력으로 올바른 것은?\n\na = 2\nb = a * 3\na = 5\nprint(a, b)",
+   "choices": [
+    "5 15",
+    "2 6",
+    "5 6",
+    "5 5",
+    "2 15"
+   ],
+   "answer": 2,
+   "explain": "b는 만들 때 a가 2였으니 2×3=6이 들어갔어요. 그 뒤에 a를 5로 바꿔도 b는 6 그대로예요. b도 따라 바뀐다고 생각하면 5 15라고 틀려요.",
+   "src": "따라가기 훈련 1단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[f-string과 변수] 다음 코드의 출력으로 올바른 것은?\n\nn = 3\nmsg = f\"{n}개\"\nn = n + 1\nprint(msg, n)",
+   "choices": [
+    "3개 4",
+    "4개 4",
+    "3개 3",
+    "{n}개 4",
+    "4개 3"
+   ],
+   "answer": 0,
+   "explain": "msg는 n이 3일 때 만들어져서 \"3개\"로 굳어요. 그 뒤 n이 4가 되어도 msg는 안 바뀌어요. 그래서 3개 4예요.",
+   "src": "따라가기 훈련 1단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[리스트 슬라이싱] 다음 코드의 출력으로 올바른 것은?\n\ns = [1, 2, 3, 4, 5, 6]\nprint(s[1:4], s[-2])",
+   "choices": [
+    "[1, 2, 3, 4] 5",
+    "[2, 3, 4, 5] 5",
+    "[2, 3, 4] 6",
+    "[2, 3, 4] 5",
+    "[1, 2, 3] 5"
+   ],
+   "answer": 3,
+   "explain": "s[1:4]는 번호 1, 2, 3번 칸이고 4번 칸은 빠져서 [2, 3, 4]예요. s[-2]는 뒤에서 둘째 칸이라 5예요(마지막 -1이 6).",
+   "src": "따라가기 훈련 2단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[뒤에서 세기] 다음 코드의 출력으로 올바른 것은?\n\nt = [7, 8, 9, 10]\nprint(t[-3:], t[1])",
+   "choices": [
+    "[7, 8, 9] 8",
+    "[8, 9, 10] 8",
+    "[8, 9, 10] 7",
+    "[9, 10] 8",
+    "[8, 9, 10] 9"
+   ],
+   "answer": 1,
+   "explain": "t[-3:]은 뒤에서 셋째 칸부터 끝까지라 [8, 9, 10]이에요. t[1]은 앞에서 번호 1번, 즉 둘째 칸이라 8이에요. 번호표를 0, 1, 2, 3으로 먼저 그리면 쉬워요.",
+   "src": "따라가기 훈련 2단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[for 누적 곱] 다음 코드의 출력으로 올바른 것은?\n\np = 1\nfor i in range(1, 5):\n    p = p * i\nprint(p)",
+   "choices": [
+    "120",
+    "10",
+    "6",
+    "4",
+    "24"
+   ],
+   "answer": 4,
+   "explain": "range(1, 5)는 1, 2, 3, 4예요(5는 빠져요). p는 1에서 시작해 1×1=1, 1×2=2, 2×3=6, 6×4=24가 돼요. 120은 5까지 곱한다고 착각한 값이에요.",
+   "src": "따라가기 훈련 3단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[for와 if와 append] 다음 코드의 출력으로 올바른 것은?\n\nout = []\nfor v in [5, 1, 7, 3]:\n    if v > 3:\n        out.append(v - 3)\nprint(out)",
+   "choices": [
+    "[2, 4]",
+    "[5, 7]",
+    "[2, -2, 4, 0]",
+    "[4, 2]",
+    "[2]"
+   ],
+   "answer": 0,
+   "explain": "v가 3보다 클 때만 (v-3)을 덧붙여요. 5는 2, 1은 건너뜀, 7은 4, 3은 3보다 크지 않아서 건너뜀이라 [2, 4]예요. print는 반복이 끝난 뒤 한 번만 실행돼요.",
+   "src": "따라가기 훈련 3단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[함수 인자 순서] 다음 코드의 출력으로 올바른 것은?\n\ndef f(a, b):\n    return a - b\n\nprint(f(10, 3), f(3, 10))",
+   "choices": [
+    "7 7",
+    "7 -7",
+    "-7 7",
+    "7 -3",
+    "3 10"
+   ],
+   "answer": 1,
+   "explain": "값은 앞에서부터 순서대로 a, b에 들어가요. f(10, 3)은 a=10, b=3이라 7이고 f(3, 10)은 a=3, b=10이라 -7이에요. 순서를 바꾸면 결과도 달라져요.",
+   "src": "따라가기 훈련 4단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[print와 return] 다음 코드의 출력으로 올바른 것은? (※ 여러 줄이 출력되면 줄 사이를 / 로 표시했다)\n\ndef g(n):\n    print(n + 1)\n\nr = g(2)\nprint(r)",
+   "choices": [
+    "3 / 3",
+    "None / None",
+    "3",
+    "3 / None",
+    "에러가 난다"
+   ],
+   "answer": 3,
+   "explain": "g(2)를 부르면 안쪽 print가 3을 찍어요. 그런데 g에는 return이 없어서 돌려주는 값이 없고(None) r은 None이 돼요. 그래서 3, None 두 줄이에요.",
+   "src": "따라가기 훈련 4단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[텐서 숫자 하나와 범위] 다음 코드의 출력으로 올바른 것은?\n\nx = torch.arange(8).reshape(2, 4)\nprint(tuple(x[0].shape), tuple(x[:, :1].shape))",
+   "choices": [
+    "(2, 4) (2, 1)",
+    "(4,) (2,)",
+    "(4,) (2, 1)",
+    "(1, 4) (2, 1)",
+    "(4,) (1, 4)"
+   ],
+   "answer": 2,
+   "explain": "x는 2줄 × 4칸이에요. x[0]은 줄을 숫자 하나로 뽑아 줄 방향이 사라지고 (4,)가 돼요. x[:, :1]은 칸을 범위(:1)로 뽑아 1개짜리로 남아서 (2, 1)이에요.",
+   "src": "따라가기 훈련 5단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[reshape에서 -1] 다음 코드의 출력으로 올바른 것은?\n\nx = torch.arange(12).reshape(-1, 3)\nprint(tuple(x.shape), x[1, 0].item())",
+   "choices": [
+    "(4, 3) 3",
+    "(3, 4) 3",
+    "(4, 3) 1",
+    "(4, 3) 4",
+    "(12, 3) 3"
+   ],
+   "answer": 0,
+   "explain": "-1은 \"알아서 계산\"이에요. 12개를 한 줄에 3칸씩 놓으면 4줄이라 (4, 3)이에요. x[1, 0]은 1번 줄의 0번 칸인데 줄은 [0,1,2], [3,4,5], ...이라서 3이에요.",
+   "src": "따라가기 훈련 5단계"
+  },
+  {
+   "ch": "trace",
+   "type": "ox",
+   "q": "torch.arange(10).reshape(3, 4)는 에러가 난다.",
+   "answer": true,
+   "explain": "reshape는 숫자 개수가 그대로여야 해요. 3×4=12인데 arange(10)은 10개뿐이라 모양을 만들 수 없어서 에러가 나요.",
+   "src": "따라가기 훈련 5단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[Linear 출력 shape와 파라미터] 다음 코드의 출력으로 올바른 것은?\n\nfc = nn.Linear(6, 4)\nx = torch.ones(5, 6)\nprint(tuple(fc(x).shape), sum(p.numel() for p in fc.parameters()))",
+   "choices": [
+    "(5, 4) 24",
+    "(5, 6) 28",
+    "(6, 4) 28",
+    "(5, 4) 10",
+    "(5, 4) 28"
+   ],
+   "answer": 4,
+   "explain": "입력 (5, 6)에서 마지막 칸만 in=6이 out=4로 바뀌어 (5, 4)예요. 파라미터는 weight 6×4=24개에 bias 4개를 더한 28개예요. 24는 bias를 빼먹은 값이에요.",
+   "src": "따라가기 훈련 6단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[DataLoader 배치 개수와 마지막 배치] 다음 코드의 출력으로 올바른 것은?\n\nx = torch.arange(13)\ny = x * 2\nloader = DataLoader(TensorDataset(x, y), batch_size=4)\nfor bx, by in loader:\n    last = bx.tolist()\nprint(len(loader), last)",
+   "choices": [
+    "3 [12]",
+    "4 [12]",
+    "4 [8, 9, 10, 11]",
+    "4 [12, 13]",
+    "3 [8, 9, 10, 11]"
+   ],
+   "answer": 1,
+   "explain": "13개를 4개씩 끊으면 4, 4, 4, 1이라 배치는 올림해서 4개예요. 반복이 끝난 뒤 last는 마지막 배치이고, 마지막에 남은 1개가 번호 12예요.",
+   "src": "따라가기 훈련 7단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[drop_last=True] 다음 코드의 출력으로 올바른 것은?\n\nx = torch.arange(10)\ny = x * 3\nloader = DataLoader(TensorDataset(x, y), batch_size=4, drop_last=True)\nsizes = []\nfor bx, by in loader:\n    sizes.append(len(bx))\nprint(len(loader), sizes)",
+   "choices": [
+    "3 [4, 4, 2]",
+    "2 [4, 6]",
+    "3 [4, 4, 4]",
+    "2 [4, 4]",
+    "2 [4, 2]"
+   ],
+   "answer": 3,
+   "explain": "10개를 4개씩 끊으면 4, 4, 2인데 drop_last=True라서 모자란 마지막 2개는 버려요. 그래서 배치는 2개이고 sizes는 [4, 4]예요.",
+   "src": "따라가기 훈련 7단계"
+  },
+  {
+   "ch": "trace",
+   "type": "mc",
+   "q": "[학습 5줄 손계산] 다음 코드의 출력으로 올바른 것은?\n\nw = torch.tensor(2.0, requires_grad=True)\noptimizer = torch.optim.SGD([w], lr=0.25)\nfor step in range(2):\n    optimizer.zero_grad()\n    loss = (w - 6) ** 2\n    loss.backward()\n    optimizer.step()\nprint(w.item(), w.grad.item())",
+   "choices": [
+    "5.0 -2.0",
+    "4.0 -8.0",
+    "5.0 -4.0",
+    "5.0 0.0",
+    "6.0 -4.0"
+   ],
+   "answer": 2,
+   "explain": "기울기는 2×(w-6)이에요. 첫 바퀴 w=2에서 grad=-8, w=2-0.25×(-8)=4가 돼요. 둘째 바퀴 w=4에서 grad=-4, w=4-0.25×(-4)=5가 돼요. w.grad는 step 하기 전에 계산된 -4로 남아 있어서 5.0 -4.0이에요.",
+   "src": "따라가기 훈련 8단계"
   }
  ],
  "essay": [

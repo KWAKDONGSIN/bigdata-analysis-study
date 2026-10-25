@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko" data-site="264640">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>4단계. 함수 호출 — 넣으면 돌려주는 작은 기계 · 빅데이터분석 시험공부</title>
+<meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
+<link rel="stylesheet" href="assets/style.css?v=16d0174b">
+</head>
+<body>
+<header class="top"><div class="top-in">
+<a class="brand" href="index.html"><span class="bases"><i class="a">시</i><i class="t">험</i><i class="g">공</i><i class="c">부</i></span>빅데이터분석</a>
+<nav class="nav" aria-label="메뉴"><a href="plan.html">내 일정</a><a href="index.html" class=on>보드</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a><a href="research.html">왜 이렇게?</a></nav>
+</div></header>
+<main>
+<div class="crumb k1"><a href="index.html#c10">← 보드</a><span>코드 손으로 따라가기 훈련 · 4/9</span></div><h1>4단계. 함수 호출 — 넣으면 돌려주는 작은 기계</h1>
+<p><b><a class="w" href="words.html#w6" data-w="6">함수</a></b>(function)는 이름을 붙여 둔 작은 기계예요. <code>def 이름(재료):</code>로 기계를 <b>만들어 두기만</b> 하고, <code>이름(값)</code>처럼 <b>부를 때</b> 비로소 안쪽 줄이 실행돼요. 믹서기를 사 놓기만 하면 아무것도 갈리지 않는 것과 같아요.</p>
+<ul>
+<li>호출하면 값이 괄호 안 이름표(<b><a class="w" href="words.html#w7" data-w="7">매개변수</a></b>)에 순서대로 들어가요. <code>area(3, 4)</code>면 w=3, h=4예요.</li>
+<li><code>return 값</code>을 만나면 그 값이 호출한 자리로 돌아가 호출 부분을 대신해요. 그래서 <code>a = area(3, 4)</code>는 <code>a = 12</code>와 같아져요.</li>
+<li><code>y=1</code>처럼 = 이 붙은 이름은 <b><a class="w" href="words.html#w8" data-w="8">기본값</a></b>이에요. 호출할 때 값을 주지 않으면 이 값이 쓰여요.</li>
+</ul>
+<p><b>① 풀이 예시 — 같이 따라가요</b></p>
+<div class="code">def area(w, h):
+    return w * h
+
+a = area(3, 4)
+b = area(a, 2)
+print(a, b)</div>
+<div class="tw"><table>
+<tr><th>실행</th><th>하는 일</th><th>w, h</th><th>돌려준 값</th><th>a</th><th>b</th></tr>
+<tr><td>1~2줄</td><td><code>def</code> → 기계를 만들어 두기만 해요 (아직 실행 안 함)</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+<tr><td>4줄</td><td><code>area(3, 4)</code> 호출 → w=3, h=4, 3×4</td><td>3, 4</td><td>12</td><td>12</td><td>-</td></tr>
+<tr><td>5줄</td><td><code>area(a, 2)</code> 호출 → a는 지금 12라서 w=12, h=2, 12×2</td><td>12, 2</td><td>24</td><td>12</td><td>24</td></tr>
+<tr><td>6줄</td><td><code>print(a, b)</code></td><td>-</td><td>-</td><td>12</td><td>24</td></tr>
+</table></div>
+<div class="code">12 24</div>
+<p>화면에는 마지막 print의 <code>12 24</code> 한 줄만 나와요. 함수 안의 계산은 <a class="w" href="words.html#w9" data-w="9">return</a>으로 값을 돌려줄 뿐 화면에 찍지 않기 때문이에요.</p>
+<p><b>② 빈칸 풀이 — 가려진 칸을 직접 채워 보세요</b></p>
+<div class="code">def f(x, y=1):
+    return x * 10 + y
+
+print(f(2))
+print(f(2, 5))</div>
+<div class="tw"><table>
+<tr><th>호출</th><th>x</th><th>y</th><th>x×10+y</th><th>화면에 나온 것</th></tr>
+<tr><td><code>f(2)</code></td><td>2</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">1 (기본값)</p></details></td><td>2×10+1</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>21</code></p></details></td></tr>
+<tr><td><code>f(2, 5)</code></td><td>2</td><td>5</td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px">2×10+5</p></details></td><td><details class="check" style="margin:2px 0"><summary style="padding:4px 10px">?</summary><p style="padding:0 10px 6px"><code>25</code></p></details></td></tr>
+</table></div>
+<p><b>③ 혼자 풀기</b> — 화면에 나오는 두 줄을 적어 보세요. show 함수에 return이 있는지부터 보세요.</p>
+<div class="code">def show(n):
+    print(n * 2)
+
+r = show(4)
+print(r)</div>
+<details class="check"><summary>답 보기</summary><div class="code">8
+None</div>
+<p><code>show(4)</code>를 부르면 안쪽 print가 4×2=8을 화면에 찍어요(첫 줄). 그런데 show에는 return이 없어서 돌려주는 값이 없고, 이때 파이썬은 <b>None</b>(아무것도 없음)을 돌려줘요. 그래서 r은 None이고 두 번째 print가 <code>None</code>을 찍어요.</p></details>
+<div class="box exam"><span class="t">시험엔 이렇게 써요 — 이렇게 고르세요</span>
+<p>호출이 나오면 "누가 어떤 이름표에 들어가나"를 w, h 같은 열로 적고, 안쪽을 계산해 return 값을 호출 자리에 갈아 끼우세요. <code>print</code>는 화면에 찍기, <code>return</code>은 값을 돌려주기라서 둘은 다른 일이에요.</p>
+</div>
+<details class="check"><summary>잠깐 확인 — def만 쓰고 한 번도 부르지 않으면 함수 안쪽 줄이 실행되나요?</summary>
+<p>안 돼요. def는 만들어 두기만 해요. 이름(값)으로 호출해야 실행돼요.</p></details>
+<div class="recall"><b>덮고 10초 — 말해 보기</b><p>화면을 가리고 <b>"4단계. 함수 호출 — 넣으면 돌려주는 작은 기계"</b>을(를) 친구에게 설명하듯 한 문장으로 말해 보세요. 막히면 위의 빨간 칸만 다시 보고 넘어가요.</p></div><div class="done"><a class="go" href="c10-05.html">다음 카드 → 5단계. 텐서 shape 읽기 — 숫자 하나는 줄이고, 범위는 남겨요</a><div class="pn"><a href="c10-03.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c10"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 문제샘플.docx · Week02~05 노트북</p></div>
+</main>
+<script src="assets/words.js?v=16d0174b"></script>
+<script src="assets/app.js?v=16d0174b"></script>
+</body>
+</html>

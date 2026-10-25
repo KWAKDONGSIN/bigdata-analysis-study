@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>nn.Parameter — 학습할 값은 &quot;등록&quot;해야 해요 · 빅데이터분석 시험공부</title>
 <meta name="description" content="빅데이터분석 중간고사를 전공 처음인 사람도 이해하게 정리한 공부 사이트">
-<link rel="stylesheet" href="assets/style.css?v=c12fbd1e">
+<link rel="stylesheet" href="assets/style.css?v=16d0174b">
 </head>
 <body>
 <header class="top"><div class="top-in">
@@ -13,7 +13,7 @@
 <nav class="nav" aria-label="메뉴"><a href="plan.html">내 일정</a><a href="index.html" class=on>보드</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a><a href="research.html">왜 이렇게?</a></nav>
 </div></header>
 <main>
-<div class="crumb k5"><a href="index.html#c5">← 보드</a><span>nn.Module로 모델 만들기 · 5/8</span></div><h1>nn.Parameter — 학습할 값은 &quot;등록&quot;해야 해요</h1>
+<div class="crumb k6"><a href="index.html#c5">← 보드</a><span>nn.Module로 모델 만들기 · 5/8</span></div><h1>nn.Parameter — 학습할 값은 &quot;등록&quot;해야 해요</h1>
 <p>모델이 <a class="w" href="words.html#w135" data-w="135">학습</a>한다는 것은 W와 B 같은 숫자를 조금씩 고친다는 뜻이에요. 그러려면 모델이 "내가 고쳐야 할 숫자는 이것들이야"라고 알고 있어야 해요. 이 목록에 올리는 일을 <b>등록</b>이라고 해요.</p>
 <div class="box def"><span class="t">한 줄 정의</span>
 <p><code>nn.Parameter</code>로 감싼 <a class="w" href="words.html#w31" data-w="31">Tensor</a>를 모델의 <a class="w" href="words.html#w19" data-w="19">속성</a>(<code>self.이름</code>)에 붙이면 <b>학습할 <a class="w" href="words.html#w7" data-w="7">파라미터</a>로 자동 등록</b>돼요. 등록된 것은 <code>requires_grad=True</code>가 기본이고 <code>model.parameters()</code>에 나와요.</p>
@@ -49,7 +49,7 @@ print("등록된 이름:", [name for name, _ in model.named_parameters()])</div>
 
 <div class="recall"><b>덮고 10초 — 말해 보기</b><p>화면을 가리고 <b>"nn.Parameter — 학습할 값은 &quot;등록&quot;해야 해요"</b>을(를) 친구에게 설명하듯 한 문장으로 말해 보세요. 막히면 위의 빨간 칸만 다시 보고 넘어가요.</p></div><div class="done"><a class="go" href="c5-06.html">다음 카드 → 층 쌓기 — ReLU, nn.Sequential, 다층 모델</a><div class="pn"><a href="c5-04.html"><b>← 이전</b>이전 카드</a><a class="next" href="quiz.html#c5"><b>연습</b>이 장 문제 풀기</a></div><p class="muted small">자료: 3·6주차 · Week03_Class_for_PyTorch(업데이트), Week04_Autograd_Loss_Optimizer · 6주차 녹취(빅데이터06), 7주차 녹취(빅데이터07)</p></div>
 </main>
-<script src="assets/words.js?v=c12fbd1e"></script>
-<script src="assets/app.js?v=c12fbd1e"></script>
+<script src="assets/words.js?v=16d0174b"></script>
+<script src="assets/app.js?v=16d0174b"></script>
 </body>
 </html>
