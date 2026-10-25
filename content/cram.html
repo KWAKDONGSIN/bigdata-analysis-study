@@ -1,0 +1,135 @@
+<!-- 새벽 압축 암기장 — 시험 당일 2시간 동안 2번 훑는 초압축 페이지 (코드는 읽기만) -->
+<h1>새벽 압축 암기장</h1>
+<p class="lead">코드는 짜는 게 아니라 읽기만 해요. 이 페이지를 2번 훑고, 그다음 핵심 문제를 푸세요.</p>
+
+<div class="box exam"><span class="t">통째로 외울 2줄</span>
+<p><b>학습 5줄</b> — zero_grad → forward(예측) → loss → backward → step</p>
+<p><b>모델 클래스 틀</b> — nn.Module 상속 → super().__init__() → self에 층 등록 → forward → model(x)는 __call__을 거쳐 forward 실행</p></div>
+
+<h2>코드 읽기 규칙 10개</h2>
+<ol>
+<li>인덱스는 0부터 센다. <code>a[1:3]</code>은 1번, 2번만 (끝 번호 미포함).</li>
+<li>숫자로 뽑으면 차원이 사라지고(<code>x[:,1]</code> → (3,)), 범위로 뽑으면 남는다(<code>x[:,1:2]</code> → (3,1)).</li>
+<li>reshape는 원소 수의 곱이 같아야 한다. 12개는 (3,4), (4,3), (2,6)이 되고 (5,3)은 안 된다.</li>
+<li>shape 계산은 오른쪽 끝부터. 같거나, 하나가 1이거나, 한쪽에 없으면 브로드캐스팅 가능하다. <code>sum(dim=k)</code>는 k번 차원이 사라진다.</li>
+<li>nn.Linear(in, out)은 마지막 차원 in을 out으로 바꾸고 맨 앞 batch는 유지한다. 파라미터 수 = in×out + out.</li>
+<li>backward는 grad를 계산해 저장만 하고, 값을 바꾸는 건 step이다.</li>
+<li>grad는 덮어쓰기가 아니라 더하기로 쌓인다. 그래서 매번 zero_grad.</li>
+<li>DataLoader 배치 수 = 올림(샘플 수 ÷ batch). 마지막 batch 크기 = 나머지. 10개, batch 4면 [4,4,2].</li>
+<li>자식이 <code>__init__</code>을 다시 쓰면 부모 <code>__init__</code>은 자동 실행이 안 되니 <code>super().__init__()</code>이 필요하다.</li>
+<li>자식이 부모와 같은 이름의 메서드를 쓰면(오버라이딩) 자식 것만 실행된다. 보기에 "항상 · 자동으로"가 있으면 의심하라.</li>
+</ol>
+
+<h2>시험 단골 6유형 — 코드 → 답 → 이유</h2>
+
+<h3>1. 슬라이싱 shape</h3>
+<div class="code">x = torch.arange(12).reshape(3, 4)
+a = x[:, 1]
+b = x[:, 1:2]
+print(tuple(a.shape), tuple(b.shape))</div>
+<p><b>답</b> — (3,) 그리고 (3, 1)</p>
+<p><b>이유</b> — 숫자(1)로 뽑은 열 차원은 사라지고, 범위(1:2)로 뽑은 열 차원은 크기 1로 남는다. 행 3은 그대로.</p>
+
+<h3>2. 상속·오버라이딩 출력</h3>
+<div class="code">class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        print("동물이 소리를 냅니다.")
+
+class Dog(Animal):
+    def __init__(self, name, breed):
+        super().__init__(name)
+        self.breed = breed
+    def speak(self):
+        print(f"{self.name}가 멍멍 짖습니다.")
+
+Dog("Bori", "Poodle").speak()</div>
+<p><b>답</b> — Bori가 멍멍 짖습니다. (한 줄만)</p>
+<p><b>이유</b> — super().__init__(name)으로 name이 생기고, speak는 자식 것만 실행된다. super 줄을 빼면 AttributeError.</p>
+
+<h3>3. 모델 정의와 호출</h3>
+<div class="code">class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.fc = ____(A)____
+    def forward(self, x):
+        return ____(B)____
+
+y = MyModel()(torch.ones(4, 3))   # 입력 3 → 출력 2</div>
+<p><b>답</b> — (A) nn.Linear(3, 2), (B) self.fc(x). y의 shape은 (4, 2). model(x)는 __call__을 거쳐 forward 실행.</p>
+<p><b>이유</b> — Linear는 (입력, 출력) 순서. (B)에 self.fc만 쓰면 층만 돌려주고 계산이 안 된다. __init__은 만들 때 한 번만 돈다.</p>
+
+<h3>4. DataLoader 배치</h3>
+<div class="code">x = torch.arange(20, dtype=torch.float32).reshape(10, 2)
+y = x[:, 0:1] + 2 * x[:, 1:2] + 3
+loader = DataLoader(TensorDataset(x, y), batch_size=4,
+                    shuffle=False, drop_last=False)
+sizes = []
+for bx, by in loader:
+    sizes.append(len(bx))
+print(len(loader), sizes, by.flatten().tolist())</div>
+<p><b>답</b> — 3 [4, 4, 2] [53.0, 59.0]</p>
+<p><b>이유</b> — 10개를 4개씩 자르면 4, 4, 2. for가 끝난 뒤 by는 마지막 batch(16,17 → 53 / 18,19 → 59)의 정답이다.</p>
+
+<h3>5. 학습 함수의 역할</h3>
+<div class="code">optimizer.zero_grad()
+prediction = model(batch_x)
+loss = criterion(prediction, batch_y)
+loss.backward()
+optimizer.step()</div>
+<p><b>답</b> — "step()은 저장된 기울기를 이용해 파라미터를 갱신한다"</p>
+<p><b>이유</b> — zero_grad는 기울기만 지우고, backward는 기울기를 저장만 하고, step이 값을 고친다. 역할을 섞은 보기(backward가 값까지 갱신)는 오답.</p>
+
+<h3>6. gradient 손계산</h3>
+<div class="code">w = torch.tensor(2.0, requires_grad=True)
+x = torch.tensor(3.0)
+target = torch.tensor(10.0)
+pred = w * x
+loss = (pred - target) ** 2
+loss.backward()
+print(pred.item(), loss.item(), w.grad.item())</div>
+<p><b>답</b> — 6.0 16.0 -24.0</p>
+<p><b>이유</b> — pred = 2×3 = 6, loss = (6−10)² = 16, 미분 2(wx−t)·x = 2×(−4)×3 = −24. backward 후에도 w 값은 그대로.</p>
+
+<h2>단어 → 뜻 15개</h2>
+<div class="tw"><table>
+<tr><th>단어</th><th>뜻 (한 줄)</th></tr>
+<tr><td>tensor</td><td>숫자를 담는 다차원 배열. PyTorch의 기본 그릇</td></tr>
+<tr><td>shape</td><td>각 차원의 길이. (4, 3)은 4행 3열</td></tr>
+<tr><td>dtype</td><td>원소의 자료형. torch.int64, torch.float32 등</td></tr>
+<tr><td>device / cuda</td><td>텐서가 놓인 곳. cpu 또는 cuda(GPU). 모델과 데이터는 같은 device</td></tr>
+<tr><td>nn.Module</td><td>모든 PyTorch 모델의 부모 클래스. __init__과 forward만 만들면 됨</td></tr>
+<tr><td>forward</td><td>입력에서 예측값까지 계산하는 순전파. model(x)가 호출</td></tr>
+<tr><td>loss</td><td>예측과 정답의 차이를 숫자 하나로 요약한 값</td></tr>
+<tr><td>optimizer</td><td>grad로 weight를 고치는 도구 (SGD, Adam)</td></tr>
+<tr><td>lr</td><td>learning rate. 한 번에 weight를 얼마나 움직일지 정하는 값 (보통 아주 작게)</td></tr>
+<tr><td>backward</td><td>loss에서 거꾸로 gradient를 계산해 .grad에 저장 (값은 안 바꿈)</td></tr>
+<tr><td>grad</td><td>gradient(기울기). weight를 바꿀 때 loss가 변하는 방향과 정도</td></tr>
+<tr><td>zero_grad</td><td>누적된 grad를 지움. 학습 step의 첫 단계</td></tr>
+<tr><td>step</td><td>저장된 grad로 파라미터 값을 실제로 갱신. w ← w − lr × grad</td></tr>
+<tr><td>Dataset</td><td>샘플을 번호로 꺼내는 데이터 모음. __len__과 __getitem__</td></tr>
+<tr><td>DataLoader / batch / epoch</td><td>Dataset을 batch_size개씩 묶어 주는 도구 / 한 번에 처리하는 샘플 묶음 / 데이터 전체를 한 번 쓴 것</td></tr>
+</table></div>
+
+<h2>가리고 맞히기 15</h2>
+<details class="check"><summary>x = [[1,2,3],[4,5,6]]일 때 x.sum(dim=0)과 x.sum(dim=1)은?</summary><p>[5, 7, 9] 그리고 [6, 15]. dim=0은 위아래로 합쳐 열마다, dim=1은 좌우로 합쳐 행마다.</p></details>
+<details class="check"><summary>(4, 1) + (1, 5)의 shape은?</summary><p>(4, 5). 1인 쪽이 늘어난다.</p></details>
+<details class="check"><summary>(2, 3) + (2,)는?<br>(2, 3) + (3,)는?</summary><p>앞은 불가(오른쪽 끝 3과 2가 다르고 1도 아님), 뒤는 가능해서 (2, 3).</p></details>
+<details class="check"><summary>(5, 1, 4) + (3, 1)의 shape은?</summary><p>(5, 3, 4). 오른쪽부터 4와 1, 1과 3이 가능하고 5는 짝이 없어 그대로.</p></details>
+<details class="check"><summary>x가 (3, 4)일 때 x[1:, :2]의 shape은?</summary><p>(2, 2). 1번 행부터 끝까지 2개, 앞의 2열.</p></details>
+<details class="check"><summary>nn.Linear(3, 2)의 파라미터 수는?<br>nn.Linear(5, 3)은?</summary><p>8개(3×2+2), 18개(5×3+3).</p></details>
+<details class="check"><summary>입력 (4, 3)을 nn.Linear(3, 2)에 넣으면 출력 shape은?</summary><p>(4, 2). 마지막 차원만 in에서 out으로 바뀌고 batch 4는 유지.</p></details>
+<details class="check"><summary>w=0.7, grad=−2, lr=1이면 step 후 w는?</summary><p>2.7. 0.7 − (1 × −2) = 2.7.</p></details>
+<details class="check"><summary>w=3, L=w²이면 w.grad는?</summary><p>6. 2w = 6.</p></details>
+<details class="check"><summary>v=2.0에서<br>(v**2).backward() 후 (v**3).backward()를 zero_grad 없이 하면 v.grad는?</summary><p>16.0. 첫 번째 4에 두 번째 12가 더해진다(누적).</p></details>
+<details class="check"><summary>샘플 10개, batch_size=4, drop_last=True이면 배치 크기는?</summary><p>[4, 4]. 남은 2개는 버린다. drop_last=False면 [4, 4, 2].</p></details>
+<details class="check"><summary>샘플 90개, batch 20, 30 epoch이면 전체 step은?</summary><p>150. batch 수 = 올림(90÷20) = 5, 5 × 30 = 150.</p></details>
+<details class="check"><summary>batch 크기 4, 4, 2의 loss가 3.0, 3.0, 6.0이면 epoch 평균 loss는?</summary><p>3.6. (3×4 + 3×4 + 6×2) ÷ 10. 그냥 평균 4.0은 틀림.</p></details>
+<details class="check"><summary>prediction (3, 1)과 target (3,)을 그대로 MSELoss에 넣으면?</summary><p>에러가 아니라 3×3으로 브로드캐스팅되어 틀린 값이 나온다. target.reshape(-1, 1)로 맞춰야 한다.</p></details>
+<details class="check"><summary>x.to(device)만 쓰고 저장하지 않으면 x는 어디에 있나?</summary><p>원래 있던 곳(CPU). x = x.to(device)처럼 다시 저장해야 옮겨진다.</p></details>
+
+<div class="box pro"><span class="t">시험장 전략</span>
+<p>코드 문제는 여백에 표를 그리고 한 줄씩 따라가며 변수 값을 적으세요. 눈으로만 풀면 틀려요.</p>
+<p>shape 문제는 계산하기 전에 숫자부터 적으세요. 예를 들어 (3,4) → x[:,1] → (3,).</p>
+<p>모르면 "항상 · 자동으로 · 아무것도 안 한다"가 들어간 보기부터 지워서 두 개까지 줄이고 찍으세요.</p></div>
