@@ -13,25 +13,90 @@
 <nav class="nav" aria-label="메뉴"><a href="cram.html" class=on>새벽 암기</a><a href="plan.html">내 일정</a><a href="index.html">보드</a><a href="bplus.html">B+코스</a><a href="quiz.html">퀴즈</a><a href="essay.html">서술형</a><a href="cards.html">암기카드</a><a href="words.html">낱말사전</a><a href="cheat.html">시험 전 1장</a><a href="research.html">왜 이렇게?</a></nav>
 </div></header>
 <main>
+<h2>시험 직전 20분 — 샘플 5문제로 끝내기</h2>
+<p>실제 시험도 이 5문제와 같은 <a class="w" href="words.html#w35" data-w="35">모양</a>(5지선다, 코드 보고 고르기)이에요. 숫자가 바뀌어도 풀 수 있게 <b>오답 지우는 법</b>까지 외우세요. 한 문제에 4분씩이에요.</p>
+
+<div class="box exam"><span class="t">코드 읽는 법 3개 (1분)</span>
+<p><b>=</b> 은 이름표 붙이기 (<b>a = 5</b> → a는 5) · <b>( )</b> 는 일 시키기 (<b>print(a)</b> → 화면에 보여 줘) · <b>.</b> 은 "~의" (<b><a class="w" href="words.html#w99" data-w="99">loss</a>.<a class="w" href="words.html#w86" data-w="86">backward()</a></b> → loss의 backward 실행)</p></div>
+
+<h3>1번 shape → 정답 ② (3,) / (3, 1)</h3>
+<p>x = <a class="w" href="words.html#w41" data-w="41">torch.arange</a>(12).<a class="w" href="words.html#w45" data-w="45">reshape</a>(3, 4) → <b>3줄 4칸 엑셀 표</b>예요.</p>
+<ul>
+<li><b>x[:, 1]</b> → ":"는 전부, "1"은 1번 칸. 1번 칸을 <b>숫자 하나로</b> 꺼내면 칸이 사라져요 → <b>(3,)</b></li>
+<li><b>x[:, 1:2]</b> → 1번 칸을 <b>범위로</b> 자르면 칸이 남아요 → <b>(3, 1)</b></li>
+</ul>
+<div class="box exam"><span class="t">외우기</span><p>숫자로 꺼내면 사라지고, <b>:</b> 범위로 자르면 남는다. 앞 숫자(줄 수 3)는 항상 그대로다. 컴퓨터는 0부터 센다.</p></div>
+<p class="small">오답 — ④ (4,)는 줄 수가 틀림, ③ (1, 3)은 순서가 뒤집힘, ①⑤는 둘이 같다고 함.</p>
+
+<h3>2번 상속 → 정답 ④</h3>
+<p>Animal(엄마) 레시피를 Dog(딸)가 물려받고, 딸이 speak를 <b>자기 걸로 고쳐 썼어요</b>(<a class="w" href="words.html#w26" data-w="26">오버라이딩</a>). 그래서 dog.speak() → <b>"Bori가 멍멍 짖습니다." 한 줄만</b>. <a class="w" href="words.html#w27" data-w="27">super()</a>.<a class="w" href="words.html#w22" data-w="22">__init__</a>(name)은 "엄마 준비도 해 줘" → 그래서 이름(Bori)이 생겨요.</p>
+<div class="box exam"><span class="t">정답 ④</span><p>super().__init__(name)은 <a class="w" href="words.html#w24" data-w="24">부모</a>의 <a class="w" href="words.html#w137" data-w="137">초기화</a> <a class="w" href="words.html#w20" data-w="20">메서드</a>를 실행하며, dog.speak()은 <a class="w" href="words.html#w25" data-w="25">자식</a>이 재정의한 메서드를 실행한다.</p></div>
+<ul class="small">
+<li>① 부모와 자식 speak를 <b>차례로</b> → 틀림, 자식 것 하나만</li>
+<li>② 부모 __init__이 <b>항상 자동으로</b> → 틀림, 그래서 super()를 직접 씀</li>
+<li>③ 부모 speak를 <b>더 이상 호출할 수 없다</b> → 말이 너무 셈</li>
+<li>⑤ Animal을 <b>따로</b> 만들어야 → 물려받았으니 필요 없음</li>
+</ul>
+
+<h3>3번 모델 빈칸 → 정답 ⑤</h3>
+<p>입력 3개 → 출력 2개짜리 계산기를 다는 문제예요. x는 (4, 3) = 4명의 3과목 점수, 결과는 (4, 2).</p>
+<div class="tw"><table><tr><th></th><th>(A)</th><th>(B)</th><th>model(x) 호출 과정</th></tr>
+<tr><td><b>⑤</b></td><td><b><a class="w" href="words.html#w67" data-w="67">nn.Linear</a>(3, 2)</b></td><td><b><a class="w" href="words.html#w21" data-w="21">self</a>.<a class="w" href="words.html#w81" data-w="81">fc</a>(x)</b></td><td><b><a class="w" href="words.html#w28" data-w="28">__call__</a> 거쳐 <a class="w" href="words.html#w70" data-w="70">forward</a> 실행</b></td></tr></table></div>
+<ul class="small">
+<li>(A) Linear(<b>들어감, 나감</b>) = (3, 2). ①(2,3)은 거꾸로, ④(4,2)는 사람 수를 넣음</li>
+<li>(B) 계산하려면 <b>(x)를 넣어야</b> 함. ③ self.fc는 계산기만 꺼내고 숫자를 안 넣음</li>
+<li>호출 과정 — <a class="w" href="words.html#w71" data-w="71">model(x)</a>는 <b>forward</b> 실행. ②④ "__init__을 다시 실행"은 틀림 (__init__은 처음 만들 때 한 번만)</li>
+</ul>
+<div class="box exam"><span class="t">외우기</span><p>세 칸 모두 "(3, 2) · (x) 붙음 · forward"인 보기를 고른다.</p></div>
+
+<h3>4번 DataLoader → 정답 ③ 10 3 / [4, 4, 2] / [53.0, 59.0]</h3>
+<p>문제 10개를 4개씩 나눠 주는 선생님이에요. → <b>4개, 4개, 2개</b> → 묶음 <b>3개</b>. 마지막 묶음은 2개뿐이라 마지막 값도 <b>2개</b> → [53.0, 59.0].</p>
+<ul class="small">
+<li>① [4, 4] → 남은 2개를 버림 (<a class="w" href="words.html#w124" data-w="124">drop_last</a>=False라 안 버림)</li>
+<li>② [4, 4, 4] → 합이 12, 데이터는 10개</li>
+<li>④ 20 → 데이터는 10줄 (20은 숫자 개수)</li>
+<li>⑤ [16.0, 18.0] → <a class="w" href="words.html#w101" data-w="101">정답</a> y가 아니라 입력 x 값</li>
+</ul>
+<div class="box exam"><span class="t">외우기</span><p>묶음 수 = 개수 ÷ <a class="w" href="words.html#w114" data-w="114">batch</a>를 올림(10 ÷ 4 = 2.5 → 3). 마지막 묶음 크기 = 나머지(2) = 마지막 값 개수.</p></div>
+
+<h3>5번 학습 5줄 → 정답 ①</h3>
+<p>학생(model)이 문제집 푸는 순서예요.</p>
+<div class="tw"><table><tr><th>코드</th><th>하는 일 (딱 하나)</th></tr>
+<tr><td><a class="w" href="words.html#w105" data-w="105">optimizer</a>.<a class="w" href="words.html#w92" data-w="92">zero_grad()</a></td><td>지난번 빨간펜 메모(<a class="w" href="words.html#w83" data-w="83">기울기</a>) <b>지우기</b></td></tr>
+<tr><td>model(batch_x)</td><td>학생이 문제 <b>풀기</b>(예측)</td></tr>
+<tr><td><a class="w" href="words.html#w103" data-w="103">criterion</a>(...)</td><td><b>채점</b>(loss)</td></tr>
+<tr><td>loss.backward()</td><td>고칠 방향을 <b>메모만</b>(기울기 계산·저장). 값은 안 바꿈</td></tr>
+<tr><td><a class="w" href="words.html#w108" data-w="108">optimizer.step</a>()</td><td>메모를 보고 <b>진짜로 고침</b>(<a class="w" href="words.html#w7" data-w="7">파라미터</a> 갱신)</td></tr></table></div>
+<div class="box exam"><span class="t">정답 ①</span><p>optimizer.step()은 저장된 기울기를 이용해 옵티마이저에 전달된 파라미터를 갱신한다.</p></div>
+<p class="small">오답은 전부 <b>한 줄이 일을 두 개</b> 한다고 씀 — ② backward가 갱신까지, ③ zero_grad가 파라미터를 0으로, ④ criterion이 기울기 초기화까지, ⑤ step이 기울기 계산하고 자동 초기화까지.</p>
+
+<h2>시험장 3원칙</h2>
+<div class="box exam"><span class="t">이것만 지키기</span>
+<p>1. "항상 · 자동으로 · 차례로 · 더 이상 ~할 수 없다"가 있는 보기는 지운다.</p>
+<p>2. 한 줄이 두 가지 일을 한다고 하면 지운다. (backward는 계산, step은 갱신)</p>
+<p>3. 표 보기는 칸마다 하나씩 따져서 지운다. 빈칸은 절대 남기지 않는다.</p></div>
+<p><a class="w" href="words.html#w113" data-w="113">샘플</a> 정답 순서 — <b>② ④ ⑤ ③ ①</b></p>
+<hr>
+<!-- 새벽 압축 암기장 — 시험 당일 2시간 동안 2번 훑는 초압축 페이지 (코드는 읽기만) -->
 <h1>새벽 압축 암기장</h1>
 <p class="lead">코드는 짜는 게 아니라 읽기만 해요. 이 페이지를 2번 훑고, 그다음 핵심 문제를 푸세요.</p>
 
 <div class="box exam"><span class="t">통째로 외울 2줄</span>
-<p><b><a class="w" href="words.html#w135" data-w="135">학습</a> 5줄</b> — <a class="w" href="words.html#w92" data-w="92">zero_grad</a> → <a class="w" href="words.html#w70" data-w="70">forward</a>(예측) → <a class="w" href="words.html#w99" data-w="99">loss</a> → <a class="w" href="words.html#w86" data-w="86">backward</a> → <a class="w" href="words.html#w108" data-w="108">step</a></p>
-<p><b>모델 <a class="w" href="words.html#w17" data-w="17">클래스</a> 틀</b> — <a class="w" href="words.html#w66" data-w="66">nn.Module</a> <a class="w" href="words.html#w23" data-w="23">상속</a> → <a class="w" href="words.html#w27" data-w="27">super().__init__()</a> → <a class="w" href="words.html#w21" data-w="21">self</a>에 층 등록 → forward → <a class="w" href="words.html#w71" data-w="71">model(x)</a>는 <a class="w" href="words.html#w28" data-w="28">__call__</a>을 거쳐 forward 실행</p></div>
+<p><b><a class="w" href="words.html#w135" data-w="135">학습</a> 5줄</b> — zero_grad → forward(예측) → loss → backward → step</p>
+<p><b>모델 <a class="w" href="words.html#w17" data-w="17">클래스</a> 틀</b> — <a class="w" href="words.html#w66" data-w="66">nn.Module</a> <a class="w" href="words.html#w23" data-w="23">상속</a> → super().__init__() → self에 층 등록 → forward → model(x)는 __call__을 거쳐 forward 실행</p></div>
 
 <h2>코드 읽기 규칙 10개</h2>
 <ol>
 <li><a class="w" href="words.html#w2" data-w="2">인덱스</a>는 0부터 센다. <code>a[1:3]</code>은 1번, 2번만 (끝 번호 미포함).</li>
 <li>숫자로 뽑으면 차원이 사라지고(<code>x[:,1]</code> → (3,)), 범위로 뽑으면 남는다(<code>x[:,1:2]</code> → (3,1)).</li>
-<li><a class="w" href="words.html#w45" data-w="45">reshape</a>는 <a class="w" href="words.html#w39" data-w="39">원소 수</a>의 곱이 같아야 한다. 12개는 (3,4), (4,3), (2,6)이 되고 (5,3)은 안 된다.</li>
-<li><a class="w" href="words.html#w35" data-w="35">shape</a> 계산은 오른쪽 끝부터. 같거나, 하나가 1이거나, 한쪽에 없으면 <a class="w" href="words.html#w50" data-w="50">브로드캐스팅</a> 가능하다. <code>sum(dim=k)</code>는 k번 차원이 사라진다.</li>
-<li><a class="w" href="words.html#w67" data-w="67">nn.Linear</a>(in, out)은 마지막 차원 in을 out으로 바꾸고 맨 앞 <a class="w" href="words.html#w114" data-w="114">batch</a>는 유지한다. <a class="w" href="words.html#w7" data-w="7">파라미터</a> 수 = in×out + out.</li>
-<li>backward는 <a class="w" href="words.html#w83" data-w="83">grad</a>를 계산해 저장만 하고, 값을 바꾸는 건 step이다.</li>
+<li>reshape는 <a class="w" href="words.html#w39" data-w="39">원소 수</a>의 곱이 같아야 한다. 12개는 (3,4), (4,3), (2,6)이 되고 (5,3)은 안 된다.</li>
+<li>shape 계산은 오른쪽 끝부터. 같거나, 하나가 1이거나, 한쪽에 없으면 <a class="w" href="words.html#w50" data-w="50">브로드캐스팅</a> 가능하다. <code>sum(dim=k)</code>는 k번 차원이 사라진다.</li>
+<li>nn.Linear(in, out)은 마지막 차원 in을 out으로 바꾸고 맨 앞 batch는 유지한다. 파라미터 수 = in×out + out.</li>
+<li>backward는 grad를 계산해 저장만 하고, 값을 바꾸는 건 step이다.</li>
 <li>grad는 덮어쓰기가 아니라 더하기로 쌓인다. 그래서 매번 zero_grad.</li>
-<li><a class="w" href="words.html#w122" data-w="122">DataLoader</a> 배치 수 = 올림(<a class="w" href="words.html#w113" data-w="113">샘플</a> 수 ÷ batch). 마지막 batch 크기 = 나머지. 10개, batch 4면 [4,4,2].</li>
-<li><a class="w" href="words.html#w25" data-w="25">자식</a>이 <code>__init__</code>을 다시 쓰면 <a class="w" href="words.html#w24" data-w="24">부모</a> <code>__init__</code>은 자동 실행이 안 되니 <code>super().__init__()</code>이 필요하다.</li>
-<li>자식이 부모와 같은 이름의 <a class="w" href="words.html#w20" data-w="20">메서드</a>를 쓰면(<a class="w" href="words.html#w26" data-w="26">오버라이딩</a>) 자식 것만 실행된다. 보기에 "항상 · 자동으로"가 있으면 의심하라.</li>
+<li><a class="w" href="words.html#w122" data-w="122">DataLoader</a> 배치 수 = 올림(샘플 수 ÷ batch). 마지막 batch 크기 = 나머지. 10개, batch 4면 [4,4,2].</li>
+<li>자식이 <code>__init__</code>을 다시 쓰면 부모 <code>__init__</code>은 자동 실행이 안 되니 <code>super().__init__()</code>이 필요하다.</li>
+<li>자식이 부모와 같은 이름의 메서드를 쓰면(오버라이딩) 자식 것만 실행된다. 보기에 "항상 · 자동으로"가 있으면 의심하라.</li>
 </ol>
 
 <h2>시험 단골 6유형 — 코드 → 답 → 이유</h2>
@@ -60,7 +125,7 @@ class Dog(Animal):
 
 Dog("Bori", "Poodle").speak()</div>
 <p><b>답</b> — Bori가 멍멍 짖습니다. (한 줄만)</p>
-<p><b>이유</b> — super().<a class="w" href="words.html#w22" data-w="22">__init__</a>(name)으로 name이 생기고, speak는 자식 것만 실행된다. super 줄을 빼면 AttributeError.</p>
+<p><b>이유</b> — super().__init__(name)으로 name이 생기고, speak는 자식 것만 실행된다. super 줄을 빼면 AttributeError.</p>
 
 <h3>3. 모델 정의와 호출</h3>
 <div class="code">class MyModel(nn.Module):
@@ -71,7 +136,7 @@ Dog("Bori", "Poodle").speak()</div>
         return ____(B)____
 
 y = MyModel()(torch.ones(4, 3))   # 입력 3 → 출력 2</div>
-<p><b>답</b> — (A) nn.Linear(3, 2), (B) self.<a class="w" href="words.html#w81" data-w="81">fc</a>(x). y의 shape은 (4, 2). model(x)는 __call__을 거쳐 forward 실행.</p>
+<p><b>답</b> — (A) nn.Linear(3, 2), (B) self.fc(x). y의 shape은 (4, 2). model(x)는 __call__을 거쳐 forward 실행.</p>
 <p><b>이유</b> — Linear는 (입력, 출력) 순서. (B)에 self.fc만 쓰면 층만 돌려주고 계산이 안 된다. __init__은 만들 때 한 번만 돈다.</p>
 
 <h3>4. DataLoader 배치</h3>
@@ -84,7 +149,7 @@ for bx, by in loader:
     sizes.append(len(bx))
 print(len(loader), sizes, by.flatten().tolist())</div>
 <p><b>답</b> — 3 [4, 4, 2] [53.0, 59.0]</p>
-<p><b>이유</b> — 10개를 4개씩 자르면 4, 4, 2. <a class="w" href="words.html#w4" data-w="4">for</a>가 끝난 뒤 by는 마지막 batch(16,17 → 53 / 18,19 → 59)의 <a class="w" href="words.html#w101" data-w="101">정답</a>이다.</p>
+<p><b>이유</b> — 10개를 4개씩 자르면 4, 4, 2. <a class="w" href="words.html#w4" data-w="4">for</a>가 끝난 뒤 by는 마지막 batch(16,17 → 53 / 18,19 → 59)의 정답이다.</p>
 
 <h3>5. 학습 함수의 역할</h3>
 <div class="code">optimizer.zero_grad()
@@ -116,7 +181,7 @@ print(pred.item(), loss.item(), w.grad.item())</div>
 <tr><td>nn.Module</td><td>모든 PyTorch 모델의 부모 클래스. __init__과 forward만 만들면 됨</td></tr>
 <tr><td>forward</td><td>입력에서 예측값까지 계산하는 순전파. model(x)가 호출</td></tr>
 <tr><td>loss</td><td>예측과 정답의 차이를 숫자 하나로 요약한 값</td></tr>
-<tr><td><a class="w" href="words.html#w105" data-w="105">optimizer</a></td><td>grad로 <a class="w" href="words.html#w68" data-w="68">weight</a>를 고치는 도구 (<a class="w" href="words.html#w106" data-w="106">SGD</a>, <a class="w" href="words.html#w107" data-w="107">Adam</a>)</td></tr>
+<tr><td>optimizer</td><td>grad로 <a class="w" href="words.html#w68" data-w="68">weight</a>를 고치는 도구 (<a class="w" href="words.html#w106" data-w="106">SGD</a>, <a class="w" href="words.html#w107" data-w="107">Adam</a>)</td></tr>
 <tr><td><a class="w" href="words.html#w97" data-w="97">lr</a></td><td>learning rate. 한 번에 weight를 얼마나 움직일지 정하는 값 (보통 아주 작게)</td></tr>
 <tr><td>backward</td><td>loss에서 거꾸로 gradient를 계산해 <a class="w" href="words.html#w90" data-w="90">.grad</a>에 저장 (값은 안 바꿈)</td></tr>
 <tr><td>grad</td><td>gradient(기울기). weight를 바꿀 때 loss가 변하는 방향과 정도</td></tr>
@@ -137,7 +202,7 @@ print(pred.item(), loss.item(), w.grad.item())</div>
 <details class="check"><summary>w=0.7, grad=−2, lr=1이면 step 후 w는?</summary><p>2.7. 0.7 − (1 × −2) = 2.7.</p></details>
 <details class="check"><summary>w=3, L=w²이면 w.grad는?</summary><p>6. 2w = 6.</p></details>
 <details class="check"><summary>v=2.0에서<br>(v**2).backward() 후 (v**3).backward()를 zero_grad 없이 하면 v.grad는?</summary><p>16.0. 첫 번째 4에 두 번째 12가 더해진다(누적).</p></details>
-<details class="check"><summary>샘플 10개, batch_size=4, drop_last=True이면 배치 크기는?</summary><p>[4, 4]. 남은 2개는 버린다. <a class="w" href="words.html#w124" data-w="124">drop_last</a>=False면 [4, 4, 2].</p></details>
+<details class="check"><summary>샘플 10개, batch_size=4, drop_last=True이면 배치 크기는?</summary><p>[4, 4]. 남은 2개는 버린다. drop_last=False면 [4, 4, 2].</p></details>
 <details class="check"><summary>샘플 90개, batch 20, 30 epoch이면 전체 step은?</summary><p>150. batch 수 = 올림(90÷20) = 5, 5 × 30 = 150.</p></details>
 <details class="check"><summary>batch 크기 4, 4, 2의 loss가 3.0, 3.0, 6.0이면 epoch 평균 loss는?</summary><p>3.6. (3×4 + 3×4 + 6×2) ÷ 10. 그냥 평균 4.0은 틀림.</p></details>
 <details class="check"><summary>prediction (3, 1)과 target (3,)을 그대로 MSELoss에 넣으면?</summary><p><a class="w" href="words.html#w14" data-w="14">에러</a>가 아니라 3×3으로 브로드캐스팅되어 틀린 값이 나온다. target.reshape(-1, 1)로 맞춰야 한다.</p></details>
